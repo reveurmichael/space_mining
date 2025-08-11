@@ -85,19 +85,6 @@ Medium Difficulty: The environment presents a balanced challenge with:
 - **Complex Environment**: Includes energy management, partial observability (limited observation radius), continuous action spaces, and dynamic obstacles.
 - **Visualization Tools**: Scripts to render episodes and generate GIFs for performance analysis.
 
-## What’s Included
-
-- `space_mining/`: Python package with the environment, agents, and scripts
-  - `envs/`: core environment and rendering
-  - `agents/`: PPO training helper and agent wrapper
-  - `scripts/`: CLI utilities (rendering, GIF generation)
-- `examples/`: ready-to-run scripts
-  - `01_quickstart_random_agent.py`: run the environment with random actions
-  - `02_train_ppo.py`: train PPO and save checkpoints
-  - `03_generate_gif.py`: create a GIF from a trained checkpoint
-- `docs/`: comprehensive guides (installation, tips, SB3, examples)
-- `tests/`: unit tests for fast validation
-
 ## Installation
 
 ### From Source (Recommended for Development)
@@ -132,8 +119,6 @@ For detailed installation instructions and troubleshooting, see [Installation Gu
 
 ## Getting Started
 
-- Reproducibility and CI pipelines: see [Reproducibility Guide](docs/reproducibility.md).
-
 - Run the quickstart example:
   ```bash
   python examples/01_quickstart_random_agent.py
@@ -163,7 +148,6 @@ For detailed installation instructions and troubleshooting, see [Installation Gu
   # or, after downloading from HF to a local file path
   python -m space_mining.scripts.make_gif --checkpoint path/to/final_model.zip --output output_gif/agent.gif
   ```
-
 
 ## Authors
 
