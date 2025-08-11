@@ -1,0 +1,187 @@
+name: Long Training to W&B + HF
+
+on:
+  workflow_dispatch:
+    inputs:
+      total_timesteps:
+        description: "Number of timesteps to train"
+        required: false
+        default: "10000000"
+      checkpoint_freq:
+        description: "Checkpoint save frequency"
+        required: false
+        default: "100000"
+      eval_freq:
+        description: "Evaluation frequency"
+        required: false
+        default: "200000"
+      run_name:
+        description: "Run name"
+        required: false
+        default: "long-train"
+
+concurrency:
+  group: train-long-wandb-hf
+  cancel-in-progress: false
+
+jobs:
+  train:
+    runs-on: ubuntu-latest
+    timeout-minutes: 1440
+    env:
+      WANDB_API_KEY: ${{ secrets.WANDB_API_KEY }}
+      WANDB_ENTITY: lundechen-shanghai-university
+      WANDB_PROJECT: space-mining-ppo
+      HF_TOKEN: ${{ secrets.HF_TOKEN }}
+      PYTHONUNBUFFERED: "1"
+    steps:
+      - name: Check required secrets/vars
+        if: ${{ env.WANDB_API_KEY == '' || env.WANDB_ENTITY == '' || env.WANDB_PROJECT == '' || env.HF_TOKEN == '' }}
+        run: |
+          echo "WANDB_API_KEY, WANDB_ENTITY, WANDB_PROJECT, and HF_TOKEN must be configured." >&2
+          exit 1
+
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install space-mining wandb huggingface_hub pillow tensorboard
+
+      - name: Train on CPU with checkpoints and eval
+        run: |
+          set -euo pipefail
+          python -m space_mining.agents.train_ppo \
+            --total-timesteps ${{ inputs.total_timesteps }} \
+            --output-dir runs/ppo \
+            --device cpu \
+            --checkpoint-freq ${{ inputs.checkpoint_freq }} \
+            --eval-freq ${{ inputs.eval_freq }}
+
+      - name: Sync TensorBoard logs to W&B
+        run: |
+          wandb sync --entity "$WANDB_ENTITY" --project "$WANDB_PROJECT" runs/ppo/tensorboard_logs || true
+
+      - name: Choose best or final model
+        id: choose_model
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -f runs/ppo/best_model/best_model.zip ]; then
+            echo "path=runs/ppo/best_model/best_model.zip" >> $GITHUB_OUTPUT
+          else
+            echo "path=runs/ppo/final_model.zip" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Generate GIF
+        run: |
+          set -euo pipefail
+          python space_mining/scripts/make_gif.py \
+            --checkpoint ${{ steps.choose_model.outputs.path }} \
+            --output output_gif/agent_long.gif \
+            --steps 800 \
+            --fps 20 \
+            --device cpu
+
+      - name: Evaluate model and write metrics
+        run: |
+          python - <<'PY'
+          from space_mining.agents.train_ppo import evaluate_trained_ppo
+          metrics = evaluate_trained_ppo(
+              checkpoint_path='${{ steps.choose_model.outputs.path }}',
+              num_episodes=10,
+              device='cpu',
+              render_mode=None,
+              evaluation_json_path='evaluation.json',
+          )
+          print(metrics)
+          PY
+
+      - name: Generate README.md with metrics
+        run: |
+          python - <<'PY'
+          import json, io
+          from pathlib import Path
+          tpl = Path('hf_model_card_template.md').read_text(encoding='utf-8') if Path('hf_model_card_template.md').exists() else ''
+          try:
+              m = json.loads(Path('evaluation.json').read_text(encoding='utf-8'))
+              mean = m.get('mean_reward', 'TBD')
+              std = m.get('std_reward', 'TBD')
+              ep = m.get('episodes', 'TBD')
+          except Exception:
+              mean = std = ep = 'TBD'
+          if tpl:
+              tpl = tpl.replace('| mean_reward   | TBD   |', f'| mean_reward   | {mean} |')
+              tpl = tpl.replace('| std_reward    | TBD   |', f'| std_reward    | {std} |')
+              tpl = tpl.replace('| episodes      | TBD   |', f'| episodes      | {ep} |')
+              Path('README.md').write_text(tpl, encoding='utf-8')
+          PY
+
+      - name: Upload GIF as GitHub artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent-gif-long
+          path: output_gif/agent_long.gif
+          retention-days: 14
+
+      - name: Upload model(s) and GIF to W&B as artifacts
+        env:
+          RUN_NAME: space-mining-${{ github.run_id }}-${{ inputs.run_name }}
+        run: |
+          python - <<'PY'
+          import os, wandb
+          entity = os.environ["WANDB_ENTITY"]
+          project = os.environ["WANDB_PROJECT"]
+          run = wandb.init(project=project, entity=entity, job_type="long-train-report", name=os.environ.get("RUN_NAME"))
+          art = wandb.Artifact("models-and-gif", type="bundle")
+          for p in ["runs/ppo/final_model.zip", "runs/ppo/best_model/best_model.zip", "output_gif/agent_long.gif", "hyperparams.json", "env_config.json", "training_args.json", "evaluation.json", "README.md"]:
+            if os.path.exists(p):
+              art.add_file(p)
+          run.log_artifact(art)
+          run.finish()
+          PY
+
+      - name: Push to Hugging Face Hub (LUNDECHEN/space-mining-ppo)
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          python - <<'PY'
+          import os
+          from huggingface_hub import HfApi, create_repo, upload_file
+
+          token = os.environ["HF_TOKEN"]
+          repo_id = "LUNDECHEN/space-mining-ppo"
+
+          api = HfApi()
+          try:
+            create_repo(repo_id, token=token, exist_ok=True)
+          except Exception:
+            pass
+
+          def maybe_upload(path, repo_path):
+            if os.path.exists(path):
+              upload_file(
+                path_or_fileobj=path,
+                path_in_repo=repo_path,
+                repo_id=repo_id,
+                repo_type="model",
+                token=token,
+              )
+
+          maybe_upload("runs/ppo/final_model.zip", "final_model.zip")
+          maybe_upload("runs/ppo/best_model/best_model.zip", "best_model.zip")
+          maybe_upload("output_gif/agent_long.gif", "agent_long.gif")
+          for fname in ("hyperparams.json", "env_config.json", "training_args.json", "evaluation.json"): 
+            maybe_upload(fname, fname)
+          if os.path.exists("README.md"):
+            maybe_upload("README.md", "README.md")
+          elif os.path.exists("hf_model_card_template.md"):
+            maybe_upload("hf_model_card_template.md", "README.md")
+          PY

@@ -1,0 +1,98 @@
+name: Release
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  id-token: write
+
+jobs:
+  test-build-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+          python -m pip install -e .
+          python -m pip install pytest build huggingface_hub
+
+      - name: Run tests
+        run: pytest -q
+
+      - name: Extract version
+        id: get_version
+        run: |
+          python - <<'PY'
+          import re, pathlib, os, sys
+          text = pathlib.Path('pyproject.toml').read_text()
+          m = re.search(r'^version\s*=\s*"([^"]+)"', text, re.M)
+          if not m:
+              print('::error::Could not find version in pyproject.toml'); sys.exit(1)
+          v = m.group(1)
+          print(f"version={v}")
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+              f.write(f"version={v}\n")
+          PY
+
+      - name: Build sdist and wheel
+        run: python -m build
+
+      - name: Prepare Hugging Face release folder (PPO only)
+        run: |
+          set -eux
+          mkdir -p hf_release/assets
+          if [ -f hf_model_card_template.md ]; then cp hf_model_card_template.md hf_release/README.md; fi
+          if [ -f runs/ppo/final_model.zip ]; then cp runs/ppo/final_model.zip hf_release/ppo_space_mining_final.zip; fi
+          if [ -f output_gif/agent.gif ]; then cp output_gif/agent.gif hf_release/assets/preview.gif; fi
+          if [ -f hyperparams.json ]; then cp hyperparams.json hf_release/; fi
+          if [ -f env_config.json ]; then cp env_config.json hf_release/; fi
+          if [ -f training_args.json ]; then cp training_args.json hf_release/; fi
+          if [ -f evaluation.json ]; then cp evaluation.json hf_release/; fi
+
+      - name: Publish to PyPI
+        if: success()
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          user: __token__
+          password: ${{ secrets.PYPI_API_TOKEN }}
+
+      - name: Upload PPO artifacts to Hugging Face Hub
+        if: success()
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          PKG_VERSION: ${{ steps.get_version.outputs.version }}
+        run: |
+          python - <<'PY'
+          import os
+          from huggingface_hub import HfApi
+          token = os.environ['HF_TOKEN']
+          repo_id = 'LUNDECHEN/space-mining-ppo'
+          api = HfApi(token=token)
+          api.create_repo(repo_id, repo_type='model', exist_ok=True)
+          version = os.environ['PKG_VERSION']
+          path_in_repo = f"releases/v{version}"
+          api.upload_folder(folder_path='hf_release', repo_id=repo_id, path_in_repo=path_in_repo, repo_type='model')
+          PY
+
+      - name: Create GitHub Release
+        if: success()
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.get_version.outputs.version }}
+          name: v${{ steps.get_version.outputs.version }}
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
