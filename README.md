@@ -15,7 +15,7 @@
 ![Imports: isort](https://img.shields.io/badge/imports-isort-ef8336)
 ![Linter: ruff](https://img.shields.io/badge/linter-ruff-46a2f1)
 ![Types: mypy](https://img.shields.io/badge/types-mypy-2A6DB2)
-[![Authors](https://img.shields.io/badge/Authors-Xinning%20Zhu%20%26%20Lunde%20Chen-6aa6ff)](docs/authors.md)
+[![Authors](https://img.shields.io/badge/Authors-Xinning%20Zhu%20%26%20Lunde%20Chen-6aa6ff)](https://reveurmichael.github.io/space_mining/docs/#/authors)
 [![Stars](https://img.shields.io/github/stars/reveurmichael/space_mining)](https://github.com/reveurmichael/space_mining/stargazers)
 [![Issues](https://img.shields.io/github/issues/reveurmichael/space_mining)](https://github.com/reveurmichael/space_mining/issues)
 
