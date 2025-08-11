@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "space-mining"
-version = "0.1.0"
+version = "0.1.1"
 description = "A Gymnasium-compatible environment for space mining reinforcement learning tasks"
 authors = ["Xinning Zhu <zhuxinning@shu.edu.cn>", "Lunde Chen <lundechen@shu.edu.cn>"]
 license = "MIT"

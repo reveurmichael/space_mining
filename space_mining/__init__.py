@@ -41,5 +41,5 @@ def save_gif(*args: Any, **kwargs: Any):
     return mod.save_gif(*args, **kwargs)
 
 
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 __all__ = ["make_env", "register_envs", "PPOAgent", "save_gif"]
