@@ -50,42 +50,12 @@ jobs:
       - name: Build sdist and wheel
         run: python -m build
 
-      - name: Prepare Hugging Face release folder (PPO only)
-        run: |
-          set -eux
-          mkdir -p hf_release/assets
-          if [ -f hf_model_card_template.md ]; then cp hf_model_card_template.md hf_release/README.md; fi
-          if [ -f runs/ppo/final_model.zip ]; then cp runs/ppo/final_model.zip hf_release/ppo_space_mining_final.zip; fi
-          if [ -f output_gif/agent.gif ]; then cp output_gif/agent.gif hf_release/assets/preview.gif; fi
-          if [ -f hyperparams.json ]; then cp hyperparams.json hf_release/; fi
-          if [ -f env_config.json ]; then cp env_config.json hf_release/; fi
-          if [ -f training_args.json ]; then cp training_args.json hf_release/; fi
-          if [ -f evaluation.json ]; then cp evaluation.json hf_release/; fi
-
       - name: Publish to PyPI
         if: success()
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           user: __token__
           password: ${{ secrets.PYPI_API_TOKEN }}
-
-      - name: Upload PPO artifacts to Hugging Face Hub
-        if: success()
-        env:
-          HF_TOKEN: ${{ secrets.HF_TOKEN }}
-          PKG_VERSION: ${{ steps.get_version.outputs.version }}
-        run: |
-          python - <<'PY'
-          import os
-          from huggingface_hub import HfApi
-          token = os.environ['HF_TOKEN']
-          repo_id = 'LUNDECHEN/space-mining-ppo'
-          api = HfApi(token=token)
-          api.create_repo(repo_id, repo_type='model', exist_ok=True)
-          version = os.environ['PKG_VERSION']
-          path_in_repo = f"releases/v{version}"
-          api.upload_folder(folder_path='hf_release', repo_id=repo_id, path_in_repo=path_in_repo, repo_type='model')
-          PY
 
       - name: Create GitHub Release
         if: success()
