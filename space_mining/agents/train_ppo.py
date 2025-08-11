@@ -26,16 +26,29 @@ def _write_json(path: str, data: Dict[str, Any]) -> None:
         json.dump(data, f, indent=2, sort_keys=True)
 
 
+def _resolve_value(val):
+    """Convert SB3 Schedule to float or handle other non-serializable values."""
+    if callable(val):
+        try:
+            return float(val(1.0))  # progress=1.0 (start of training)
+        except Exception:
+            return str(val)  # fallback: store repr
+    try:
+        return float(val)
+    except (TypeError, ValueError):
+        return str(val)
+
+
 def _gather_hyperparams_dict(model: PPO) -> Dict[str, Any]:
     # Pull key hyperparameters from the PPO instance
     hp: Dict[str, Any] = {
         "policy": model.policy.__class__.__name__ if model.policy is not None else "MlpPolicy",
-        "learning_rate": getattr(model, "learning_rate", None),
+        "learning_rate": _resolve_value(getattr(model, "learning_rate", None)),
         "n_steps": getattr(model, "n_steps", None),
         "batch_size": getattr(model, "batch_size", None),
         "gamma": getattr(model, "gamma", None),
         "gae_lambda": getattr(model, "gae_lambda", None),
-        "clip_range": getattr(model, "clip_range", None),
+        "clip_range": _resolve_value(getattr(model, "clip_range", None)),
         "ent_coef": getattr(model, "ent_coef", None),
         "vf_coef": getattr(model, "vf_coef", None),
         "max_grad_norm": getattr(model, "max_grad_norm", None),
