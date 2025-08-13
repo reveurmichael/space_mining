@@ -55,7 +55,7 @@ jobs:
           pip install -r requirements.txt
           pip install space-mining wandb huggingface_hub pillow tensorboard
 
-      - name: Train on CPU with checkpoints and eval
+      - name: Train on CPU with Live W&B Logging
         run: |
           set -euo pipefail
           python -m space_mining.agents.train_ppo \
@@ -63,11 +63,11 @@ jobs:
             --output-dir runs/ppo \
             --device cpu \
             --checkpoint-freq ${{ inputs.checkpoint_freq }} \
-            --eval-freq ${{ inputs.eval_freq }}
-
-      - name: Sync TensorBoard logs to W&B
-        run: |
-          wandb sync --entity "$WANDB_ENTITY" --project "$WANDB_PROJECT" runs/ppo/tensorboard_logs || true
+            --eval-freq ${{ inputs.eval_freq }} \
+            --track-wandb \
+            --wandb-project-name "${{ env.WANDB_PROJECT }}" \
+            --wandb-entity "${{ env.WANDB_ENTITY }}" \
+            --run-name "${{ inputs.run_name }}-${{ github.run_id }}"
 
       - name: Choose best or final model
         id: choose_model
