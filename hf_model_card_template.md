@@ -47,8 +47,7 @@ env.close()
 
 ## License
 
-- Code: MIT (see repository LICENSE)
-- Model weights: same as repository unless stated otherwise
+- MIT 
 
 ## Authors
 
