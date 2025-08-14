@@ -101,7 +101,7 @@ jobs:
           from space_mining.agents.train_ppo import evaluate_trained_ppo
           metrics = evaluate_trained_ppo(
               checkpoint_path='${{ steps.choose_model.outputs.path }}',
-              num_episodes=10,
+              num_episodes=100,
               device='cpu',
               render_mode=None,
               evaluation_json_path='evaluation.json',
@@ -153,7 +153,7 @@ jobs:
           run.finish()
           PY
 
-      - name: Push to Hugging Face Hub (LUNDECHEN/space-mining-ppo)
+      - name: Push to Hugging Face Hub
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
