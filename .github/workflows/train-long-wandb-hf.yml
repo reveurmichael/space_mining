@@ -15,6 +15,10 @@ on:
         description: "Evaluation frequency"
         required: false
         default: "200000"
+      log_every:
+        description: "Log metrics to W&B every N environment steps"
+        required: false
+        default: "1000"
       run_name:
         description: "Run name"
         required: false
@@ -67,7 +71,8 @@ jobs:
             --track-wandb \
             --wandb-project-name "space-mining-ppo" \
             --wandb-entity "lundechen-shanghai-university" \
-            --run-name "${{ inputs.run_name }}-${{ github.run_id }}"
+            --run-name "${{ inputs.run_name }}-${{ github.run_id }}" \
+            --log-every-n-env-steps ${{ inputs.log_every }}
 
       - name: Choose best or final model
         id: choose_model

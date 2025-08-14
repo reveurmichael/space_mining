@@ -20,6 +20,30 @@ from stable_baselines3.common.callbacks import (
 from space_mining import make_env
 
 
+class WandbCallbackEveryN:
+    """Custom W&B callback that logs every N environment timesteps."""
+    
+    def __init__(self, log_every: int = 1000, **kwargs):
+        try:
+            from wandb.integration.sb3 import WandbCallback
+            self.wandb_callback = WandbCallback(**kwargs)
+            self.log_every = log_every
+            self._last_logged_step = 0
+        except ImportError:
+            raise ImportError("wandb is required for WandbCallbackEveryN")
+
+    def _on_step(self) -> bool:
+        step = self.model.num_timesteps
+        if step - self._last_logged_step >= self.log_every:
+            self._last_logged_step = step
+            return self.wandb_callback._on_step()
+        return True
+
+    def __getattr__(self, name):
+        # Delegate other attributes to the underlying WandbCallback
+        return getattr(self.wandb_callback, name)
+
+
 def _write_json(path: str, data: Dict[str, Any]) -> None:
     os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
     with open(path, "w", encoding="utf-8") as f:
@@ -174,6 +198,7 @@ def train_ppo(
     wandb_project_name: Optional[str] = None,
     wandb_entity: Optional[str] = None,
     run_name: Optional[str] = None,
+    log_every_n_env_steps: int = 1000,
 ) -> PPO:
     """Train a PPO model on the SpaceMining environment.
 
@@ -191,6 +216,7 @@ def train_ppo(
         device (str): Device to use for training ('cpu' or 'cuda').
         checkpoint_freq (int): Save raw checkpoints every N steps (0 to disable).
         eval_freq (int): Evaluate and save best model every N steps (0 to disable).
+        log_every_n_env_steps (int): Log every N environment timesteps.
 
     Returns:
         PPO: Trained PPO model.
@@ -236,7 +262,8 @@ def train_ppo(
     if track_wandb:
         # WandbCallback available only if wandb imports succeeded above
         callbacks.append(
-            WandbCallback(
+            WandbCallbackEveryN(
+                log_every=log_every_n_env_steps,
                 model_save_path=os.path.join(output_dir, "wandb_models"),
                 model_save_freq=checkpoint_freq if checkpoint_freq and checkpoint_freq > 0 else 0,
                 gradient_save_freq=0,
@@ -419,6 +446,13 @@ def main():
         default=None,
         help="Run name for W&B",
     )
+    parser.add_argument(
+        "--log-every-n-env-steps",
+        dest="log_every_n_env_steps",
+        type=int,
+        default=1000,
+        help="Log every N environment timesteps",
+    )
 
     args = parser.parse_args()
 
@@ -440,6 +474,7 @@ def main():
         wandb_project_name=args.wandb_project_name,
         wandb_entity=args.wandb_entity,
         run_name=args.run_name,
+        log_every_n_env_steps=args.log_every_n_env_steps,
     )
 
 
