@@ -204,8 +204,8 @@ def train_ppo(
         from wandb.integration.sb3 import WandbCallback  # type: ignore
 
         wandb.init(
-            project=wandb_project_name,
-            entity=wandb_entity,
+            project=(wandb_project_name or "space-mining-ppo"),
+            entity=(wandb_entity or "lundechen-shanghai-university"),
             name=run_name,
             sync_tensorboard=True,
             monitor_gym=True,
