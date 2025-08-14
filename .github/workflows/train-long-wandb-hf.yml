@@ -91,7 +91,7 @@ jobs:
           python space_mining/scripts/make_gif.py \
             --checkpoint ${{ steps.choose_model.outputs.path }} \
             --output output_gif/agent_long.gif \
-            --steps 800 \
+            --steps 1200 \
             --fps 20 \
             --device cpu
 

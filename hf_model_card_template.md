@@ -45,6 +45,10 @@ env.close()
 | std_reward    | TBD   |
 | episodes      | TBD   |
 
+## Agent Behavior
+
+![Agent in action](agent_long.gif)
+
 ## License
 
 - MIT 
