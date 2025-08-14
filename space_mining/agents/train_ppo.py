@@ -170,6 +170,10 @@ def train_ppo(
     device: str = "cpu",
     checkpoint_freq: int = 0,
     eval_freq: int = 0,
+    track_wandb: bool = False,
+    wandb_project_name: Optional[str] = None,
+    wandb_entity: Optional[str] = None,
+    run_name: Optional[str] = None,
 ) -> PPO:
     """Train a PPO model on the SpaceMining environment.
 
@@ -194,6 +198,20 @@ def train_ppo(
     # Create output directory if it doesn't exist
     os.makedirs(output_dir, exist_ok=True)
 
+    # Initialize Weights & Biases if enabled
+    if track_wandb:
+        import wandb  # type: ignore
+        from wandb.integration.sb3 import WandbCallback  # type: ignore
+
+        wandb.init(
+            project=(wandb_project_name or "space-mining-ppo"),
+            entity=(wandb_entity or "lundechen-shanghai-university"),
+            name=run_name,
+            sync_tensorboard=True,
+            monitor_gym=True,
+            save_code=True,
+        )
+
     # Create environment
     env = make_env(render_mode=render_mode, max_episode_steps=1200)
 
@@ -214,6 +232,16 @@ def train_ppo(
 
     # Build callbacks
     callbacks = []
+
+    if track_wandb:
+        # WandbCallback available only if wandb imports succeeded above
+        callbacks.append(
+            WandbCallback(
+                model_save_path=os.path.join(output_dir, "wandb_models"),
+                model_save_freq=checkpoint_freq if checkpoint_freq and checkpoint_freq > 0 else 0,
+                gradient_save_freq=0,
+            )
+        )
 
     if checkpoint_freq and checkpoint_freq > 0:
         checkpoint_dir = os.path.join(output_dir, "checkpoints")
@@ -276,6 +304,10 @@ def train_ppo(
             "env_config": env_config,
             "training_args": train_args,
         }[rel.replace(".json", "")] if rel != "hyperparams.json" else hyperparams)
+
+    # Finish the W&B run if enabled
+    if track_wandb:
+        wandb.finish()
 
     return model
 
@@ -360,6 +392,33 @@ def main():
         default=0,
         help="Evaluate every N steps and save best model (0 to disable)",
     )
+    parser.add_argument(
+        "--track-wandb",
+        dest="track_wandb",
+        action="store_true",
+        help="Enable live logging to Weights & Biases",
+    )
+    parser.add_argument(
+        "--wandb-project-name",
+        dest="wandb_project_name",
+        type=str,
+        default=None,
+        help="W&B project name",
+    )
+    parser.add_argument(
+        "--wandb-entity",
+        dest="wandb_entity",
+        type=str,
+        default=None,
+        help="W&B entity (team or user)",
+    )
+    parser.add_argument(
+        "--run-name",
+        dest="run_name",
+        type=str,
+        default=None,
+        help="Run name for W&B",
+    )
 
     args = parser.parse_args()
 
@@ -377,6 +436,10 @@ def main():
         device=args.device,
         checkpoint_freq=args.checkpoint_freq,
         eval_freq=args.eval_freq,
+        track_wandb=args.track_wandb,
+        wandb_project_name=args.wandb_project_name,
+        wandb_entity=args.wandb_entity,
+        run_name=args.run_name,
     )
 
 

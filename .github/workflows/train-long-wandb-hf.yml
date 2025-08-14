@@ -36,9 +36,9 @@ jobs:
       PYTHONUNBUFFERED: "1"
     steps:
       - name: Check required secrets/vars
-        if: ${{ env.WANDB_API_KEY == '' || env.WANDB_ENTITY == '' || env.WANDB_PROJECT == '' || env.HF_TOKEN == '' }}
+        if: ${{ env.WANDB_API_KEY == '' || env.HF_TOKEN == '' }}
         run: |
-          echo "WANDB_API_KEY, WANDB_ENTITY, WANDB_PROJECT, and HF_TOKEN must be configured." >&2
+          echo "WANDB_API_KEY and HF_TOKEN must be configured." >&2
           exit 1
 
       - uses: actions/checkout@v4
@@ -55,7 +55,7 @@ jobs:
           pip install -r requirements.txt
           pip install space-mining wandb huggingface_hub pillow tensorboard
 
-      - name: Train on CPU with checkpoints and eval
+      - name: Train on CPU with Live W&B Logging
         run: |
           set -euo pipefail
           python -m space_mining.agents.train_ppo \
@@ -63,11 +63,11 @@ jobs:
             --output-dir runs/ppo \
             --device cpu \
             --checkpoint-freq ${{ inputs.checkpoint_freq }} \
-            --eval-freq ${{ inputs.eval_freq }}
-
-      - name: Sync TensorBoard logs to W&B
-        run: |
-          wandb sync --entity "$WANDB_ENTITY" --project "$WANDB_PROJECT" runs/ppo/tensorboard_logs || true
+            --eval-freq ${{ inputs.eval_freq }} \
+            --track-wandb \
+            --wandb-project-name "space-mining-ppo" \
+            --wandb-entity "lundechen-shanghai-university" \
+            --run-name "${{ inputs.run_name }}-${{ github.run_id }}"
 
       - name: Choose best or final model
         id: choose_model
@@ -137,8 +137,8 @@ jobs:
         run: |
           python - <<'PY'
           import os, wandb
-          entity = os.environ["WANDB_ENTITY"]
-          project = os.environ["WANDB_PROJECT"]
+          entity = "lundechen-shanghai-university"
+          project = "space-mining-ppo"
           run = wandb.init(project=project, entity=entity, job_type="long-train-report", name=os.environ.get("RUN_NAME"))
           art = wandb.Artifact("models-and-gif", type="bundle")
           for p in ["runs/ppo/final_model.zip", "runs/ppo/best_model/best_model.zip", "output_gif/agent_long.gif", "hyperparams.json", "env_config.json", "training_args.json", "evaluation.json", "README.md"]:
