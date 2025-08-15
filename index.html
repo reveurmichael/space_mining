@@ -3,19 +3,19 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <title>SpaceMining — Advanced Reinforcement Learning Environment</title>
-  <meta name="description" content="SpaceMining is a sophisticated Gymnasium environment for space mining simulation featuring realistic physics, energy management, and multi-objective rewards. Perfect for RL research beyond LLM priors." />
-  <meta name="keywords" content="reinforcement learning, gymnasium, space mining, rl environment, pytorch, ppo, artificial intelligence, machine learning" />
-  <meta property="og:title" content="SpaceMining — Advanced RL Environment" />
-  <meta property="og:description" content="Sophisticated space mining simulation with realistic physics, energy management, and comprehensive reward systems for fair RL evaluation." />
+  <title>SpaceMining — a novel RL environment beyond LLM priors</title>
+  <meta name="description" content="SpaceMining is a custom Gymnasium environment intentionally unfamiliar to LLMs. It enables fair evaluation of reward-design capabilities without leakage from standard RL benchmarks, addressing prior-knowledge bias." />
+  <meta name="keywords" content="reinforcement learning, gymnasium, space mining, rl environment, llm evaluation, reward design, custom environment, novel benchmark" />
+  <meta property="og:title" content="SpaceMining — Novel RL Environment Beyond LLM Priors" />
+  <meta property="og:description" content="Custom environment for fair evaluation of LLM reward-design capabilities without standard benchmark leakage." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://reveurmichael.github.io/space_mining/" />
   <meta property="og:image" content="https://reveurmichael.github.io/space_mining/assets/og/cover.png" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="SpaceMining — Advanced RL Environment" />
-  <meta name="twitter:description" content="Sophisticated space mining simulation for fair RL evaluation beyond LLM priors." />
+  <meta name="twitter:title" content="SpaceMining — Novel RL Environment Beyond LLM Priors" />
+  <meta name="twitter:description" content="Custom environment for fair evaluation of LLM reward-design capabilities without standard benchmark leakage." />
   <meta name="twitter:image" content="https://reveurmichael.github.io/space_mining/assets/og/cover.png" />
   <meta name="theme-color" content="#0b1020" />
   <meta name="author" content="Xinning Zhu, Lunde Chen" />
@@ -840,11 +840,13 @@
       </a>
       <div class="nav-links">
         <a href="#about">About</a>
-        <a href="#features">Features</a>
-        <a href="#quickstart">Quick Start</a>
-        <a href="#examples">Examples</a>
-        <a href="#demo">Demo</a>
+        <a href="#research">Research</a>
+        <a href="#task">Task</a>
         <a href="#specs">Specifications</a>
+        <a href="#features">Features</a>
+        <a href="#demo">Demo</a>
+        <a href="#quickstart">Quick Start</a>
+        <a href="#examples">Implementation</a>
       </div>
     </div>
   </nav>
@@ -852,11 +854,11 @@
   <header class="hero">
     <div class="container">
       <div class="hero-content">
-        <h1>SpaceMining<br>Advanced Reinforcement Learning Environment</h1>
-        <p class="lead">A sophisticated space mining simulation featuring realistic physics, energy management, and multi-objective rewards. Designed for fair RL evaluation beyond LLM priors.</p>
+        <h1>SpaceMining<br>A Novel RL Environment Beyond LLM Priors</h1>
+        <p class="lead">A custom Gymnasium environment intentionally unfamiliar to LLMs. It enables fair evaluation of reward-design capabilities without leakage from standard RL benchmarks, addressing prior-knowledge bias and supporting studies of true generalization.</p>
         
         <div class="lead-highlight">
-          <strong>🎯 Research Focus:</strong> SpaceMining is intentionally designed to be unfamiliar to Large Language Models, enabling unbiased evaluation of reward design capabilities without contamination from standard benchmarks like CartPole or BipedalWalker.
+          <strong>🎯 Research Innovation:</strong> SpaceMining addresses concerns about LLM prior knowledge from pretraining data on standard RL environments (CartPole, BipedalWalker, Ant), providing a novel benchmark for evaluating true generalization capabilities in reward function design.
         </div>
         
         <div class="badges">
@@ -890,59 +892,185 @@
   <main class="container">
     <section id="about" class="reveal">
       <h2>What is SpaceMining?</h2>
-      <p>SpaceMining is a cutting-edge reinforcement learning environment that simulates asteroid mining operations in a 2D space environment. The agent (mining robot) must navigate complex physics, manage limited energy resources, mine asteroids strategically, and deliver materials to the mothership while avoiding dynamic obstacles.</p>
+      <p>SpaceMining is a single-agent reinforcement learning environment simulating asteroid mining in a 2D space environment. The agent (mining robot) must collect resources from asteroids, deliver them to the mothership, manage energy consumption, and avoid moving obstacles while maximizing efficiency.</p>
       
-      <div class="feature-grid">
-        <div class="feature-card">
-          <div class="feature-icon">🎯</div>
-          <h3>Research Innovation</h3>
-          <p>Specifically designed to evaluate LLM reward design capabilities without contamination from standard benchmarks, ensuring fair and unbiased assessment.</p>
+      <div class="grid cols-3">
+        <div class="card">
+          <h3>🎯 Novel Benchmark</h3>
+          <p>Custom environment intentionally unfamiliar to LLMs, enabling evaluation of reward-design capabilities without leakage from standard RL benchmarks.</p>
         </div>
-        <div class="feature-card">
-          <div class="feature-icon">⚡</div>
-          <h3>Realistic Physics</h3>
-          <p>Advanced 2D physics simulation with thrust dynamics, drag forces, gravity wells, and realistic collision detection systems.</p>
+        <div class="card">
+          <h3>⚡ 2D Space Physics</h3>
+          <p>Realistic physics simulation with thrust dynamics, drag forces, gravitational attraction, and collision detection in an 80×80 grid environment.</p>
         </div>
-        <div class="feature-card">
-          <div class="feature-icon">🔋</div>
-          <h3>Energy Management</h3>
-          <p>Sophisticated energy consumption mechanics requiring strategic planning for movement, mining operations, and survival.</p>
+        <div class="card">
+          <h3>🔋 Strategic Constraints</h3>
+          <p>Energy management requiring periodic mothership returns, limited observation radius, and moving obstacles creating balanced difficulty.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="research" class="reveal">
+      <h2>Research Purpose</h2>
+      <p>This environment was specifically designed to evaluate large language models' ability to design reward functions for unfamiliar environments without prior knowledge. Recent studies have raised concerns that large language models may carry prior knowledge from pretraining data about standard RL environments (like CartPole, BipedalWalker, Ant), leading to potential prompt leakage and evaluation biases.</p>
+      
+      <p>To address this issue, SpaceMining serves as a custom environment to assess true generalization capabilities on tasks free from such pretrained knowledge. This allows researchers to evaluate whether LLMs can effectively design reward functions for completely novel environments.</p>
+      
+      <div class="card" style="margin-top: 32px;">
+        <h3>🔬 Research Applications</h3>
+        <div class="grid cols-2" style="margin-top: 16px;">
+          <div>
+            <h4>Prior Knowledge Issues</h4>
+            <ul>
+              <li>Standard benchmarks (CartPole, BipedalWalker, Ant) may be in LLM training data</li>
+              <li>Potential prompt leakage and evaluation biases</li>
+              <li>Difficulty assessing true generalization capabilities</li>
+            </ul>
+          </div>
+          <div>
+            <h4>SpaceMining Solutions</h4>
+            <ul>
+              <li>Novel environment unfamiliar to existing LLMs</li>
+              <li>Fair evaluation of reward design capabilities</li>
+              <li>Assessment of true generalization without bias</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="task" class="reveal">
+      <h2>Task Description</h2>
+      <p>The agent is deployed in a 2D space environment (80×80 grid) with randomly distributed asteroids and a central mothership. The comprehensive task requires balancing multiple objectives:</p>
+      
+      <div class="grid cols-2">
+        <div class="card">
+          <h3>🎯 Primary Objectives</h3>
+          <ul>
+            <li><strong>Resource Collection:</strong> Navigate efficiently to discover and mine resource-rich asteroids</li>
+            <li><strong>Energy Management:</strong> Monitor consumption and return to mothership for recharging</li>
+            <li><strong>Obstacle Avoidance:</strong> Avoid collisions with moving obstacles</li>
+            <li><strong>Delivery Optimization:</strong> Transport resources to maximize collection efficiency</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>⚖️ Strategic Balance</h3>
+          <ul>
+            <li><strong>Exploration vs Exploitation:</strong> Discover new asteroids vs mine known resources</li>
+            <li><strong>Risk vs Reward:</strong> Navigate through obstacles vs safe paths</li>
+            <li><strong>Energy vs Progress:</strong> Conservative movement vs aggressive mining</li>
+            <li><strong>Efficiency Optimization:</strong> Minimize travel time while maximizing collection</li>
+          </ul>
+        </div>
+      </div>
+      
+      <div class="card" style="margin-top: 32px;">
+        <h3>🏆 Fitness Scoring System</h3>
+        <p>The environment uses a comprehensive fitness scoring system with a target range of approximately <strong>3000 points</strong>, evaluating resource collection, energy management, efficiency, and survival time. This multi-faceted scoring encourages agents to develop sophisticated strategies rather than optimizing for single objectives.</p>
+      </div>
+    </section>
+
+    <section id="specs" class="reveal">
+      <h2>Environment Specifications</h2>
+      <p>Technical specifications for researchers implementing experiments and designing reward functions for the SpaceMining environment.</p>
+      
+      <div class="grid cols-3">
+        <div class="card">
+          <h3>📊 Action Space</h3>
+          <p><strong>Type:</strong> Box(3) - Continuous control</p>
+          <ul>
+            <li><code>thrust_x</code>: Horizontal force [-1.0, 1.0]</li>
+            <li><code>thrust_y</code>: Vertical force [-1.0, 1.0]</li>
+            <li><code>mine_action</code>: Binary mining activation [0.0, 1.0]</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>👁️ State Space</h3>
+          <p><strong>Type:</strong> Box(53) - Structured observations</p>
+          <ul>
+            <li><strong>Agent State (6)</strong>: Position (x, y), velocity (vx, vy), energy level, inventory</li>
+            <li><strong>Asteroid Information (45)</strong>: Relative positions and resource amounts for visible asteroids</li>
+            <li><strong>Mothership Position (2)</strong>: Relative position to mothership</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>🌍 Environment Parameters</h3>
+          <ul>
+            <li><strong>Grid size</strong>: 80×80 units (default, configurable)</li>
+            <li><strong>Max asteroids</strong>: 8-12 per episode (random)</li>
+            <li><strong>Moving obstacles</strong>: 4-8 dynamic collision hazards</li>
+            <li><strong>Observation radius</strong>: 15 units (partial observability)</li>
+            <li><strong>Episode limit</strong>: 1200 steps (configurable)</li>
+            <li><strong>Collision limit</strong>: 18+ obstacle collisions</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>🏆 Reward Structure</h3>
+          <ul>
+            <li><strong>Mining rewards</strong>: +8.0 per resource unit extracted</li>
+            <li><strong>Delivery bonuses</strong>: +12.0 per delivered unit</li>
+            <li><strong>Exploration rewards</strong>: +3.0 per discovered asteroid</li>
+            <li><strong>Energy recharge bonus</strong>: +0.5 per energy unit restored</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>⚠️ Penalties & Constraints</h3>
+          <ul>
+            <li><strong>Obstacle collision</strong>: -10.0 per collision</li>
+            <li><strong>Boundary contact</strong>: -1.0 per boundary hit</li>
+            <li><strong>Energy depletion</strong>: -10.0 when energy reaches zero</li>
+            <li><strong>Inventory limit</strong>: 100 resource units maximum</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>⚙️ Difficulty Level</h3>
+          <p><strong>Medium Difficulty:</strong> Balanced challenge with:</p>
+          <ul>
+            <li><strong>Limited observation radius</strong>: 15 units requiring strategic exploration</li>
+            <li><strong>Energy constraints</strong>: Periodic mothership returns required</li>
+            <li><strong>Moving obstacles</strong>: Collision avoidance required</li>
+            <li><strong>Resource depletion</strong>: Efficient mining strategies needed</li>
+          </ul>
         </div>
       </div>
     </section>
 
     <section id="features" class="reveal">
-      <h2>Advanced Features</h2>
+      <h2>Environment Features</h2>
+      <p>SpaceMining incorporates carefully designed mechanics to create a novel challenge unfamiliar to existing language models, ensuring fair evaluation of reward design capabilities.</p>
+      
       <div class="grid cols-2">
         <div class="card">
-          <h3>🚀 Sophisticated Physics Engine</h3>
-          <p>Realistic 2D space physics with inertia, thrust vectoring, drag forces, gravitational attraction to mothership, and dynamic collision responses.</p>
+          <h3>🚀 Physics Simulation</h3>
+          <p>Realistic 2D space physics with inertia, thrust vectoring, drag forces, gravitational attraction to mothership, and collision responses that create emergent behavioral complexity.</p>
         </div>
         <div class="card">
-          <h3>💎 Resource Management</h3>
-          <p>Dynamic asteroid generation with varying resource densities, depletion mechanics, inventory limits, and strategic delivery requirements.</p>
+          <h3>💎 Resource Dynamics</h3>
+          <p>Dynamic asteroid generation with varying resource densities, depletion mechanics, and inventory constraints requiring strategic resource management decisions.</p>
         </div>
         <div class="card">
-          <h3>🎯 Multi-Objective Rewards</h3>
-          <p>Complex reward system promoting exploration, efficiency, resource collection, energy conservation, and collision avoidance strategies.</p>
+          <h3>🎯 Multi-Objective Design</h3>
+          <p>Comprehensive reward structure balancing exploration, efficiency, resource collection, energy conservation, and survival to encourage sophisticated agent strategies.</p>
         </div>
         <div class="card">
           <h3>👁️ Partial Observability</h3>
-          <p>Configurable observation radius creating fog-of-war mechanics that require strategic exploration and memory utilization.</p>
+          <p>Limited observation radius (15 units) creating fog-of-war mechanics that require strategic exploration, memory utilization, and planning under uncertainty.</p>
         </div>
         <div class="card">
-          <h3>🛡️ Dynamic Obstacles</h3>
-          <p>Moving obstacles with intelligent pathfinding that create evolving navigation challenges throughout episodes.</p>
+          <h3>🛡️ Dynamic Challenges</h3>
+          <p>Moving obstacles with varied pathfinding behaviors create evolving navigation challenges that prevent simple rule-based solutions.</p>
         </div>
         <div class="card">
-          <h3>📊 Comprehensive Analytics</h3>
-          <p>Detailed state tracking, performance metrics, fitness scoring, and extensive debugging tools for analysis.</p>
+          <h3>📊 Research Analytics</h3>
+          <p>Comprehensive state tracking, performance metrics, and fitness scoring systems designed for rigorous evaluation of learning algorithms and reward functions.</p>
         </div>
       </div>
     </section>
 
     <section id="quickstart" class="reveal">
       <h2>Quick Start Guide</h2>
+      <p>Get started with SpaceMining for your research experiments. The environment is designed to be easy to install and integrate into existing RL pipelines.</p>
+      
       <div class="grid">
         <div class="card">
           <h3>🚀 Installation</h3>
@@ -974,18 +1102,19 @@ for _ in range(1000):
     </section>
 
     <section id="examples" class="reveal">
-      <h2>Code Examples</h2>
+      <h2>Research Implementation</h2>
+      <p>Practical examples for conducting LLM evaluation research and agent training experiments with SpaceMining.</p>
       
       <div class="card">
-        <h3>🤖 Train PPO Agent</h3>
-        <p class="muted">Complete training pipeline with W&B integration and model persistence.</p>
+        <h3>🤖 Agent Training Pipeline</h3>
+        <p class="muted">Complete PPO training setup for baseline agent development and reward function evaluation.</p>
         <pre class="line-numbers"><code class="language-python">from space_mining.agents.train_ppo import train_ppo
 
 def main() -> None:
-    # Train with advanced configuration
+    # Train with configuration
     model = train_ppo(
         total_timesteps=10_000_000,
-        output_dir="runs/ppo_advanced",
+        output_dir="runs/ppo_research",
         track_wandb=True,
         wandb_project_name="space-mining-research",
         checkpoint_freq=100_000,
@@ -999,34 +1128,21 @@ if __name__ == "__main__":
       </div>
 
       <div class="card">
-        <h3>🎬 Generate Demo Videos</h3>
-        <p class="muted">Create high-quality demonstration videos from trained models.</p>
-        <pre class="line-numbers"><code class="language-python">from space_mining.scripts.make_gif import generate_trajectory, save_gif
-from space_mining.agents import PPOAgent
+        <h3>🎬 Generate Demo GIFs</h3>
+        <p class="muted">Create demonstration GIFs from trained models for research analysis.</p>
+        <pre class="line-numbers"><code class="language-bash"># Train PPO Agent
+python -m space_mining.agents.train_ppo \
+  --total-timesteps 10000000 --output-dir runs/ppo --checkpoint-freq 100000 --eval-freq 200000
 
-def create_demo() -> None:
-    # Load pre-trained model
-    agent = PPOAgent.load_from_hf("LUNDECHEN/space-mining-ppo")
-    
-    # Generate demonstration
-    frames = generate_trajectory(
-        agent=agent,
-        num_steps=1200,
-        deterministic=True,
-        render_mode="rgb_array"
-    )
-    
-    # Save as high-quality GIF
-    save_gif(frames, "demos/expert_agent.gif", fps=30)
-    print("Demo created: demos/expert_agent.gif")
-
-if __name__ == "__main__":
-    create_demo()</code></pre>
+# Render a GIF
+python -m space_mining.scripts.make_gif \
+  --checkpoint runs/ppo/final_model.zip --output output_gif/agent.gif --steps 800 --fps 20</code></pre>
+        <p class="muted">These commands provide a straightforward workflow for training agents and generating visual demonstrations for research documentation.</p>
       </div>
 
       <div class="card">
-        <h3>🔧 Custom Environment Configuration</h3>
-        <p class="muted">Advanced environment customization for research experiments.</p>
+        <h3>🔧 Research Configuration</h3>
+        <p class="muted">Environment parameter customization for controlled experiments and ablation studies.</p>
         <pre class="line-numbers"><code class="language-python">from space_mining.envs import SpaceMining, EnvironmentConfig
 
 # Create custom configuration
@@ -1048,95 +1164,74 @@ print(f"Environment initialized with {len(env.asteroid_positions)} asteroids")</
       </div>
     </section>
 
-    <section id="specs" class="reveal">
-      <h2>Environment Specifications</h2>
-      <div class="grid cols-2">
-        <div class="card">
-          <h3>📊 Action Space</h3>
-          <p><strong>Type:</strong> Box(3) - Continuous control</p>
-          <ul>
-            <li><code>thrust_x</code>: Horizontal thrust [-1, 1]</li>
-            <li><code>thrust_y</code>: Vertical thrust [-1, 1]</li>
-            <li><code>mine_action</code>: Mining trigger [0, 1]</li>
-          </ul>
-        </div>
-        <div class="card">
-          <h3>👁️ Observation Space</h3>
-          <p><strong>Type:</strong> Box(53) - Structured observations</p>
-          <ul>
-            <li><strong>Agent state</strong>: Position, velocity, energy, inventory (6)</li>
-            <li><strong>Asteroids</strong>: Relative positions + resources (45)</li>
-            <li><strong>Mothership</strong>: Relative position (2)</li>
-          </ul>
-        </div>
-        <div class="card">
-          <h3>🏆 Reward Structure</h3>
-          <ul>
-            <li><strong>Mining rewards</strong>: +8.0 per resource unit</li>
-            <li><strong>Delivery bonuses</strong>: +12.0 per delivered unit</li>
-            <li><strong>Exploration rewards</strong>: +3.0 per discovered asteroid</li>
-            <li><strong>Efficiency bonuses</strong>: Energy and path optimization</li>
-            <li><strong>Penalties</strong>: Collisions (-10.0), boundaries (-1.0)</li>
-          </ul>
-        </div>
-        <div class="card">
-          <h3>⚙️ Episode Termination</h3>
-          <ul>
-            <li><strong>Energy depletion</strong>: Agent energy reaches zero</li>
-            <li><strong>Collision limit</strong>: 18+ obstacle collisions</li>
-            <li><strong>Resource completion</strong>: All asteroids depleted</li>
-            <li><strong>Time limit</strong>: 1200 steps (configurable)</li>
-          </ul>
-        </div>
-      </div>
-    </section>
-
     <section id="demo" class="reveal">
-      <h2>Interactive Demo Gallery</h2>
-      <p class="text-center muted">Click on any demonstration to view in full size. These examples showcase different agent behaviors and learning stages.</p>
+      <h2>Demo: Agent Behaviors</h2>
+      <p class="text-center muted">The GIF demonstrations showcase different agent behaviors and training outcomes, from successful resource collection to various failure modes and learning phases.</p>
       
       <div class="gif-gallery">
-        <div class="gif-card" role="button" tabindex="0" aria-label="View successful mining operation demonstration">
+        <div class="gif-card" role="button" tabindex="0" aria-label="View early exploration demonstration">
           <div class="gif-container">
-            <img data-src="assets/gifs/success_episode.gif" alt="Successful mining operation with optimal resource collection and delivery" loading="lazy" />
+            <img data-src="assets/gifs/early_exploration.gif" alt="Early exploration phase at 25,000 timesteps showing initial learning behavior" loading="lazy" />
           </div>
           <div class="card-content">
-            <h4>🏆 Expert Performance</h4>
-            <p class="description">Trained agent demonstrating optimal mining strategy with efficient pathfinding and resource management.</p>
-            <span class="status success">Success</span>
-          </div>
-        </div>
-
-        <div class="gif-card" role="button" tabindex="0" aria-label="View learning phase demonstration">
-          <div class="gif-container">
-            <img data-src="assets/gifs/learning_episode.gif" alt="Agent in learning phase showing exploration and suboptimal decisions" loading="lazy" />
-          </div>
-          <div class="card-content">
-            <h4>🎓 Learning Phase</h4>
-            <p class="description">Agent during training showing exploration behavior and gradual improvement in decision making.</p>
+            <h4>🔍 Early Exploration</h4>
+            <p class="description">Early Exploration · Eval num_timesteps=25000<br>Initial learning phase</p>
             <span class="status learning">Learning</span>
           </div>
         </div>
 
-        <div class="gif-card" role="button" tabindex="0" aria-label="View energy management demonstration">
+        <div class="gif-card" role="button" tabindex="0" aria-label="View continued early exploration demonstration">
           <div class="gif-container">
-            <img data-src="assets/gifs/energy_management.gif" alt="Demonstration of strategic energy management and recharging" loading="lazy" />
+            <img data-src="assets/gifs/early_exploration_later.gif" alt="Early exploration phase at 500,000 timesteps showing continued learning" loading="lazy" />
           </div>
           <div class="card-content">
-            <h4>⚡ Energy Strategy</h4>
-            <p class="description">Showcasing sophisticated energy management with strategic recharging at the mothership.</p>
-            <span class="status success">Optimized</span>
+            <h4>🔍 Early Exploration (Later)</h4>
+            <p class="description">Early Exploration · Eval num_timesteps=500000<br>Continued learning</p>
+            <span class="status learning">Learning</span>
           </div>
         </div>
 
-        <div class="gif-card" role="button" tabindex="0" aria-label="View obstacle avoidance demonstration">
+        <div class="gif-card" role="button" tabindex="0" aria-label="View successful mining demonstration">
           <div class="gif-container">
-            <img data-src="assets/gifs/obstacle_avoidance.gif" alt="Agent successfully navigating through moving obstacles" loading="lazy" />
+            <img data-src="assets/gifs/successful_mining.gif" alt="Successful mining operation with strategic resource collection" loading="lazy" />
           </div>
           <div class="card-content">
-            <h4>🛡️ Obstacle Navigation</h4>
-            <p class="description">Advanced obstacle avoidance capabilities with predictive movement and safe pathfinding.</p>
-            <span class="status success">Expert</span>
+            <h4>⛏️ Successful Mining</h4>
+            <p class="description">Successful Mining<br>Strategic resource collection</p>
+            <span class="status success">Success</span>
+          </div>
+        </div>
+
+        <div class="gif-card" role="button" tabindex="0" aria-label="View complete episode demonstration">
+          <div class="gif-container">
+            <img data-src="assets/gifs/complete_episode.gif" alt="Complete episode demonstration running full 1200 steps with optimal resource collection" loading="lazy" />
+          </div>
+          <div class="card-content">
+            <h4>🏆 Complete Episode</h4>
+            <p class="description">Complete Episode (1200 steps)<br>Optimal resource collection</p>
+            <span class="status success">Success</span>
+          </div>
+        </div>
+
+        <div class="gif-card" role="button" tabindex="0" aria-label="View energy depletion failure demonstration">
+          <div class="gif-container">
+            <img data-src="assets/gifs/energy_depletion.gif" alt="Energy depletion failure showing agent failing to recharge at mothership" loading="lazy" />
+          </div>
+          <div class="card-content">
+            <h4>🔋 Energy Depletion</h4>
+            <p class="description">Energy Depletion<br>Failed to recharge at mothership</p>
+            <span class="status failure">Failure</span>
+          </div>
+        </div>
+
+        <div class="gif-card" role="button" tabindex="0" aria-label="View poor obstacle avoidance demonstration">
+          <div class="gif-container">
+            <img data-src="assets/gifs/poor_obstacle_avoidance.gif" alt="Poor obstacle avoidance showing multiple collisions with moving obstacles" loading="lazy" />
+          </div>
+          <div class="card-content">
+            <h4>💥 Poor Obstacle Avoidance</h4>
+            <p class="description">Poor Obstacle Avoidance<br>Multiple collisions</p>
+            <span class="status failure">Failure</span>
           </div>
         </div>
       </div>
@@ -1183,7 +1278,7 @@ print(f"Environment initialized with {len(env.asteroid_positions)} asteroids")</
           <a href="https://huggingface.co/LUNDECHEN/space-mining-ppo" target="_blank" rel="noopener">HuggingFace</a>
           <a href="LICENSE" target="_blank" rel="noopener">License</a>
         </div>
-        <p><strong>SpaceMining</strong> — Advanced Reinforcement Learning Environment</p>
+        <p><strong>SpaceMining</strong> — A Novel RL Environment Beyond LLM Priors</p>
         <p>MIT License © 2024 — <strong>Authors:</strong> Xinning Zhu (zhuxinning@shu.edu.cn) · Lunde Chen (lundechen@shu.edu.cn)</p>
         <p>Shanghai University | Intelligent Systems Research</p>
       </div>
