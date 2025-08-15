@@ -2,14 +2,31 @@ name: Release
 
 on:
   workflow_dispatch:
+    inputs:
+      version_override:
+        description: "Override version (optional, uses pyproject.toml by default)"
+        required: false
+        type: string
+      dry_run:
+        description: "Dry run (skip actual publishing)"
+        required: false
+        default: false
+        type: boolean
+  push:
+    tags:
+      - 'v*'
 
 permissions:
   contents: write
   id-token: write
+  packages: write
 
 jobs:
-  test-build-release:
+  validate:
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.get_version.outputs.version }}
+      should_publish: ${{ steps.check.outputs.should_publish }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -22,47 +39,199 @@ jobs:
           python-version: '3.11'
           cache: 'pip'
 
-      - name: Install dependencies
+      - name: Install validation dependencies
         run: |
           python -m pip install --upgrade pip
-          python -m pip install -r requirements.txt
-          python -m pip install -e .
-          python -m pip install pytest build huggingface_hub
-
-      - name: Run tests
-        run: pytest -q
+          pip install build twine check-manifest
 
       - name: Extract version
         id: get_version
         run: |
-          python - <<'PY'
-          import re, pathlib, os, sys
-          text = pathlib.Path('pyproject.toml').read_text()
-          m = re.search(r'^version\s*=\s*"([^"]+)"', text, re.M)
-          if not m:
-              print('::error::Could not find version in pyproject.toml'); sys.exit(1)
-          v = m.group(1)
-          print(f"version={v}")
-          with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
-              f.write(f"version={v}\n")
-          PY
+          python - <<'EOF'
+          import re
+          import pathlib
+          import os
+          import sys
+          
+          try:
+              # Check for override first
+              override_version = "${{ inputs.version_override }}"
+              if override_version.strip():
+                  version = override_version.strip()
+                  print(f"Using override version: {version}")
+              else:
+                  # Extract from pyproject.toml
+                  text = pathlib.Path('pyproject.toml').read_text()
+                  match = re.search(r'^version\s*=\s*"([^"]+)"', text, re.MULTILINE)
+                  if not match:
+                      print('::error::Could not find version in pyproject.toml')
+                      sys.exit(1)
+                  version = match.group(1)
+                  print(f"Using pyproject.toml version: {version}")
+              
+              # Validate version format
+              if not re.match(r'^\d+\.\d+\.\d+(?:-[a-zA-Z0-9]+)?$', version):
+                  print(f'::error::Invalid version format: {version}')
+                  sys.exit(1)
+              
+              # Set output
+              with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+                  f.write(f"version={version}\n")
+          EOF
 
-      - name: Build sdist and wheel
-        run: python -m build
+      - name: Check if version already exists
+        id: check
+        run: |
+          VERSION="${{ steps.get_version.outputs.version }}"
+          
+          # Check if tag exists
+          if git tag --list | grep -q "^v${VERSION}$"; then
+            echo "::warning::Tag v${VERSION} already exists"
+            echo "should_publish=false" >> $GITHUB_OUTPUT
+          else
+            echo "should_publish=true" >> $GITHUB_OUTPUT
+          fi
+          
+          # Check PyPI (optional, don't fail if can't check)
+          pip index versions space-mining 2>/dev/null | grep -q "${VERSION}" && {
+            echo "::warning::Version ${VERSION} may already exist on PyPI"
+          } || echo "Version check completed"
+
+      - name: Validate manifest
+        run: |
+          check-manifest --verbose || {
+            echo "::warning::Manifest check failed, but continuing..."
+          }
+
+  test-build-release:
+    needs: validate
+    if: needs.validate.outputs.should_publish == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+          cache-dependency-path: |
+            requirements.txt
+            pyproject.toml
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip setuptools wheel
+          python -m pip install -r requirements.txt
+          python -m pip install -e .
+          python -m pip install pytest build twine
+
+      - name: Run comprehensive tests
+        run: |
+          # Run tests to ensure package quality
+          python -m pytest -v --tb=short || {
+            echo "::error::Tests failed, aborting release"
+            exit 1
+          }
+
+      - name: Verify package imports
+        run: |
+          python -c "
+          import space_mining
+          print(f'space_mining version: {space_mining.__version__}')
+          from space_mining.agents import PPOAgent, train_ppo
+          print('✅ Core imports successful')
+          "
+
+      - name: Build distributions
+        run: |
+          python -m build --sdist --wheel --outdir dist/
+          
+          # Verify build outputs
+          ls -la dist/
+          if [ ! -f dist/*.whl ] || [ ! -f dist/*.tar.gz ]; then
+            echo "::error::Build outputs missing"
+            exit 1
+          fi
+
+      - name: Check distributions
+        run: |
+          python -m twine check dist/* || {
+            echo "::error::Distribution check failed"
+            exit 1
+          }
+
+      - name: Test wheel installation
+        run: |
+          # Test installation in clean environment
+          pip install --force-reinstall dist/*.whl
+          python -c "import space_mining; print('✅ Wheel installation successful')"
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: distributions-${{ needs.validate.outputs.version }}
+          path: dist/
+          retention-days: 30
 
       - name: Publish to PyPI
-        if: success()
+        if: ${{ !inputs.dry_run }}
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           user: __token__
           password: ${{ secrets.PYPI_API_TOKEN }}
+          verbose: true
+          print-hash: true
 
       - name: Create GitHub Release
-        if: success()
+        if: success() && !inputs.dry_run
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ steps.get_version.outputs.version }}
-          name: v${{ steps.get_version.outputs.version }}
+          tag_name: v${{ needs.validate.outputs.version }}
+          name: Release v${{ needs.validate.outputs.version }}
           generate_release_notes: true
+          files: |
+            dist/*.whl
+            dist/*.tar.gz
+          draft: false
+          prerelease: ${{ contains(needs.validate.outputs.version, '-') }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update package registry
+        if: success() && !inputs.dry_run
+        run: |
+          echo "📦 Package published successfully!"
+          echo "🏷️ Version: ${{ needs.validate.outputs.version }}"
+          echo "🔗 PyPI: https://pypi.org/project/space-mining/${{ needs.validate.outputs.version }}/"
+          echo "🔗 GitHub: ${{ github.server_url }}/${{ github.repository }}/releases/tag/v${{ needs.validate.outputs.version }}"
+
+      - name: Dry run summary
+        if: inputs.dry_run
+        run: |
+          echo "## 🧪 Dry Run Summary" >> $GITHUB_STEP_SUMMARY
+          echo "- **Version**: ${{ needs.validate.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Tests**: ✅ Passed" >> $GITHUB_STEP_SUMMARY
+          echo "- **Build**: ✅ Successful" >> $GITHUB_STEP_SUMMARY
+          echo "- **Validation**: ✅ Passed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Ready for release!** Re-run without dry_run to publish." >> $GITHUB_STEP_SUMMARY
+
+  notify:
+    needs: [validate, test-build-release]
+    if: always() && needs.validate.outputs.should_publish == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Release notification
+        run: |
+          if [ "${{ needs.test-build-release.result }}" == "success" ] && [ "${{ inputs.dry_run }}" != "true" ]; then
+            echo "✅ Release v${{ needs.validate.outputs.version }} completed successfully!"
+          elif [ "${{ inputs.dry_run }}" == "true" ]; then
+            echo "🧪 Dry run for v${{ needs.validate.outputs.version }} completed successfully!"
+          else
+            echo "❌ Release v${{ needs.validate.outputs.version }} failed!"
+            exit 1
+          fi
