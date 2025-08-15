@@ -16,32 +16,9 @@ from stable_baselines3.common.callbacks import (
     EvalCallback,
     CallbackList,
 )
+from space_mining.agents.callbacks import WandbCallbackEveryN
 
 from space_mining import make_env
-
-
-class WandbCallbackEveryN:
-    """Custom W&B callback that logs every N environment timesteps."""
-    
-    def __init__(self, log_every: int = 1000, **kwargs):
-        try:
-            from wandb.integration.sb3 import WandbCallback
-            self.wandb_callback = WandbCallback(**kwargs)
-            self.log_every = log_every
-            self._last_logged_step = 0
-        except ImportError:
-            raise ImportError("wandb is required for WandbCallbackEveryN")
-
-    def _on_step(self) -> bool:
-        step = self.model.num_timesteps
-        if step - self._last_logged_step >= self.log_every:
-            self._last_logged_step = step
-            return self.wandb_callback._on_step()
-        return True
-
-    def __getattr__(self, name):
-        # Delegate other attributes to the underlying WandbCallback
-        return getattr(self.wandb_callback, name)
 
 
 def _write_json(path: str, data: Dict[str, Any]) -> None:
