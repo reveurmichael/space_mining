@@ -1,13 +1,17 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
   <title>SpaceMining — a novel RL environment beyond LLM priors</title>
-  <meta name="description" content="SpaceMining is a custom Gymnasium environment intentionally unfamiliar to LLMs. It enables fair evaluation of reward-design capabilities without leakage from standard RL benchmarks, addressing prior-knowledge bias." />
-  <meta name="keywords" content="reinforcement learning, gymnasium, space mining, rl environment, llm evaluation, reward design, custom environment, novel benchmark" />
+  <meta name="description"
+    content="SpaceMining is a custom Gymnasium environment intentionally unfamiliar to LLMs. It enables fair evaluation of reward-design capabilities without leakage from standard RL benchmarks, addressing prior-knowledge bias." />
+  <meta name="keywords"
+    content="reinforcement learning, gymnasium, space mining, rl environment, llm evaluation, reward design, custom environment, novel benchmark" />
   <meta property="og:title" content="SpaceMining — Novel RL Environment Beyond LLM Priors" />
-  <meta property="og:description" content="Custom environment for fair evaluation of LLM reward-design capabilities without standard benchmark leakage." />
+  <meta property="og:description"
+    content="Custom environment for fair evaluation of LLM reward-design capabilities without standard benchmark leakage." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://reveurmichael.github.io/space_mining/" />
   <meta property="og:image" content="https://reveurmichael.github.io/space_mining/assets/og/cover.png" />
@@ -15,109 +19,125 @@
   <meta property="og:image:height" content="630" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="SpaceMining — Novel RL Environment Beyond LLM Priors" />
-  <meta name="twitter:description" content="Custom environment for fair evaluation of LLM reward-design capabilities without standard benchmark leakage." />
+  <meta name="twitter:description"
+    content="Custom environment for fair evaluation of LLM reward-design capabilities without standard benchmark leakage." />
   <meta name="twitter:image" content="https://reveurmichael.github.io/space_mining/assets/og/cover.png" />
   <meta name="theme-color" content="#0b1020" />
   <meta name="author" content="Xinning Zhu, Lunde Chen" />
   <meta name="robots" content="index, follow" />
   <link rel="canonical" href="https://reveurmichael.github.io/space_mining/" />
-  
+
   <!-- Preload critical resources -->
   <link rel="preload" href="https://unpkg.com/prismjs/themes/prism-tomorrow.min.css" as="style" />
   <link rel="preload" href="https://unpkg.com/prismjs/plugins/line-numbers/prism-line-numbers.css" as="style" />
-  
+
   <!-- Stylesheets -->
   <link rel="stylesheet" href="https://unpkg.com/prismjs/themes/prism-tomorrow.min.css">
   <link rel="stylesheet" href="https://unpkg.com/prismjs/plugins/line-numbers/prism-line-numbers.css">
-  
+
   <!-- Favicon -->
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚀</text></svg>">
-  
+  <link rel="icon" type="image/svg+xml"
+    href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚀</text></svg>">
+
   <style>
     :root {
-      --bg: #0a0f1c; --bg-soft: #0d1421; --bg-accent: #111827;
-      --text: #f1f5f9; --text-muted: #94a3b8; --text-dim: #64748b;
-      --card: #1e293b; --card-soft: #1a2332; --card-hover: #334155;
-      --brand: #3b82f6; --brand-2: #06b6d4; --brand-glow: rgba(59, 130, 246, 0.2);
-      --accent: #f59e0b; --accent-2: #10b981; --accent-danger: #ef4444;
-      --border: rgba(241, 245, 249, 0.1); --border-soft: rgba(241, 245, 249, 0.05);
-      --shadow: rgba(0, 0, 0, 0.5); --shadow-soft: rgba(0, 0, 0, 0.2);
+      --bg: #0a0f1c;
+      --bg-soft: #0d1421;
+      --bg-accent: #111827;
+      --text: #f1f5f9;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      --card: #1e293b;
+      --card-soft: #1a2332;
+      --card-hover: #334155;
+      --brand: #3b82f6;
+      --brand-2: #06b6d4;
+      --brand-glow: rgba(59, 130, 246, 0.2);
+      --accent: #f59e0b;
+      --accent-2: #10b981;
+      --accent-danger: #ef4444;
+      --border: rgba(241, 245, 249, 0.1);
+      --border-soft: rgba(241, 245, 249, 0.05);
+      --shadow: rgba(0, 0, 0, 0.5);
+      --shadow-soft: rgba(0, 0, 0, 0.2);
       --gradient-bg: linear-gradient(135deg, var(--bg) 0%, var(--bg-soft) 50%, var(--bg-accent) 100%);
       --gradient-brand: linear-gradient(135deg, var(--brand) 0%, var(--brand-2) 100%);
       --gradient-text: linear-gradient(135deg, var(--text) 0%, var(--text-muted) 100%);
     }
 
-    * { box-sizing: border-box; }
-    
-    html { 
-      scroll-behavior: smooth; 
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
       font-size: 16px;
       line-height: 1.6;
     }
-    
-    body { 
-      margin: 0; 
+
+    body {
+      margin: 0;
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
       background: var(--gradient-bg);
       background-attachment: fixed;
-      color: var(--text); 
+      color: var(--text);
       line-height: 1.7;
       overflow-x: hidden;
     }
-    
+
     /* Enhanced container with better responsive behavior */
-    .container { 
-      max-width: 1200px; 
-      margin: 0 auto; 
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
       padding: 0 clamp(16px, 4vw, 24px);
     }
-    
+
     /* Improved navigation with glassmorphism */
-    .nav { 
-      position: sticky; 
-      top: 0; 
-      z-index: 100; 
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
       backdrop-filter: blur(20px) saturate(180%);
       background: rgba(10, 15, 28, 0.8);
       border-bottom: 1px solid var(--border);
       box-shadow: 0 8px 32px var(--shadow-soft);
     }
-    
-    .nav-inner { 
-      display: flex; 
-      align-items: center; 
-      justify-content: space-between; 
+
+    .nav-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
       height: 72px;
       position: relative;
     }
-    
-    .brand { 
-      display: flex; 
-      align-items: center; 
-      gap: 16px; 
-      color: var(--text); 
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      color: var(--text);
       text-decoration: none;
       transition: transform 0.2s ease;
     }
-    
+
     .brand:hover {
       transform: translateY(-1px);
     }
-    
-    .brand-logo { 
-      width: 44px; 
-      height: 44px; 
-      border-radius: 12px; 
-      display: grid; 
+
+    .brand-logo {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      display: grid;
       place-items: center;
       background: var(--gradient-brand);
-      font-weight: 900; 
+      font-weight: 900;
       font-size: 1.2rem;
       box-shadow: 0 4px 20px var(--brand-glow);
       position: relative;
       overflow: hidden;
     }
-    
+
     .brand-logo::before {
       content: '';
       position: absolute;
@@ -125,50 +145,52 @@
       left: -100%;
       width: 100%;
       height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
       transition: left 0.5s ease;
     }
-    
+
     .brand:hover .brand-logo::before {
       left: 100%;
     }
-    
-    .brand-title { 
-      font-weight: 700; 
-      letter-spacing: -0.02em; 
+
+    .brand-title {
+      font-weight: 700;
+      letter-spacing: -0.02em;
       font-size: 1.25rem;
       background: var(--gradient-text);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
     }
-    
-    .nav-links { 
-      display: flex; 
-      gap: 8px; 
-      align-items: center; 
+
+    .nav-links {
+      display: flex;
+      gap: 8px;
+      align-items: center;
     }
-    
-    .nav-links a, .nav-links button { 
-      color: var(--text-muted); 
-      text-decoration: none; 
-      padding: 10px 16px; 
-      border-radius: 10px; 
-      border: 1px solid transparent; 
-      background: transparent; 
+
+    .nav-links a,
+    .nav-links button {
+      color: var(--text-muted);
+      text-decoration: none;
+      padding: 10px 16px;
+      border-radius: 10px;
+      border: 1px solid transparent;
+      background: transparent;
       cursor: pointer;
       transition: all 0.2s ease;
       font-weight: 500;
       position: relative;
     }
-    
-    .nav-links a:hover, .nav-links button:hover { 
+
+    .nav-links a:hover,
+    .nav-links button:hover {
       color: var(--text);
-      background: var(--card-soft); 
+      background: var(--card-soft);
       border-color: var(--border);
       transform: translateY(-1px);
     }
-    
+
     .nav-links a.active {
       color: var(--brand);
       background: var(--card);
@@ -177,12 +199,12 @@
     }
 
     /* Enhanced hero section */
-    .hero { 
-      padding: clamp(60px, 10vh, 120px) 0 clamp(40px, 8vh, 80px); 
+    .hero {
+      padding: clamp(60px, 10vh, 120px) 0 clamp(40px, 8vh, 80px);
       position: relative;
       overflow: hidden;
     }
-    
+
     .hero::before {
       content: '';
       position: absolute;
@@ -191,19 +213,19 @@
       right: 0;
       bottom: 0;
       background: radial-gradient(circle at 20% 50%, var(--brand-glow) 0%, transparent 50%),
-                  radial-gradient(circle at 80% 20%, rgba(6, 182, 212, 0.1) 0%, transparent 50%);
+        radial-gradient(circle at 80% 20%, rgba(6, 182, 212, 0.1) 0%, transparent 50%);
       z-index: -1;
     }
-    
-    .hero-content { 
+
+    .hero-content {
       text-align: center;
       max-width: 900px;
       margin: 0 auto;
     }
-    
-    .hero h1 { 
-      font-size: clamp(2.5rem, 6vw, 4rem); 
-      margin: 0 0 24px; 
+
+    .hero h1 {
+      font-size: clamp(2.5rem, 6vw, 4rem);
+      margin: 0 0 24px;
       line-height: 1.1;
       font-weight: 800;
       background: linear-gradient(135deg, var(--text) 0%, var(--brand) 50%, var(--brand-2) 100%);
@@ -212,8 +234,8 @@
       background-clip: text;
       letter-spacing: -0.02em;
     }
-    
-    .hero .lead { 
+
+    .hero .lead {
       font-size: clamp(1.1rem, 2.5vw, 1.4rem);
       color: var(--text-muted);
       margin: 0 0 32px;
@@ -221,7 +243,7 @@
       margin-left: auto;
       margin-right: auto;
     }
-    
+
     .hero .lead-highlight {
       background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(6, 182, 212, 0.05) 100%);
       border: 1px solid var(--border);
@@ -233,46 +255,46 @@
     }
 
     /* Enhanced badges */
-    .badges { 
-      display: flex; 
-      flex-wrap: wrap; 
-      gap: 12px; 
+    .badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
       margin: 32px 0;
       justify-content: center;
     }
-    
-    .badges a { 
+
+    .badges a {
       transition: transform 0.2s ease, box-shadow 0.2s ease;
       border-radius: 8px;
       overflow: hidden;
     }
-    
+
     .badges a:hover {
       transform: translateY(-2px);
       box-shadow: 0 8px 25px var(--shadow);
     }
-    
-    .badges a img { 
+
+    .badges a img {
       height: 24px;
       border-radius: 6px;
     }
 
     /* Enhanced CTA buttons */
-    .cta { 
-      display: flex; 
-      gap: 16px; 
+    .cta {
+      display: flex;
+      gap: 16px;
       flex-wrap: wrap;
       justify-content: center;
       margin-top: 40px;
     }
-    
-    .btn { 
-      text-decoration: none; 
-      border: 2px solid var(--border); 
-      padding: 16px 24px; 
-      border-radius: 12px; 
-      color: var(--text); 
-      background: var(--card); 
+
+    .btn {
+      text-decoration: none;
+      border: 2px solid var(--border);
+      padding: 16px 24px;
+      border-radius: 12px;
+      color: var(--text);
+      background: var(--card);
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       font-weight: 600;
       position: relative;
@@ -280,7 +302,7 @@
       min-width: 140px;
       text-align: center;
     }
-    
+
     .btn::before {
       content: '';
       position: absolute;
@@ -288,84 +310,89 @@
       left: -100%;
       width: 100%;
       height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
       transition: left 0.5s ease;
     }
-    
+
     .btn:hover::before {
       left: 100%;
     }
-    
-    .btn:hover { 
-      transform: translateY(-3px); 
+
+    .btn:hover {
+      transform: translateY(-3px);
       box-shadow: 0 12px 40px var(--shadow);
       border-color: var(--brand);
     }
-    
-    .btn.primary { 
+
+    .btn.primary {
       background: var(--gradient-brand);
-      color: white; 
+      color: white;
       border: 2px solid transparent;
       font-weight: 700;
       box-shadow: 0 4px 20px var(--brand-glow);
     }
-    
+
     .btn.primary:hover {
       box-shadow: 0 12px 40px var(--brand-glow);
       transform: translateY(-3px) scale(1.02);
     }
 
     /* Enhanced sections */
-    section { 
+    section {
       padding: clamp(40px, 8vh, 80px) 0;
       scroll-margin-top: 100px;
     }
-    
-    h2 { 
-      margin: 0 0 24px; 
+
+    h2 {
+      margin: 0 0 24px;
       font-size: clamp(1.8rem, 4vw, 2.5rem);
       font-weight: 700;
       position: relative;
       color: var(--text);
     }
-    
-    h2::after { 
-      content: ""; 
-      display: block; 
-      width: 60px; 
-      height: 4px; 
+
+    h2::after {
+      content: "";
+      display: block;
+      width: 60px;
+      height: 4px;
       background: var(--gradient-brand);
-      border-radius: 4px; 
+      border-radius: 4px;
       margin-top: 12px;
     }
-    
+
     h3 {
       color: var(--text);
       font-size: 1.4rem;
       margin: 32px 0 16px;
       font-weight: 600;
     }
-    
+
     p {
       color: var(--text-muted);
       margin: 0 0 16px;
       line-height: 1.7;
     }
-    
-    .text-center { text-align: center; }
-    .muted { color: var(--text-dim); }
+
+    .text-center {
+      text-align: center;
+    }
+
+    .muted {
+      color: var(--text-dim);
+    }
 
     /* Enhanced code blocks */
-    pre { 
-      background: var(--card); 
-      border: 1px solid var(--border); 
-      border-radius: 12px; 
-      padding: 24px; 
+    pre {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
       overflow: auto;
       box-shadow: 0 4px 20px var(--shadow-soft);
       position: relative;
     }
-    
+
     pre::before {
       content: '';
       position: absolute;
@@ -378,25 +405,33 @@
     }
 
     /* Enhanced grid and cards */
-    .grid { 
-      display: grid; 
+    .grid {
+      display: grid;
       gap: 24px;
     }
-    
-    .cols-2 { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
-    .cols-3 { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
-    .cols-4 { grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
-    
-    .card { 
-      background: var(--card); 
-      border: 1px solid var(--border); 
-      border-radius: 16px; 
+
+    .cols-2 {
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    }
+
+    .cols-3 {
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    }
+
+    .cols-4 {
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
       padding: 24px;
       transition: all 0.3s ease;
       position: relative;
       overflow: hidden;
     }
-    
+
     .card::before {
       content: '';
       position: absolute;
@@ -408,11 +443,11 @@
       transform: scaleX(0);
       transition: transform 0.3s ease;
     }
-    
+
     .card:hover::before {
       transform: scaleX(1);
     }
-    
+
     .card:hover {
       transform: translateY(-4px);
       border-color: var(--brand);
@@ -426,7 +461,7 @@
       gap: 32px;
       margin-top: 48px;
     }
-    
+
     .feature-card {
       background: var(--card);
       border: 1px solid var(--border);
@@ -437,7 +472,7 @@
       position: relative;
       overflow: hidden;
     }
-    
+
     .feature-card::before {
       content: '';
       position: absolute;
@@ -449,17 +484,17 @@
       opacity: 0;
       transition: opacity 0.3s ease;
     }
-    
+
     .feature-card:hover::before {
       opacity: 1;
     }
-    
+
     .feature-card:hover {
       transform: translateY(-8px);
       border-color: var(--brand);
       box-shadow: 0 20px 60px var(--shadow);
     }
-    
+
     .feature-icon {
       font-size: 3rem;
       margin-bottom: 24px;
@@ -467,14 +502,14 @@
       position: relative;
       z-index: 1;
     }
-    
+
     .feature-card h3 {
       margin: 0 0 16px;
       color: var(--text);
       position: relative;
       z-index: 1;
     }
-    
+
     .feature-card p {
       color: var(--text-muted);
       position: relative;
@@ -482,65 +517,65 @@
     }
 
     /* Enhanced demo section */
-    .demo { 
-      width: 100%; 
+    .demo {
+      width: 100%;
       margin: 48px auto;
     }
-    
-    .gif-gallery { 
+
+    .gif-gallery {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 32px; 
+      gap: 32px;
       margin-top: 32px;
     }
-    
-    .gif-card { 
-      background: var(--card); 
-      border-radius: 20px; 
+
+    .gif-card {
+      background: var(--card);
+      border-radius: 20px;
       overflow: hidden;
-      box-shadow: 0 8px 32px var(--shadow); 
-      border: 1px solid var(--border); 
-      cursor: pointer; 
+      box-shadow: 0 8px 32px var(--shadow);
+      border: 1px solid var(--border);
+      cursor: pointer;
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       position: relative;
     }
-    
-    .gif-container { 
-      width: 100%; 
-      height: 240px; 
-      position: relative; 
-      overflow: hidden; 
+
+    .gif-container {
+      width: 100%;
+      height: 240px;
+      position: relative;
+      overflow: hidden;
       background: var(--bg-soft);
     }
-    
-    .gif-container img { 
-      width: 100%; 
-      height: 100%; 
-      object-fit: cover; 
+
+    .gif-container img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
       transition: transform 0.4s ease;
     }
-    
-    .gif-card:hover { 
-      transform: translateY(-8px) scale(1.02); 
+
+    .gif-card:hover {
+      transform: translateY(-8px) scale(1.02);
       box-shadow: 0 20px 60px var(--shadow);
       border-color: var(--brand);
     }
-    
-    .gif-card:hover .gif-container img { 
+
+    .gif-card:hover .gif-container img {
       transform: scale(1.1);
     }
-    
-    .gif-card .card-content { 
+
+    .gif-card .card-content {
       padding: 20px 24px;
     }
-    
-    .gif-card h4 { 
+
+    .gif-card h4 {
       margin: 0 0 8px;
       font-weight: 700;
       color: var(--text);
     }
-    
-    .gif-card .description { 
+
+    .gif-card .description {
       color: var(--text-muted);
       font-size: 0.9rem;
       margin: 0;
@@ -555,136 +590,137 @@
       font-weight: 600;
       margin-top: 8px;
     }
-    
-    .status.success { 
+
+    .status.success {
       background: rgba(16, 185, 129, 0.2);
       color: var(--accent-2);
       border: 1px solid var(--accent-2);
     }
-    
-    .status.learning { 
+
+    .status.learning {
       background: rgba(245, 158, 11, 0.2);
       color: var(--accent);
       border: 1px solid var(--accent);
     }
-    
-    .status.failure { 
+
+    .status.failure {
       background: rgba(239, 68, 68, 0.2);
       color: var(--accent-danger);
       border: 1px solid var(--accent-danger);
     }
 
     /* Legend improvements */
-    .legend-item { 
-      display: flex; 
-      align-items: center; 
-      gap: 16px; 
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 16px;
       margin: 12px 0;
       padding: 8px 0;
     }
-    
-    .legend-circle, .legend-ring { 
-      width: 20px; 
-      height: 20px; 
+
+    .legend-circle,
+    .legend-ring {
+      width: 20px;
+      height: 20px;
       border-radius: 50%;
       flex-shrink: 0;
     }
-    
-    .legend-circle { 
+
+    .legend-circle {
       background: currentColor;
     }
-    
-    .legend-ring { 
-      border: 2px solid currentColor; 
+
+    .legend-ring {
+      border: 2px solid currentColor;
       background: transparent;
     }
 
     /* Enhanced modal */
-    .modal { 
-      display: none; 
-      position: fixed; 
-      z-index: 1000; 
-      inset: 0; 
-      background-color: rgba(0,0,0,0.9); 
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      inset: 0;
+      background-color: rgba(0, 0, 0, 0.9);
       backdrop-filter: blur(8px);
     }
-    
-    .modal-content { 
-      position: absolute; 
-      top: 50%; 
-      left: 50%; 
-      transform: translate(-50%, -50%); 
-      max-width: 95%; 
-      max-height: 95%; 
-      background: var(--card); 
-      border-radius: 20px; 
-      box-shadow: 0 25px 100px var(--shadow); 
-      overflow: hidden; 
+
+    .modal-content {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      max-width: 95%;
+      max-height: 95%;
+      background: var(--card);
+      border-radius: 20px;
+      box-shadow: 0 25px 100px var(--shadow);
+      overflow: hidden;
       border: 1px solid var(--border);
     }
-    
-    .modal-img { 
-      width: 100%; 
-      height: auto; 
-      display: block; 
-      object-fit: contain; 
+
+    .modal-img {
+      width: 100%;
+      height: auto;
+      display: block;
+      object-fit: contain;
       max-height: 85vh;
     }
-    
-    .modal-close { 
-      position: absolute; 
-      top: 16px; 
-      right: 16px; 
-      color: var(--text); 
-      font-size: 24px; 
-      font-weight: 900; 
-      cursor: pointer; 
-      background: rgba(0,0,0,0.7); 
-      border-radius: 50%; 
-      width: 44px; 
-      height: 44px; 
-      display: grid; 
+
+    .modal-close {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      color: var(--text);
+      font-size: 24px;
+      font-weight: 900;
+      cursor: pointer;
+      background: rgba(0, 0, 0, 0.7);
+      border-radius: 50%;
+      width: 44px;
+      height: 44px;
+      display: grid;
       place-items: center;
       transition: all 0.2s ease;
       z-index: 1001;
     }
-    
+
     .modal-close:hover {
-      background: rgba(0,0,0,0.9);
+      background: rgba(0, 0, 0, 0.9);
       transform: scale(1.1);
     }
-    
-    .modal-title { 
-      position: absolute; 
-      bottom: 0; 
-      left: 0; 
-      right: 0; 
-      background: linear-gradient(transparent, rgba(0,0,0,0.8)); 
-      color: white; 
-      padding: 20px 24px; 
-      font-size: 16px; 
+
+    .modal-title {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+      color: white;
+      padding: 20px 24px;
+      font-size: 16px;
       font-weight: 700;
     }
 
     /* Enhanced footer */
-    footer { 
-      padding: 60px 0; 
-      border-top: 1px solid var(--border); 
+    footer {
+      padding: 60px 0;
+      border-top: 1px solid var(--border);
       background: var(--bg-accent);
       margin-top: 80px;
     }
-    
+
     .footer-content {
       text-align: center;
       max-width: 600px;
       margin: 0 auto;
     }
-    
+
     .footer-content p {
       color: var(--text-muted);
       margin: 8px 0;
     }
-    
+
     .footer-links {
       display: flex;
       justify-content: center;
@@ -692,43 +728,43 @@
       margin: 32px 0;
       flex-wrap: wrap;
     }
-    
+
     .footer-links a {
       color: var(--text-muted);
       text-decoration: none;
       transition: color 0.2s ease;
     }
-    
+
     .footer-links a:hover {
       color: var(--brand);
     }
 
     /* Back to top button */
-    .to-top { 
-      position: fixed; 
-      right: 24px; 
-      bottom: 24px; 
-      width: 56px; 
-      height: 56px; 
-      border-radius: 50%; 
-      border: none; 
-      cursor: pointer; 
+    .to-top {
+      position: fixed;
+      right: 24px;
+      bottom: 24px;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      border: none;
+      cursor: pointer;
       background: var(--gradient-brand);
-      color: white; 
-      font-weight: 800; 
+      color: white;
+      font-weight: 800;
       font-size: 1.2rem;
-      box-shadow: 0 8px 32px var(--brand-glow); 
-      opacity: 0; 
-      pointer-events: none; 
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+      box-shadow: 0 8px 32px var(--brand-glow);
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       z-index: 60;
     }
-    
-    .to-top.show { 
-      opacity: 1; 
+
+    .to-top.show {
+      opacity: 1;
       pointer-events: auto;
     }
-    
+
     .to-top:hover {
       transform: translateY(-4px) scale(1.1);
       box-shadow: 0 12px 40px var(--brand-glow);
@@ -736,8 +772,13 @@
 
     /* Accessibility improvements */
     @media (prefers-reduced-motion: reduce) {
-      html { scroll-behavior: auto; }
-      *, *::before, *::after { 
+      html {
+        scroll-behavior: auto;
+      }
+
+      *,
+      *::before,
+      *::after {
         animation-duration: 0.01ms !important;
         animation-iteration-count: 1 !important;
         transition-duration: 0.01ms !important;
@@ -749,34 +790,35 @@
       .nav-inner {
         height: 64px;
       }
-      
+
       .nav-links {
-        display: none; /* TODO: Add mobile menu */
+        display: none;
+        /* TODO: Add mobile menu */
       }
-      
+
       .hero {
         padding: 40px 0;
       }
-      
+
       .cta {
         flex-direction: column;
         align-items: center;
       }
-      
+
       .btn {
         width: 100%;
         max-width: 280px;
       }
-      
+
       .badges {
         justify-content: center;
       }
-      
+
       .feature-grid {
         grid-template-columns: 1fr;
         gap: 24px;
       }
-      
+
       .gif-gallery {
         grid-template-columns: 1fr;
       }
@@ -784,20 +826,32 @@
 
     /* Print styles */
     @media print {
-      .nav, .to-top, .modal { display: none; }
-      body { background: white; color: black; }
-      .hero::before { display: none; }
+
+      .nav,
+      .to-top,
+      .modal {
+        display: none;
+      }
+
+      body {
+        background: white;
+        color: black;
+      }
+
+      .hero::before {
+        display: none;
+      }
     }
 
     /* Focus styles for accessibility */
-    :focus-visible { 
-      outline: 3px solid var(--brand); 
-      outline-offset: 2px; 
+    :focus-visible {
+      outline: 3px solid var(--brand);
+      outline-offset: 2px;
       border-radius: 8px;
     }
 
     /* Selection styling */
-    ::selection { 
+    ::selection {
       background: var(--brand-glow);
       color: var(--text);
     }
@@ -808,6 +862,7 @@
         opacity: 0;
         transform: translateY(30px);
       }
+
       to {
         opacity: 1;
         transform: translateY(0);
@@ -831,6 +886,7 @@
     }
   </style>
 </head>
+
 <body>
   <nav class="nav" role="navigation" aria-label="Main navigation">
     <div class="container nav-inner">
@@ -841,10 +897,12 @@
       <div class="nav-links">
         <a href="#about">About</a>
         <a href="#research">Research</a>
+        <a href="#task">Task</a>
+        <a href="#specs">Specifications</a>
+        <a href="#features">Features</a>
         <a href="#demo">Demo</a>
         <a href="#quickstart">Quick Start</a>
-        <a href="#examples">Examples</a>
-        <a href="#specs">Specs</a>
+        <a href="#examples">Implementation</a>
       </div>
     </div>
   </nav>
@@ -853,22 +911,37 @@
     <div class="container">
       <div class="hero-content">
         <h1>SpaceMining<br>A Novel RL Environment Beyond LLM Priors</h1>
-        <p class="lead">A custom Gymnasium environment intentionally unfamiliar to LLMs. It enables fair evaluation of reward-design capabilities without leakage from standard RL benchmarks, addressing prior-knowledge bias and supporting studies of true generalization.</p>
-        
+        <p class="lead">A custom Gymnasium environment intentionally unfamiliar to LLMs. It enables fair evaluation of
+          reward-design capabilities without leakage from standard RL benchmarks, addressing prior-knowledge bias and
+          supporting studies of true generalization.</p>
+
         <div class="lead-highlight">
-          <strong>🎯 Research Innovation:</strong> SpaceMining addresses concerns about LLM prior knowledge from pretraining data on standard RL environments (CartPole, BipedalWalker, Ant), providing a novel benchmark for evaluating true generalization capabilities in reward function design.
+          <strong>🎯 Research Innovation:</strong> SpaceMining addresses concerns about LLM prior knowledge from
+          pretraining data on standard RL environments (CartPole, BipedalWalker, Ant), providing a novel benchmark for
+          evaluating true generalization capabilities in reward function design.
         </div>
-        
+
         <div class="badges">
-          <a href="LICENSE" target="_blank" rel="noopener" aria-label="MIT License"><img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-blue.svg"/></a>
-          <a href="https://www.python.org/downloads/" target="_blank" rel="noopener" aria-label="Python 3.10+"><img alt="Python" src="https://img.shields.io/badge/Python-3.10%2B-brightgreen.svg"/></a>
-          <a href="https://pypi.org/project/space-mining/" target="_blank" rel="noopener" aria-label="PyPI Package"><img alt="PyPI" src="https://img.shields.io/pypi/v/space-mining?color=6aa6ff"/></a>
-          <a href="https://github.com/reveurmichael/space_mining/actions/workflows/run-pytest.yml" target="_blank" rel="noopener" aria-label="Test Status"><img alt="Tests" src="https://github.com/reveurmichael/space_mining/actions/workflows/run-pytest.yml/badge.svg"/></a>
-          <a href="https://huggingface.co/LUNDECHEN/space-mining-ppo" target="_blank" rel="noopener" aria-label="Hugging Face Model"><img alt="Hugging Face" src="https://img.shields.io/badge/🤗%20Hugging%20Face-space--mining--ppo-yellow"/></a>
-          <a href="https://wandb.ai/lundechen-shanghai-university/space-mining-ppo" target="_blank" rel="noopener" aria-label="Weights & Biases"><img alt="W&B Project" src="https://img.shields.io/badge/W%26B-space--mining--ppo-fc4c02?logo=weightsandbiases"/></a>
-          <a href="https://colab.research.google.com/github/reveurmichael/space_mining/blob/main/getting_started.ipynb" target="_blank" rel="noopener" aria-label="Google Colab"><img alt="Open In Colab" src="https://colab.research.google.com/assets/colab-badge.svg"/></a>
+          <a href="LICENSE" target="_blank" rel="noopener" aria-label="MIT License"><img alt="License: MIT"
+              src="https://img.shields.io/badge/License-MIT-blue.svg" /></a>
+          <a href="https://www.python.org/downloads/" target="_blank" rel="noopener" aria-label="Python 3.10+"><img
+              alt="Python" src="https://img.shields.io/badge/Python-3.10%2B-brightgreen.svg" /></a>
+          <a href="https://pypi.org/project/space-mining/" target="_blank" rel="noopener" aria-label="PyPI Package"><img
+              alt="PyPI" src="https://img.shields.io/pypi/v/space-mining?color=6aa6ff" /></a>
+          <a href="https://github.com/reveurmichael/space_mining/actions/workflows/run-pytest.yml" target="_blank"
+            rel="noopener" aria-label="Test Status"><img alt="Tests"
+              src="https://github.com/reveurmichael/space_mining/actions/workflows/run-pytest.yml/badge.svg" /></a>
+          <a href="https://huggingface.co/LUNDECHEN/space-mining-ppo" target="_blank" rel="noopener"
+            aria-label="Hugging Face Model"><img alt="Hugging Face"
+              src="https://img.shields.io/badge/🤗%20Hugging%20Face-space--mining--ppo-yellow" /></a>
+          <a href="https://wandb.ai/lundechen-shanghai-university/space-mining-ppo" target="_blank" rel="noopener"
+            aria-label="Weights & Biases"><img alt="W&B Project"
+              src="https://img.shields.io/badge/W%26B-space--mining--ppo-fc4c02?logo=weightsandbiases" /></a>
+          <a href="https://colab.research.google.com/github/reveurmichael/space_mining/blob/main/getting_started.ipynb"
+            target="_blank" rel="noopener" aria-label="Google Colab"><img alt="Open In Colab"
+              src="https://colab.research.google.com/assets/colab-badge.svg" /></a>
         </div>
-        
+
         <div class="cta">
           <a class="btn primary" href="https://github.com/reveurmichael/space_mining" target="_blank" rel="noopener">
             <span>🔗 View on GitHub</span>
@@ -876,10 +949,12 @@
           <a class="btn primary" href="docs/" rel="noopener">
             <span>📚 Documentation</span>
           </a>
-          <a class="btn primary" href="https://huggingface.co/LUNDECHEN/space-mining-ppo/" target="_blank" rel="noopener">
+          <a class="btn primary" href="https://huggingface.co/LUNDECHEN/space-mining-ppo/" target="_blank"
+            rel="noopener">
             <span>🤗 HuggingFace</span>
           </a>
-          <a class="btn primary" href="https://wandb.ai/lundechen-shanghai-university/space-mining-ppo/" target="_blank" rel="noopener">
+          <a class="btn primary" href="https://wandb.ai/lundechen-shanghai-university/space-mining-ppo/" target="_blank"
+            rel="noopener">
             <span>📊 W&B Dashboard</span>
           </a>
         </div>
@@ -890,190 +965,104 @@
   <main class="container">
     <section id="about" class="reveal">
       <h2>What is SpaceMining?</h2>
-      <p>SpaceMining is a single-agent reinforcement learning environment simulating asteroid mining in a 2D space environment. The agent (mining robot) must collect resources from asteroids, deliver them to the mothership, manage energy consumption, and avoid moving obstacles while maximizing efficiency.</p>
-      
+      <p>SpaceMining is a single-agent reinforcement learning environment simulating asteroid mining in a 2D space
+        environment. The agent (mining robot) must collect resources from asteroids, deliver them to the mothership,
+        manage energy consumption, and avoid moving obstacles while maximizing efficiency.</p>
+
       <div class="grid cols-3">
         <div class="card">
           <h3>🎯 Novel Benchmark</h3>
-          <p>Custom environment intentionally unfamiliar to LLMs, enabling evaluation of reward-design capabilities without leakage from standard RL benchmarks.</p>
+          <p>Custom environment intentionally unfamiliar to LLMs, enabling evaluation of reward-design capabilities
+            without leakage from standard RL benchmarks.</p>
         </div>
         <div class="card">
           <h3>⚡ 2D Space Physics</h3>
-          <p>Realistic physics simulation with thrust dynamics, drag forces, gravitational attraction, and collision detection in an 80×80 grid environment.</p>
+          <p>Realistic physics simulation with thrust dynamics, drag forces, gravitational attraction, and collision
+            detection in an 80×80 grid environment.</p>
         </div>
         <div class="card">
           <h3>🔋 Strategic Constraints</h3>
-          <p>Energy management requiring periodic mothership returns, limited observation radius, and moving obstacles creating balanced difficulty.</p>
+          <p>Energy management requiring periodic mothership returns, limited observation radius, and moving obstacles
+            creating balanced difficulty.</p>
         </div>
       </div>
     </section>
 
     <section id="research" class="reveal">
       <h2>Research Purpose</h2>
-      <p>This environment was specifically designed to evaluate large language models' ability to design reward functions for unfamiliar environments without prior knowledge. Recent studies have raised concerns that large language models may carry prior knowledge from pretraining data about standard RL environments (like CartPole, BipedalWalker, Ant), leading to potential prompt leakage and evaluation biases.</p>
-      
-      <p>To address this issue, SpaceMining serves as a custom environment to assess true generalization capabilities on tasks free from such pretrained knowledge. This allows researchers to evaluate whether LLMs can effectively design reward functions for completely novel environments.</p>
-      
-      <div class="grid cols-2" style="margin-top: 32px;">
+      <p>This environment was specifically designed to evaluate large language models' ability to design reward
+        functions for unfamiliar environments without prior knowledge. Recent studies have raised concerns that large
+        language models may carry prior knowledge from pretraining data about standard RL environments (like CartPole,
+        BipedalWalker, Ant), leading to potential prompt leakage and evaluation biases.</p>
+
+      <p>To address this issue, SpaceMining serves as a custom environment to assess true generalization capabilities on
+        tasks free from such pretrained knowledge. This allows researchers to evaluate whether LLMs can effectively
+        design reward functions for completely novel environments.</p>
+
+      <div class="card" style="margin-top: 32px;">
+        <h3>🔬 Research Applications</h3>
+        <div class="grid cols-2" style="margin-top: 16px;">
+          <div>
+            <h4>Prior Knowledge Issues</h4>
+            <ul>
+              <li>Standard benchmarks (CartPole, BipedalWalker, Ant) may be in LLM training data</li>
+              <li>Potential prompt leakage and evaluation biases</li>
+              <li>Difficulty assessing true generalization capabilities</li>
+            </ul>
+          </div>
+          <div>
+            <h4>SpaceMining Solutions</h4>
+            <ul>
+              <li>Novel environment unfamiliar to existing LLMs</li>
+              <li>Fair evaluation of reward design capabilities</li>
+              <li>Assessment of true generalization without bias</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="task" class="reveal">
+      <h2>Task Description</h2>
+      <p>The agent is deployed in a 2D space environment (80×80 grid) with randomly distributed asteroids and a central
+        mothership. The comprehensive task requires balancing multiple objectives:</p>
+
+      <div class="grid cols-2">
         <div class="card">
-          <h3>⚠️ Prior Knowledge Issues</h3>
-          <p>Challenges with existing RL benchmarks for LLM evaluation:</p>
+          <h3>🎯 Primary Objectives</h3>
           <ul>
-            <li>Standard benchmarks (CartPole, BipedalWalker, Ant) may be in LLM training data</li>
-            <li>Potential prompt leakage and evaluation biases</li>
-            <li>Difficulty assessing true generalization capabilities</li>
+            <li><strong>Resource Collection:</strong> Navigate efficiently to discover and mine resource-rich asteroids
+            </li>
+            <li><strong>Energy Management:</strong> Monitor consumption and return to mothership for recharging</li>
+            <li><strong>Obstacle Avoidance:</strong> Avoid collisions with moving obstacles</li>
+            <li><strong>Delivery Optimization:</strong> Transport resources to maximize collection efficiency</li>
           </ul>
         </div>
         <div class="card">
-          <h3>✅ SpaceMining Solutions</h3>
-          <p>How SpaceMining addresses these challenges:</p>
+          <h3>⚖️ Strategic Balance</h3>
           <ul>
-            <li>Novel environment unfamiliar to existing LLMs</li>
-            <li>Fair evaluation of reward design capabilities</li>
-            <li>Assessment of true generalization without bias</li>
+            <li><strong>Exploration vs Exploitation:</strong> Discover new asteroids vs mine known resources</li>
+            <li><strong>Risk vs Reward:</strong> Navigate through obstacles vs safe paths</li>
+            <li><strong>Energy vs Progress:</strong> Conservative movement vs aggressive mining</li>
+            <li><strong>Efficiency Optimization:</strong> Minimize travel time while maximizing collection</li>
           </ul>
         </div>
       </div>
 
       <div class="card" style="margin-top: 32px;">
-        <h3>🎯 Task Description</h3>
-        <p>The agent is deployed in a 2D space environment (80×80 grid) with randomly distributed asteroids and a central mothership. The comprehensive task requires balancing multiple objectives:</p>
-        
-        <div class="grid cols-2" style="margin-top: 16px;">
-          <div>
-            <h4>Primary Objectives</h4>
-            <ul>
-              <li><strong>Resource Collection:</strong> Navigate efficiently to discover and mine resource-rich asteroids</li>
-              <li><strong>Energy Management:</strong> Monitor consumption and return to mothership for recharging</li>
-              <li><strong>Obstacle Avoidance:</strong> Avoid collisions with moving obstacles</li>
-              <li><strong>Delivery Optimization:</strong> Transport resources to maximize collection efficiency</li>
-            </ul>
-          </div>
-          <div>
-            <h4>Strategic Balance</h4>
-            <ul>
-              <li><strong>Exploration vs Exploitation:</strong> Discover new asteroids vs mine known resources</li>
-              <li><strong>Risk vs Reward:</strong> Navigate through obstacles vs safe paths</li>
-              <li><strong>Energy vs Progress:</strong> Conservative movement vs aggressive mining</li>
-              <li><strong>Efficiency Optimization:</strong> Minimize travel time while maximizing collection</li>
-            </ul>
-          </div>
-        </div>
-        
-        <div style="margin-top: 16px;">
-          <h4>🏆 Fitness Scoring System</h4>
-          <p>The environment uses a comprehensive fitness scoring system with a target range of approximately <strong>3000 points</strong>, evaluating resource collection, energy management, efficiency, and survival time. This multi-faceted scoring encourages agents to develop sophisticated strategies rather than optimizing for single objectives.</p>
-        </div>
-      </div>
-    </section>
-
-    <section id="demo" class="reveal">
-      <h2>Demo: Agent Behaviors</h2>
-      <p class="text-center muted">The GIF demonstrations showcase different agent behaviors and training outcomes, from successful resource collection to various failure modes and learning phases.</p>
-      
-      <div class="gif-gallery">
-        <div class="gif-card" role="button" tabindex="0" aria-label="View early exploration demonstration">
-          <div class="gif-container">
-            <img data-src="assets/gifs/early_exploration.gif" alt="Early exploration phase at 25,000 timesteps showing initial learning behavior" loading="lazy" />
-          </div>
-          <div class="card-content">
-            <h4>🔍 Early Exploration</h4>
-            <p class="description">Early Exploration · Eval num_timesteps=25000<br>Initial learning phase</p>
-            <span class="status learning">Learning</span>
-          </div>
-        </div>
-
-        <div class="gif-card" role="button" tabindex="0" aria-label="View continued early exploration demonstration">
-          <div class="gif-container">
-            <img data-src="assets/gifs/early_exploration_later.gif" alt="Early exploration phase at 500,000 timesteps showing continued learning" loading="lazy" />
-          </div>
-          <div class="card-content">
-            <h4>🔍 Early Exploration (Later)</h4>
-            <p class="description">Early Exploration · Eval num_timesteps=500000<br>Continued learning</p>
-            <span class="status learning">Learning</span>
-          </div>
-        </div>
-
-        <div class="gif-card" role="button" tabindex="0" aria-label="View successful mining demonstration">
-          <div class="gif-container">
-            <img data-src="assets/gifs/successful_mining.gif" alt="Successful mining operation with strategic resource collection" loading="lazy" />
-          </div>
-          <div class="card-content">
-            <h4>⛏️ Successful Mining</h4>
-            <p class="description">Successful Mining<br>Strategic resource collection</p>
-            <span class="status success">Success</span>
-          </div>
-        </div>
-
-        <div class="gif-card" role="button" tabindex="0" aria-label="View complete episode demonstration">
-          <div class="gif-container">
-            <img data-src="assets/gifs/complete_episode.gif" alt="Complete episode demonstration running full 1200 steps with optimal resource collection" loading="lazy" />
-          </div>
-          <div class="card-content">
-            <h4>🏆 Complete Episode</h4>
-            <p class="description">Complete Episode (1200 steps)<br>Optimal resource collection</p>
-            <span class="status success">Success</span>
-          </div>
-        </div>
-
-        <div class="gif-card" role="button" tabindex="0" aria-label="View energy depletion failure demonstration">
-          <div class="gif-container">
-            <img data-src="assets/gifs/energy_depletion.gif" alt="Energy depletion failure showing agent failing to recharge at mothership" loading="lazy" />
-          </div>
-          <div class="card-content">
-            <h4>🔋 Energy Depletion</h4>
-            <p class="description">Energy Depletion<br>Failed to recharge at mothership</p>
-            <span class="status failure">Failure</span>
-          </div>
-        </div>
-
-        <div class="gif-card" role="button" tabindex="0" aria-label="View poor obstacle avoidance demonstration">
-          <div class="gif-container">
-            <img data-src="assets/gifs/poor_obstacle_avoidance.gif" alt="Poor obstacle avoidance showing multiple collisions with moving obstacles" loading="lazy" />
-          </div>
-          <div class="card-content">
-            <h4>💥 Poor Obstacle Avoidance</h4>
-            <p class="description">Poor Obstacle Avoidance<br>Multiple collisions</p>
-            <span class="status failure">Failure</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="card" style="margin-top: 48px;">
-        <h3>🎮 Visual Elements Guide</h3>
-        <div class="legend-item">
-          <span class="legend-circle" style="color:#32C832"></span>
-          <span><strong>Green Circle:</strong> Mining agent (changes color based on state)</span>
-        </div>
-        <div class="legend-item">
-          <span class="legend-circle" style="color:#3296C8"></span>
-          <span><strong>Blue Circle:</strong> Mothership (delivery and recharge point)</span>
-        </div>
-        <div class="legend-item">
-          <span class="legend-circle" style="color:#FFD700"></span>
-          <span><strong>Yellow Circles:</strong> Resource-rich asteroids (mining targets)</span>
-        </div>
-        <div class="legend-item">
-          <span class="legend-circle" style="color:#C83232"></span>
-          <span><strong>Red Circles:</strong> Moving obstacles (collision hazards)</span>
-        </div>
-        <div class="legend-item">
-          <span class="legend-ring" style="color:#FF0000"></span>
-          <span><strong>Red Ring:</strong> Mining range indicator</span>
-        </div>
-        <div class="legend-item">
-          <span class="legend-ring" style="color:#6464FF"></span>
-          <span><strong>Blue Ring:</strong> Observation range (partial observability)</span>
-        </div>
-        <p><strong>Health Bars:</strong> Green-to-red gradient bars above asteroids indicate remaining resource levels</p>
-        <p><strong>Status Display:</strong> Real-time information showing energy, inventory, mining progress, and episode statistics</p>
+        <h3>🏆 Fitness Scoring System</h3>
+        <p>The environment uses a comprehensive fitness scoring system with a target range of approximately <strong>3000
+            points</strong>, evaluating resource collection, energy management, efficiency, and survival time. This
+          multi-faceted scoring encourages agents to develop sophisticated strategies rather than optimizing for single
+          objectives.</p>
       </div>
     </section>
 
     <section id="specs" class="reveal">
       <h2>Environment Specifications</h2>
-      <p>Technical specifications for researchers implementing experiments and designing reward functions for the SpaceMining environment.</p>
-      
+      <p>Technical specifications for researchers implementing experiments and designing reward functions for the
+        SpaceMining environment.</p>
+
       <div class="grid cols-3">
         <div class="card">
           <h3>📊 Action Space</h3>
@@ -1089,7 +1078,8 @@
           <p><strong>Type:</strong> Box(53) - Structured observations</p>
           <ul>
             <li><strong>Agent State (6)</strong>: Position (x, y), velocity (vx, vy), energy level, inventory</li>
-            <li><strong>Asteroid Information (45)</strong>: Relative positions and resource amounts for visible asteroids</li>
+            <li><strong>Asteroid Information (45)</strong>: Relative positions and resource amounts for visible
+              asteroids</li>
             <li><strong>Mothership Position (2)</strong>: Relative position to mothership</li>
           </ul>
         </div>
@@ -1133,36 +1123,52 @@
           </ul>
         </div>
       </div>
+    </section>
 
-      <div class="card" style="margin-top: 32px;">
-        <h3>🚀 Environment Features</h3>
-        <p>SpaceMining incorporates carefully designed mechanics to create a novel challenge unfamiliar to existing language models, ensuring fair evaluation of reward design capabilities.</p>
-        
-        <div class="grid cols-2" style="margin-top: 16px;">
-          <div>
-            <h4>Core Mechanics</h4>
-            <ul>
-              <li><strong>Physics Simulation:</strong> Realistic 2D space physics with inertia, thrust vectoring, drag forces, and gravitational attraction</li>
-              <li><strong>Resource Dynamics:</strong> Dynamic asteroid generation with varying resource densities and depletion mechanics</li>
-              <li><strong>Multi-Objective Design:</strong> Comprehensive reward structure balancing exploration, efficiency, and survival</li>
-            </ul>
-          </div>
-          <div>
-            <h4>Advanced Features</h4>
-            <ul>
-              <li><strong>Partial Observability:</strong> Limited observation radius creating fog-of-war mechanics</li>
-              <li><strong>Dynamic Challenges:</strong> Moving obstacles with varied pathfinding behaviors</li>
-              <li><strong>Research Analytics:</strong> Comprehensive state tracking and performance metrics</li>
-            </ul>
-          </div>
+    <section id="features" class="reveal">
+      <h2>Environment Features</h2>
+      <p>SpaceMining incorporates carefully designed mechanics to create a novel challenge unfamiliar to existing
+        language models, ensuring fair evaluation of reward design capabilities.</p>
+
+      <div class="grid cols-2">
+        <div class="card">
+          <h3>🚀 Physics Simulation</h3>
+          <p>Realistic 2D space physics with inertia, thrust vectoring, drag forces, gravitational attraction to
+            mothership, and collision responses that create emergent behavioral complexity.</p>
+        </div>
+        <div class="card">
+          <h3>💎 Resource Dynamics</h3>
+          <p>Dynamic asteroid generation with varying resource densities, depletion mechanics, and inventory constraints
+            requiring strategic resource management decisions.</p>
+        </div>
+        <div class="card">
+          <h3>🎯 Multi-Objective Design</h3>
+          <p>Comprehensive reward structure balancing exploration, efficiency, resource collection, energy conservation,
+            and survival to encourage sophisticated agent strategies.</p>
+        </div>
+        <div class="card">
+          <h3>👁️ Partial Observability</h3>
+          <p>Limited observation radius (15 units) creating fog-of-war mechanics that require strategic exploration,
+            memory utilization, and planning under uncertainty.</p>
+        </div>
+        <div class="card">
+          <h3>🛡️ Dynamic Challenges</h3>
+          <p>Moving obstacles with varied pathfinding behaviors create evolving navigation challenges that prevent
+            simple rule-based solutions.</p>
+        </div>
+        <div class="card">
+          <h3>📊 Research Analytics</h3>
+          <p>Comprehensive state tracking, performance metrics, and fitness scoring systems designed for rigorous
+            evaluation of learning algorithms and reward functions.</p>
         </div>
       </div>
     </section>
 
     <section id="quickstart" class="reveal">
       <h2>Quick Start Guide</h2>
-      <p>Get started with SpaceMining for your research experiments. The environment is designed to be easy to install and integrate into existing RL pipelines.</p>
-      
+      <p>Get started with SpaceMining for your research experiments. The environment is designed to be easy to install
+        and integrate into existing RL pipelines.</p>
+
       <div class="grid">
         <div class="card">
           <h3>🚀 Installation</h3>
@@ -1194,9 +1200,9 @@ for _ in range(1000):
     </section>
 
     <section id="examples" class="reveal">
-      <h2>Examples</h2>
+      <h2>Research Implementation</h2>
       <p>Practical examples for conducting LLM evaluation research and agent training experiments with SpaceMining.</p>
-      
+
       <div class="card">
         <h3>🤖 Agent Training Pipeline</h3>
         <p class="muted">Complete PPO training setup for baseline agent development and reward function evaluation.</p>
@@ -1229,7 +1235,8 @@ python -m space_mining.agents.train_ppo \
 # Render a GIF
 python -m space_mining.scripts.make_gif \
   --checkpoint runs/ppo/final_model.zip --output output_gif/agent.gif --steps 800 --fps 20</code></pre>
-        <p class="muted">These commands provide a straightforward workflow for training agents and generating visual demonstrations for research documentation.</p>
+        <p class="muted">These commands provide a straightforward workflow for training agents and generating visual
+          demonstrations for research documentation.</p>
       </div>
 
       <div class="card">
@@ -1256,6 +1263,118 @@ print(f"Environment initialized with {len(env.asteroid_positions)} asteroids")</
       </div>
     </section>
 
+    <section id="demo" class="reveal">
+      <h2>Demo: Agent Behaviors</h2>
+      <p class="text-center muted">The GIF demonstrations showcase different agent behaviors and training outcomes, from
+        successful resource collection to various failure modes and learning phases.</p>
+
+      <div class="gif-gallery">
+        <div class="gif-card" role="button" tabindex="0" aria-label="View early exploration demonstration">
+          <div class="gif-container">
+            <img data-src="assets/gifs/early_exploration.gif"
+              alt="Early exploration phase at 25,000 timesteps showing initial learning behavior" loading="lazy" />
+          </div>
+          <div class="card-content">
+            <h4>🔍 Early Exploration</h4>
+            <p class="description">Early Exploration · Eval num_timesteps=25000<br>Initial learning phase</p>
+            <span class="status learning">Learning</span>
+          </div>
+        </div>
+
+        <div class="gif-card" role="button" tabindex="0" aria-label="View continued early exploration demonstration">
+          <div class="gif-container">
+            <img data-src="assets/gifs/early_exploration_later.gif"
+              alt="Early exploration phase at 500,000 timesteps showing continued learning" loading="lazy" />
+          </div>
+          <div class="card-content">
+            <h4>🔍 Early Exploration (Later)</h4>
+            <p class="description">Early Exploration · Eval num_timesteps=500000<br>Continued learning</p>
+            <span class="status learning">Learning</span>
+          </div>
+        </div>
+
+        <div class="gif-card" role="button" tabindex="0" aria-label="View successful mining demonstration">
+          <div class="gif-container">
+            <img data-src="assets/gifs/successful_mining.gif"
+              alt="Successful mining operation with strategic resource collection" loading="lazy" />
+          </div>
+          <div class="card-content">
+            <h4>⛏️ Successful Mining</h4>
+            <p class="description">Successful Mining<br>Strategic resource collection</p>
+            <span class="status success">Success</span>
+          </div>
+        </div>
+
+        <div class="gif-card" role="button" tabindex="0" aria-label="View complete episode demonstration">
+          <div class="gif-container">
+            <img data-src="assets/gifs/complete_episode.gif"
+              alt="Complete episode demonstration running full 1200 steps with optimal resource collection"
+              loading="lazy" />
+          </div>
+          <div class="card-content">
+            <h4>🏆 Complete Episode</h4>
+            <p class="description">Complete Episode (1200 steps)<br>Optimal resource collection</p>
+            <span class="status success">Success</span>
+          </div>
+        </div>
+
+        <div class="gif-card" role="button" tabindex="0" aria-label="View energy depletion failure demonstration">
+          <div class="gif-container">
+            <img data-src="assets/gifs/energy_depletion.gif"
+              alt="Energy depletion failure showing agent failing to recharge at mothership" loading="lazy" />
+          </div>
+          <div class="card-content">
+            <h4>🔋 Energy Depletion</h4>
+            <p class="description">Energy Depletion<br>Failed to recharge at mothership</p>
+            <span class="status failure">Failure</span>
+          </div>
+        </div>
+
+        <div class="gif-card" role="button" tabindex="0" aria-label="View poor obstacle avoidance demonstration">
+          <div class="gif-container">
+            <img data-src="assets/gifs/poor_obstacle_avoidance.gif"
+              alt="Poor obstacle avoidance showing multiple collisions with moving obstacles" loading="lazy" />
+          </div>
+          <div class="card-content">
+            <h4>💥 Poor Obstacle Avoidance</h4>
+            <p class="description">Poor Obstacle Avoidance<br>Multiple collisions</p>
+            <span class="status failure">Failure</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top: 48px;">
+        <h3>🎮 Visual Elements Guide</h3>
+        <div class="legend-item">
+          <span class="legend-circle" style="color:#32C832"></span>
+          <span><strong>Green Circle:</strong> Mining agent (changes color based on state)</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-circle" style="color:#3296C8"></span>
+          <span><strong>Blue Circle:</strong> Mothership (delivery and recharge point)</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-circle" style="color:#FFD700"></span>
+          <span><strong>Yellow Circles:</strong> Resource-rich asteroids (mining targets)</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-circle" style="color:#C83232"></span>
+          <span><strong>Red Circles:</strong> Moving obstacles (collision hazards)</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-ring" style="color:#FF0000"></span>
+          <span><strong>Red Ring:</strong> Mining range indicator</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-ring" style="color:#6464FF"></span>
+          <span><strong>Blue Ring:</strong> Observation range (partial observability)</span>
+        </div>
+        <p><strong>Health Bars:</strong> Green-to-red gradient bars above asteroids indicate remaining resource levels
+        </p>
+        <p><strong>Status Display:</strong> Real-time information showing energy, inventory, mining progress, and
+          episode statistics</p>
+      </div>
+    </section>
   </main>
 
   <footer>
@@ -1269,7 +1388,8 @@ print(f"Environment initialized with {len(env.asteroid_positions)} asteroids")</
           <a href="LICENSE" target="_blank" rel="noopener">License</a>
         </div>
         <p><strong>SpaceMining</strong> — A Novel RL Environment Beyond LLM Priors</p>
-        <p>MIT License © 2024 — <strong>Authors:</strong> Xinning Zhu (zhuxinning@shu.edu.cn) · Lunde Chen (lundechen@shu.edu.cn)</p>
+        <p>MIT License © 2024 — <strong>Authors:</strong> Xinning Zhu (zhuxinning@shu.edu.cn) · Lunde Chen
+          (lundechen@shu.edu.cn)</p>
       </div>
     </div>
   </footer>
@@ -1286,7 +1406,7 @@ print(f"Environment initialized with {len(env.asteroid_positions)} asteroids")</
   </div>
 
   <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
       // Performance optimization: Use passive listeners where possible
       const addPassiveListener = (element, event, handler) => {
         element.addEventListener(event, handler, { passive: true });
@@ -1315,7 +1435,7 @@ print(f"Environment initialized with {len(env.asteroid_positions)} asteroids")</
         const rect = element.getBoundingClientRect();
         const windowHeight = window.innerHeight || document.documentElement.clientHeight;
         const windowWidth = window.innerWidth || document.documentElement.clientWidth;
-        
+
         return (
           rect.bottom >= windowHeight * threshold &&
           rect.right >= windowWidth * threshold &&
@@ -1332,7 +1452,7 @@ print(f"Environment initialized with {len(env.asteroid_positions)} asteroids")</
               forceGifRestart(img);
             }
           });
-          
+
           // Refresh modal GIF if open
           if (modal.style.display === 'block' && modalImg.src) {
             forceGifRestart(modalImg);
@@ -1369,22 +1489,22 @@ print(f"Environment initialized with {len(env.asteroid_positions)} asteroids")</
         }
         img.style.opacity = '0';
         img.style.transition = 'opacity 0.3s ease';
-        
+
         gifObserver.observe(img);
 
         // Enhanced modal functionality
         const openModal = () => {
           const src = (img.dataset.src || img.src || '').split('?')[0];
           const title = img.alt || 'Demo Preview';
-          
+
           modalImg.src = src;
           modalTitle.textContent = title;
           modal.style.display = 'block';
           document.body.style.overflow = 'hidden'; // Prevent background scroll
-          
+
           // Focus management for accessibility
           modalClose.focus();
-          
+
           setTimeout(() => forceGifRestart(modalImg), 100);
         };
 
@@ -1459,15 +1579,15 @@ print(f"Environment initialized with {len(env.asteroid_positions)} asteroids")</
         sections.forEach(section => {
           const sectionTop = section.offsetTop;
           const sectionBottom = sectionTop + section.offsetHeight;
-          
+
           if (scrollPosition >= sectionTop && scrollPosition < sectionBottom) {
             activeSection = section;
           }
         });
 
         navLinks.forEach(link => {
-          const isActive = activeSection && 
-                          link.getAttribute('href') === `#${activeSection.id}`;
+          const isActive = activeSection &&
+            link.getAttribute('href') === `#${activeSection.id}`;
           link.classList.toggle('active', isActive);
         });
       }
@@ -1483,7 +1603,7 @@ print(f"Environment initialized with {len(env.asteroid_positions)} asteroids")</
           e.preventDefault();
           const targetId = link.getAttribute('href').slice(1);
           const targetSection = document.getElementById(targetId);
-          
+
           if (targetSection) {
             const offsetTop = targetSection.offsetTop - 100;
             window.scrollTo({
@@ -1564,4 +1684,5 @@ print(f"Environment initialized with {len(env.asteroid_positions)} asteroids")</
   <script src="https://unpkg.com/prismjs/components/prism-python.min.js"></script>
   <script src="https://unpkg.com/prismjs/components/prism-bash.min.js"></script>
 </body>
+
 </html>
