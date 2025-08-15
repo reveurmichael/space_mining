@@ -1037,7 +1037,7 @@ print(f"Environment initialized with {len(env.asteroid_positions)} asteroids")</
 
     <section id="specs" class="reveal">
       <h2>Environment Specifications</h2>
-      <div class="grid cols-2">
+      <div class="grid cols-3">
         <div class="card">
           <h3>📊 Action Space</h3>
           <p><strong>Type:</strong> Box(3) - Continuous control</p>
@@ -1057,13 +1057,30 @@ print(f"Environment initialized with {len(env.asteroid_positions)} asteroids")</
           </ul>
         </div>
         <div class="card">
+          <h3>🌍 Environment Setup</h3>
+          <ul>
+            <li><strong>Grid size</strong>: 100x100 (configurable)</li>
+            <li><strong>Max asteroids</strong>: 15 per episode</li>
+            <li><strong>Obstacle count</strong>: 8 moving obstacles</li>
+            <li><strong>Observation radius</strong>: 20 units (partial observability)</li>
+          </ul>
+        </div>
+        <div class="card">
           <h3>🏆 Reward Structure</h3>
           <ul>
             <li><strong>Mining rewards</strong>: +8.0 per resource unit</li>
             <li><strong>Delivery bonuses</strong>: +12.0 per delivered unit</li>
             <li><strong>Exploration rewards</strong>: +3.0 per discovered asteroid</li>
             <li><strong>Efficiency bonuses</strong>: Energy and path optimization</li>
-            <li><strong>Penalties</strong>: Collisions (-10.0), boundaries (-1.0)</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>⚠️ Penalties & Limits</h3>
+          <ul>
+            <li><strong>Collision penalty</strong>: -10.0 per obstacle hit</li>
+            <li><strong>Boundary penalty</strong>: -1.0 per boundary contact</li>
+            <li><strong>Energy cost</strong>: Movement and mining consumption</li>
+            <li><strong>Inventory limit</strong>: 10 resource units maximum</li>
           </ul>
         </div>
         <div class="card">
