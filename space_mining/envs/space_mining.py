@@ -73,7 +73,15 @@ class SpaceMining(gym.Env):
         self.cosmic_storms = []  # NEW: Spectacular storm systems
         self.wormholes = []  # NEW: Dimensional portals
         self.cosmic_lightning = []  # NEW: Energy discharges
+        self.black_holes = []  # NEW: Massive gravitational monsters
+        self.quasars = []  # NEW: Ultra-bright galactic nuclei
+        self.cosmic_ribbons = []  # NEW: Flowing energy streams
         self.cosmic_time = 0.0
+        
+        # MASSIVE screen size for ultimate cosmic immersion
+        self.window_width = 2560
+        self.window_height = 1600
+        
         self._initialize_cosmic_background()
         
         # Zoom system
@@ -826,6 +834,73 @@ class SpaceMining(gym.Env):
             }
             self.wormholes.append(wormhole)
         
+        # Create SPECTACULAR black holes - the ultimate cosmic monsters
+        self.black_holes = []
+        for _ in range(2):  # Rare, massive gravitational beasts
+            black_hole = {
+                "x": np.random.uniform(400, 2160),
+                "y": np.random.uniform(400, 1200),
+                "size": np.random.uniform(60, 120),  # Event horizon size
+                "accretion_disk_size": np.random.uniform(200, 400),  # Swirling matter disk
+                "rotation": np.random.uniform(0, 2 * math.pi),
+                "rotation_speed": np.random.uniform(0.03, 0.08),
+                "gravity_rings": 12,  # Gravitational lensing effect
+                "intensity": np.random.uniform(0.6, 1.0),
+                "jet_length": np.random.uniform(300, 600),  # Polar jets
+                "jet_angle": np.random.uniform(0, 2 * math.pi)
+            }
+            self.black_holes.append(black_hole)
+        
+        # Create ULTRA-BRIGHT quasars - galactic powerhouses
+        self.quasars = []
+        for _ in range(3):  # Extremely bright galactic nuclei
+            quasar = {
+                "x": np.random.uniform(0, 2560),
+                "y": np.random.uniform(0, 1600),
+                "brightness": np.random.uniform(0.8, 1.0),
+                "size": np.random.uniform(40, 80),
+                "beam_length": np.random.uniform(400, 800),
+                "beam_width": np.random.uniform(20, 50),
+                "beam_angle": np.random.uniform(0, 2 * math.pi),
+                "rotation_speed": np.random.uniform(0.01, 0.03),
+                "pulse_period": np.random.uniform(1.0, 3.0),
+                "pulse_offset": np.random.uniform(0, 2 * math.pi),
+                "color": np.random.choice([
+                    (255, 255, 255),  # Pure white
+                    (200, 255, 255),  # Blue-white
+                    (255, 255, 200),  # Yellow-white
+                    (255, 200, 255)   # Purple-white
+                ])
+            }
+            self.quasars.append(quasar)
+        
+        # Create FLOWING cosmic ribbons - energy streams across space
+        self.cosmic_ribbons = []
+        for _ in range(4):  # Flowing energy streams
+            ribbon = {
+                "points": [],  # List of control points for the ribbon
+                "width": np.random.uniform(15, 35),
+                "length": np.random.uniform(600, 1200),
+                "flow_speed": np.random.uniform(2.0, 5.0),
+                "wave_frequency": np.random.uniform(0.01, 0.03),
+                "wave_amplitude": np.random.uniform(50, 150),
+                "color": np.random.choice([
+                    (100, 255, 200, 60),  # Cyan ribbon
+                    (255, 150, 100, 55),  # Orange ribbon
+                    (200, 100, 255, 60),  # Purple ribbon
+                    (255, 255, 100, 55)   # Yellow ribbon
+                ]),
+                "flow_offset": 0.0
+            }
+            # Generate ribbon control points
+            start_x = np.random.uniform(0, 2560)
+            start_y = np.random.uniform(0, 1600)
+            for i in range(8):  # 8 control points for smooth curves
+                point_x = start_x + (i * ribbon["length"] / 7) + np.random.uniform(-100, 100)
+                point_y = start_y + np.random.uniform(-200, 200)
+                ribbon["points"].append([point_x, point_y])
+            self.cosmic_ribbons.append(ribbon)
+        
         # Initialize cosmic lightning system
         self.cosmic_lightning = []
 
@@ -1080,14 +1155,14 @@ class SpaceMining(gym.Env):
                 # Spawn lightning from storm
                 self._spawn_cosmic_lightning(storm)
             
-            # Wrap around
+            # Wrap around for MASSIVE 2560x1600 screen
             if storm["x"] < -storm["size"]:
-                storm["x"] = 1920 + storm["size"]
-            elif storm["x"] > 1920 + storm["size"]:
+                storm["x"] = 2560 + storm["size"]
+            elif storm["x"] > 2560 + storm["size"]:
                 storm["x"] = -storm["size"]
             if storm["y"] < -storm["size"]:
-                storm["y"] = 1200 + storm["size"]
-            elif storm["y"] > 1200 + storm["size"]:
+                storm["y"] = 1600 + storm["size"]
+            elif storm["y"] > 1600 + storm["size"]:
                 storm["y"] = -storm["size"]
         
         # Update mystical wormholes
@@ -1099,15 +1174,73 @@ class SpaceMining(gym.Env):
             # Rotation
             wormhole["rotation"] += wormhole["rotation_speed"]
             
-            # Wrap around
+            # Wrap around for MASSIVE 2560x1600 screen
             if wormhole["x"] < -wormhole["size"]:
-                wormhole["x"] = 1920 + wormhole["size"]
-            elif wormhole["x"] > 1920 + wormhole["size"]:
+                wormhole["x"] = 2560 + wormhole["size"]
+            elif wormhole["x"] > 2560 + wormhole["size"]:
                 wormhole["x"] = -wormhole["size"]
             if wormhole["y"] < -wormhole["size"]:
-                wormhole["y"] = 1200 + wormhole["size"]
-            elif wormhole["y"] > 1200 + wormhole["size"]:
+                wormhole["y"] = 1600 + wormhole["size"]
+            elif wormhole["y"] > 1600 + wormhole["size"]:
                 wormhole["y"] = -wormhole["size"]
+        
+        # Update black holes
+        for black_hole in self.black_holes:
+            # Minimal drift
+            black_hole["x"] -= movement[0] * 0.001 * self.zoom_level
+            black_hole["y"] -= movement[1] * 0.001 * self.zoom_level
+            
+            # Rotation
+            black_hole["rotation"] += black_hole["rotation_speed"]
+            
+            # Wrap around for MASSIVE 2560x1600 screen
+            if black_hole["x"] < -black_hole["size"]:
+                black_hole["x"] = 2560 + black_hole["size"]
+            elif black_hole["x"] > 2560 + black_hole["size"]:
+                black_hole["x"] = -black_hole["size"]
+            if black_hole["y"] < -black_hole["size"]:
+                black_hole["y"] = 1600 + black_hole["size"]
+            elif black_hole["y"] > 1600 + black_hole["size"]:
+                black_hole["y"] = -black_hole["size"]
+        
+        # Update quasars
+        for quasar in self.quasars:
+            # Very slow parallax
+            quasar["x"] -= movement[0] * 0.005 * self.zoom_level
+            quasar["y"] -= movement[1] * 0.005 * self.zoom_level
+            
+            # Rotate beam
+            quasar["beam_angle"] += quasar["rotation_speed"]
+            
+            # Wrap around for MASSIVE 2560x1600 screen
+            if quasar["x"] < -quasar["size"]:
+                quasar["x"] = 2660
+            elif quasar["x"] > 2660:
+                quasar["x"] = -quasar["size"]
+            if quasar["y"] < -quasar["size"]:
+                quasar["y"] = 1700
+            elif quasar["y"] > 1700:
+                quasar["y"] = -quasar["size"]
+        
+        # Update cosmic ribbons
+        for ribbon in self.cosmic_ribbons:
+            # Update wave animation
+            ribbon["flow_offset"] += ribbon["wave_frequency"]
+            
+            # Move ribbon control points with parallax
+            for point in ribbon["points"]:
+                point[0] -= movement[0] * ribbon["flow_speed"] * self.zoom_level * 0.3
+                point[1] -= movement[1] * ribbon["flow_speed"] * self.zoom_level * 0.3
+                
+                # Wrap points around screen
+                if point[0] < -300:
+                    point[0] = 2860
+                elif point[0] > 2860:
+                    point[0] = -300
+                if point[1] < -300:
+                    point[1] = 1900
+                elif point[1] > 1900:
+                    point[1] = -300
         
         # Update cosmic lightning
         for lightning in self.cosmic_lightning[:]:
@@ -1118,27 +1251,61 @@ class SpaceMining(gym.Env):
                 self.cosmic_lightning.remove(lightning)
 
     def _update_zoom(self) -> None:
-        """Update dynamic zoom system."""
-        # Smooth zoom interpolation
+        """Update ENHANCED dynamic zoom system for spectacular cinematography."""
+        # Smooth zoom interpolation with enhanced responsiveness
         zoom_diff = self.target_zoom - self.zoom_level
+        self.zoom_speed = 0.03  # Slightly faster for more dynamic feel
         self.zoom_level += zoom_diff * self.zoom_speed
         
-        # Dynamic zoom based on game state
-        if hasattr(self, 'agent_energy') and self.agent_energy < 30:
-            # Zoom in when energy is low for tension
-            self.target_zoom = 1.3
-        elif len([a for a in self.asteroid_resources if a > 0.1]) <= 2:
-            # Zoom out when few asteroids remain
-            self.target_zoom = 0.8
-        elif hasattr(self, 'collision_flash_timer') and self.collision_flash_timer > 0:
-            # Quick zoom out during collision
-            self.target_zoom = 0.7
+        # ENHANCED dynamic zoom based on multiple game factors
+        zoom_factors = []
+        
+        # Energy-based zoom (tension when low energy)
+        if hasattr(self, 'agent_energy'):
+            if self.agent_energy < 20:
+                zoom_factors.append(1.6)  # Much closer for extreme tension
+            elif self.agent_energy < 50:
+                zoom_factors.append(1.3)  # Close for tension
+            else:
+                zoom_factors.append(1.0)  # Normal
+        
+        # Asteroid-based zoom (wider view when few remaining)
+        remaining_asteroids = len([a for a in self.asteroid_resources if a > 0.1])
+        if remaining_asteroids <= 1:
+            zoom_factors.append(0.6)  # Very wide for final asteroid hunt
+        elif remaining_asteroids <= 3:
+            zoom_factors.append(0.75)  # Wide for endgame
         else:
-            # Normal zoom
+            zoom_factors.append(1.0)  # Normal
+        
+        # Collision-based zoom (dramatic zoom out)
+        if hasattr(self, 'collision_flash_timer') and self.collision_flash_timer > 0:
+            zoom_factors.append(0.5)  # Extreme wide angle for impact
+        
+        # Speed-based zoom (zoom out when moving fast)
+        if hasattr(self, 'agent_velocity'):
+            speed = np.linalg.norm(self.agent_velocity)
+            if speed > 8:
+                zoom_factors.append(0.8)  # Pull back for high speed
+            elif speed > 5:
+                zoom_factors.append(0.9)  # Slightly back for medium speed
+        
+        # Mining-based zoom (zoom in slightly when mining)
+        if hasattr(self, 'mining_asteroid_id') and self.mining_asteroid_id is not None:
+            zoom_factors.append(1.15)  # Closer focus during mining
+        
+        # Inventory-based zoom (zoom out when carrying lots)
+        if hasattr(self, 'agent_inventory') and self.agent_inventory > 30:
+            zoom_factors.append(0.85)  # Pull back when heavily loaded
+        
+        # Calculate final target zoom (take minimum for most dramatic effect)
+        if zoom_factors:
+            self.target_zoom = min(zoom_factors)
+        else:
             self.target_zoom = 1.0
         
-        # Clamp zoom level
-        self.zoom_level = max(0.5, min(2.0, self.zoom_level))
+        # Enhanced zoom range for more dramatic cinematography
+        self.zoom_level = max(0.4, min(2.5, self.zoom_level))
 
     def _add_timeline_event(self, event_type: str, text: str, color: tuple) -> None:
         """Add an event to the floating timeline."""
