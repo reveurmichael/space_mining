@@ -468,6 +468,7 @@ class Renderer:
         try:
             import pygame
             from pygame import gfxdraw
+            import math
         except ImportError:
             return
             
@@ -528,6 +529,7 @@ class Renderer:
         """Draw elegant cosmic aurora."""
         try:
             import pygame
+            import math
         except ImportError:
             return
             
