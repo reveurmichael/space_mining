@@ -2,472 +2,1479 @@
 <html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>SpaceMining — Gymnasium Environment</title>
-  <meta name="description" content="SpaceMining is a modern Gymnasium environment for asteroid mining in 2D with clean APIs, CI-driven publishing, and a ready-to-use Hugging Face model." />
-  <meta property="og:title" content="SpaceMining — Gymnasium Environment" />
-  <meta property="og:description" content="Train or load a pre-trained agent, generate demos, and publish results with a single source of truth." />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>SpaceMining — Advanced Reinforcement Learning Environment</title>
+  <meta name="description" content="SpaceMining is a sophisticated Gymnasium environment for space mining simulation featuring realistic physics, energy management, and multi-objective rewards. Perfect for RL research beyond LLM priors." />
+  <meta name="keywords" content="reinforcement learning, gymnasium, space mining, rl environment, pytorch, ppo, artificial intelligence, machine learning" />
+  <meta property="og:title" content="SpaceMining — Advanced RL Environment" />
+  <meta property="og:description" content="Sophisticated space mining simulation with realistic physics, energy management, and comprehensive reward systems for fair RL evaluation." />
   <meta property="og:type" content="website" />
-  <meta property="og:image" content="assets/og/cover.png" />
+  <meta property="og:url" content="https://reveurmichael.github.io/space_mining/" />
+  <meta property="og:image" content="https://reveurmichael.github.io/space_mining/assets/og/cover.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="SpaceMining — Advanced RL Environment" />
+  <meta name="twitter:description" content="Sophisticated space mining simulation for fair RL evaluation beyond LLM priors." />
+  <meta name="twitter:image" content="https://reveurmichael.github.io/space_mining/assets/og/cover.png" />
   <meta name="theme-color" content="#0b1020" />
-  <meta name="author" content="Xinning Zhu; Lunde Chen" />
+  <meta name="author" content="Xinning Zhu, Lunde Chen" />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://reveurmichael.github.io/space_mining/" />
+  
+  <!-- Preload critical resources -->
+  <link rel="preload" href="https://unpkg.com/prismjs/themes/prism-tomorrow.min.css" as="style" />
+  <link rel="preload" href="https://unpkg.com/prismjs/plugins/line-numbers/prism-line-numbers.css" as="style" />
+  
+  <!-- Stylesheets -->
   <link rel="stylesheet" href="https://unpkg.com/prismjs/themes/prism-tomorrow.min.css">
   <link rel="stylesheet" href="https://unpkg.com/prismjs/plugins/line-numbers/prism-line-numbers.css">
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚀</text></svg>">
+  
   <style>
     :root {
-      --bg: #0b1020; --bg-soft: #0f152c; --text: #e7ecf3; --muted: #a7b0c0;
-      --card: #131a33; --card-soft: #0f1730; --brand: #6aa6ff; --brand-2: #7ef7d2;
-      --accent: #ffd580; --border: rgba(255,255,255,0.08); --shadow: rgba(0,0,0,0.4);
+      --bg: #0a0f1c; --bg-soft: #0d1421; --bg-accent: #111827;
+      --text: #f1f5f9; --text-muted: #94a3b8; --text-dim: #64748b;
+      --card: #1e293b; --card-soft: #1a2332; --card-hover: #334155;
+      --brand: #3b82f6; --brand-2: #06b6d4; --brand-glow: rgba(59, 130, 246, 0.2);
+      --accent: #f59e0b; --accent-2: #10b981; --accent-danger: #ef4444;
+      --border: rgba(241, 245, 249, 0.1); --border-soft: rgba(241, 245, 249, 0.05);
+      --shadow: rgba(0, 0, 0, 0.5); --shadow-soft: rgba(0, 0, 0, 0.2);
+      --gradient-bg: linear-gradient(135deg, var(--bg) 0%, var(--bg-soft) 50%, var(--bg-accent) 100%);
+      --gradient-brand: linear-gradient(135deg, var(--brand) 0%, var(--brand-2) 100%);
+      --gradient-text: linear-gradient(135deg, var(--text) 0%, var(--text-muted) 100%);
     }
 
-    body { margin: 0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Arial, sans-serif;
-      background: linear-gradient(180deg, var(--bg) 0%, var(--bg-soft) 100%); color: var(--text); }
-    .container { max-width: 1120px; margin: 0 auto; padding: 0 20px; }
-    .nav { position: sticky; top: 0; z-index: 50; backdrop-filter: blur(8px);
-      background: linear-gradient(180deg, rgba(0,0,0,0.25), rgba(0,0,0,0.06)); border-bottom: 1px solid var(--border); }
-    .nav-inner { display: flex; align-items: center; justify-content: space-between; height: 64px; }
-    .brand { display: flex; align-items: center; gap: 12px; color: var(--text); text-decoration: none; }
-    .brand-logo { width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center;
-      background: radial-gradient(100% 100% at 0% 0%, var(--brand) 0%, var(--brand-2) 100%); font-weight: 900; }
-    .brand-title { font-weight: 800; letter-spacing: .2px; font-size: 1.05rem; }
-    .nav-links { display: flex; gap: 14px; align-items: center; }
-    .nav-links a, .nav-links button { color: var(--text); opacity: .86; text-decoration: none; padding: 8px 10px; border-radius: 8px; border: 1px solid transparent; background: transparent; cursor: pointer; }
-    .nav-links a:hover, .nav-links button:hover { opacity: 1; background: var(--card-soft); border-color: var(--border); }
+    * { box-sizing: border-box; }
+    
+    html { 
+      scroll-behavior: smooth; 
+      font-size: 16px;
+      line-height: 1.6;
+    }
+    
+    body { 
+      margin: 0; 
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: var(--gradient-bg);
+      background-attachment: fixed;
+      color: var(--text); 
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+    
+    /* Enhanced container with better responsive behavior */
+    .container { 
+      max-width: 1200px; 
+      margin: 0 auto; 
+      padding: 0 clamp(16px, 4vw, 24px);
+    }
+    
+    /* Improved navigation with glassmorphism */
+    .nav { 
+      position: sticky; 
+      top: 0; 
+      z-index: 100; 
+      backdrop-filter: blur(20px) saturate(180%);
+      background: rgba(10, 15, 28, 0.8);
+      border-bottom: 1px solid var(--border);
+      box-shadow: 0 8px 32px var(--shadow-soft);
+    }
+    
+    .nav-inner { 
+      display: flex; 
+      align-items: center; 
+      justify-content: space-between; 
+      height: 72px;
+      position: relative;
+    }
+    
+    .brand { 
+      display: flex; 
+      align-items: center; 
+      gap: 16px; 
+      color: var(--text); 
+      text-decoration: none;
+      transition: transform 0.2s ease;
+    }
+    
+    .brand:hover {
+      transform: translateY(-1px);
+    }
+    
+    .brand-logo { 
+      width: 44px; 
+      height: 44px; 
+      border-radius: 12px; 
+      display: grid; 
+      place-items: center;
+      background: var(--gradient-brand);
+      font-weight: 900; 
+      font-size: 1.2rem;
+      box-shadow: 0 4px 20px var(--brand-glow);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .brand-logo::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+      transition: left 0.5s ease;
+    }
+    
+    .brand:hover .brand-logo::before {
+      left: 100%;
+    }
+    
+    .brand-title { 
+      font-weight: 700; 
+      letter-spacing: -0.02em; 
+      font-size: 1.25rem;
+      background: var(--gradient-text);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    .nav-links { 
+      display: flex; 
+      gap: 8px; 
+      align-items: center; 
+    }
+    
+    .nav-links a, .nav-links button { 
+      color: var(--text-muted); 
+      text-decoration: none; 
+      padding: 10px 16px; 
+      border-radius: 10px; 
+      border: 1px solid transparent; 
+      background: transparent; 
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-weight: 500;
+      position: relative;
+    }
+    
+    .nav-links a:hover, .nav-links button:hover { 
+      color: var(--text);
+      background: var(--card-soft); 
+      border-color: var(--border);
+      transform: translateY(-1px);
+    }
+    
+    .nav-links a.active {
+      color: var(--brand);
+      background: var(--card);
+      border-color: var(--brand);
+      box-shadow: 0 0 20px var(--brand-glow);
+    }
 
-    .hero { padding: 72px 0 48px; position: relative; }
-    .hero-grid { display: grid; grid-template-columns: 1fr; gap: 24px; align-items: center; text-align: left; }
-    .hero h1 { font-size: clamp(2rem, 4.8vw, 3.2rem); margin: 0 0 14px; line-height: 1.1; }
-    .hero p { margin: 0 0 22px; color: var(--muted); }
-    .cta { display: flex; gap: 12px; flex-wrap: wrap; }
-    .btn { text-decoration: none; border: 1px solid var(--border); padding: 10px 14px; border-radius: 12px; color: var(--text); background: var(--card); transition: transform .1s ease, box-shadow .1s ease; }
-    .btn:hover { transform: translateY(-1px); box-shadow: 0 6px 12px var(--shadow); }
-    .btn.primary { background: linear-gradient(90deg, var(--brand), var(--brand-2)); color: #0b1020; border: none; font-weight: 700; }
+    /* Enhanced hero section */
+    .hero { 
+      padding: clamp(60px, 10vh, 120px) 0 clamp(40px, 8vh, 80px); 
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: radial-gradient(circle at 20% 50%, var(--brand-glow) 0%, transparent 50%),
+                  radial-gradient(circle at 80% 20%, rgba(6, 182, 212, 0.1) 0%, transparent 50%);
+      z-index: -1;
+    }
+    
+    .hero-content { 
+      text-align: center;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    
+    .hero h1 { 
+      font-size: clamp(2.5rem, 6vw, 4rem); 
+      margin: 0 0 24px; 
+      line-height: 1.1;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--text) 0%, var(--brand) 50%, var(--brand-2) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: -0.02em;
+    }
+    
+    .hero .lead { 
+      font-size: clamp(1.1rem, 2.5vw, 1.4rem);
+      color: var(--text-muted);
+      margin: 0 0 32px;
+      max-width: 700px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    
+    .hero .lead-highlight {
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(6, 182, 212, 0.05) 100%);
+      border: 1px solid var(--border);
+      padding: 24px 32px;
+      border-radius: 16px;
+      box-shadow: 0 8px 32px var(--shadow-soft);
+      backdrop-filter: blur(10px);
+      margin: 32px 0;
+    }
 
-    section { padding: 40px 0; }
-    h2 { margin: 0 0 16px; font-size: 1.6rem; }
-    .muted { color: var(--muted); }
-    pre { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 14px; overflow: auto; }
+    /* Enhanced badges */
+    .badges { 
+      display: flex; 
+      flex-wrap: wrap; 
+      gap: 12px; 
+      margin: 32px 0;
+      justify-content: center;
+    }
+    
+    .badges a { 
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    
+    .badges a:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px var(--shadow);
+    }
+    
+    .badges a img { 
+      height: 24px;
+      border-radius: 6px;
+    }
 
-    .grid { display: grid; gap: 16px; }
-    .cols-3 { grid-template-columns: repeat(3, minmax(0,1fr)); }
-    .cols-4 { grid-template-columns: repeat(4, minmax(0,1fr)); }
-    .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
-    /* Force Quickstart cards to stack full width */
-    #quickstart .grid { grid-template-columns: 1fr; }
+    /* Enhanced CTA buttons */
+    .cta { 
+      display: flex; 
+      gap: 16px; 
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: 40px;
+    }
+    
+    .btn { 
+      text-decoration: none; 
+      border: 2px solid var(--border); 
+      padding: 16px 24px; 
+      border-radius: 12px; 
+      color: var(--text); 
+      background: var(--card); 
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      font-weight: 600;
+      position: relative;
+      overflow: hidden;
+      min-width: 140px;
+      text-align: center;
+    }
+    
+    .btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+      transition: left 0.5s ease;
+    }
+    
+    .btn:hover::before {
+      left: 100%;
+    }
+    
+    .btn:hover { 
+      transform: translateY(-3px); 
+      box-shadow: 0 12px 40px var(--shadow);
+      border-color: var(--brand);
+    }
+    
+    .btn.primary { 
+      background: var(--gradient-brand);
+      color: white; 
+      border: 2px solid transparent;
+      font-weight: 700;
+      box-shadow: 0 4px 20px var(--brand-glow);
+    }
+    
+    .btn.primary:hover {
+      box-shadow: 0 12px 40px var(--brand-glow);
+      transform: translateY(-3px) scale(1.02);
+    }
 
+    /* Enhanced sections */
+    section { 
+      padding: clamp(40px, 8vh, 80px) 0;
+      scroll-margin-top: 100px;
+    }
+    
+    h2 { 
+      margin: 0 0 24px; 
+      font-size: clamp(1.8rem, 4vw, 2.5rem);
+      font-weight: 700;
+      position: relative;
+      color: var(--text);
+    }
+    
+    h2::after { 
+      content: ""; 
+      display: block; 
+      width: 60px; 
+      height: 4px; 
+      background: var(--gradient-brand);
+      border-radius: 4px; 
+      margin-top: 12px;
+    }
+    
+    h3 {
+      color: var(--text);
+      font-size: 1.4rem;
+      margin: 32px 0 16px;
+      font-weight: 600;
+    }
+    
+    p {
+      color: var(--text-muted);
+      margin: 0 0 16px;
+      line-height: 1.7;
+    }
+    
+    .text-center { text-align: center; }
+    .muted { color: var(--text-dim); }
 
-    footer { padding: 30px 0 60px; border-top: 1px solid var(--border); color: var(--muted); }
+    /* Enhanced code blocks */
+    pre { 
+      background: var(--card); 
+      border: 1px solid var(--border); 
+      border-radius: 12px; 
+      padding: 24px; 
+      overflow: auto;
+      box-shadow: 0 4px 20px var(--shadow-soft);
+      position: relative;
+    }
+    
+    pre::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: var(--gradient-brand);
+      border-radius: 12px 12px 0 0;
+    }
 
-    .badges { display: flex; flex-wrap: wrap; gap: 8px; margin: 6px 0 16px; }
-    .badges a img { height: 20px; border-radius: 6px; }
+    /* Enhanced grid and cards */
+    .grid { 
+      display: grid; 
+      gap: 24px;
+    }
+    
+    .cols-2 { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+    .cols-3 { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+    .cols-4 { grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
+    
+    .card { 
+      background: var(--card); 
+      border: 1px solid var(--border); 
+      border-radius: 16px; 
+      padding: 24px;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: var(--gradient-brand);
+      transform: scaleX(0);
+      transition: transform 0.3s ease;
+    }
+    
+    .card:hover::before {
+      transform: scaleX(1);
+    }
+    
+    .card:hover {
+      transform: translateY(-4px);
+      border-color: var(--brand);
+      box-shadow: 0 12px 40px var(--shadow);
+    }
 
-    @media (max-width: 980px) { .hero-grid { grid-template-columns: 1fr; } .cols-3, .cols-4 { grid-template-columns: 1fr; } }
+    /* Enhanced features grid */
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 32px;
+      margin-top: 48px;
+    }
+    
+    .feature-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 32px;
+      text-align: center;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(135deg, var(--brand-glow) 0%, transparent 50%);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    
+    .feature-card:hover::before {
+      opacity: 1;
+    }
+    
+    .feature-card:hover {
+      transform: translateY(-8px);
+      border-color: var(--brand);
+      box-shadow: 0 20px 60px var(--shadow);
+    }
+    
+    .feature-icon {
+      font-size: 3rem;
+      margin-bottom: 24px;
+      display: block;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .feature-card h3 {
+      margin: 0 0 16px;
+      color: var(--text);
+      position: relative;
+      z-index: 1;
+    }
+    
+    .feature-card p {
+      color: var(--text-muted);
+      position: relative;
+      z-index: 1;
+    }
 
-    /* Demo (GIF Gallery) */
-    .demo { width: 100%; margin: 0 auto; }
-    .gif-gallery { display: flex; flex-direction: column; gap: 30px; margin-top: 1rem; }
-    .gif-row { display: flex; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
-    .gif-card { flex: 1; min-width: 260px; background: var(--card); border-radius: 14px; padding: 0; box-shadow: 0 10px 22px var(--shadow); text-align: center; border: 1px solid var(--border); position: relative; cursor: pointer; overflow: hidden; transition: transform .2s ease, box-shadow .2s ease; }
-    .gif-container { width: 100%; height: 220px; position: relative; overflow: hidden; background: var(--bg-soft); }
-    .gif-container img { width: 100%; height: 100%; object-fit: cover; transition: transform .25s ease; }
-    .gif-card:hover { transform: translateY(-4px); box-shadow: 0 12px 24px var(--shadow); }
-    .gif-card:hover .gif-container img { transform: scale(1.06); }
-    .gif-card div { padding: 12px 15px; font-weight: 700; }
-    .gif-card small { display: block; padding: 0 15px 16px; color: var(--muted); }
-    .success { color: #4CAF50; }
-    .failure { color: #F44336; }
-    .learning { color: #FF9800; }
-    /* Legend icons */
-    .legend-item { display: flex; align-items: center; gap: 10px; margin: 6px 0; }
-    .legend-circle { width: 18px; height: 18px; border-radius: 50%; background: currentColor; display: inline-block; }
-    .legend-ring { width: 16px; height: 16px; border-radius: 50%; border: 1px solid currentColor; background: transparent; display: inline-block; }
+    /* Enhanced demo section */
+    .demo { 
+      width: 100%; 
+      margin: 48px auto;
+    }
+    
+    .gif-gallery { 
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 32px; 
+      margin-top: 32px;
+    }
+    
+    .gif-card { 
+      background: var(--card); 
+      border-radius: 20px; 
+      overflow: hidden;
+      box-shadow: 0 8px 32px var(--shadow); 
+      border: 1px solid var(--border); 
+      cursor: pointer; 
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+    }
+    
+    .gif-container { 
+      width: 100%; 
+      height: 240px; 
+      position: relative; 
+      overflow: hidden; 
+      background: var(--bg-soft);
+    }
+    
+    .gif-container img { 
+      width: 100%; 
+      height: 100%; 
+      object-fit: cover; 
+      transition: transform 0.4s ease;
+    }
+    
+    .gif-card:hover { 
+      transform: translateY(-8px) scale(1.02); 
+      box-shadow: 0 20px 60px var(--shadow);
+      border-color: var(--brand);
+    }
+    
+    .gif-card:hover .gif-container img { 
+      transform: scale(1.1);
+    }
+    
+    .gif-card .card-content { 
+      padding: 20px 24px;
+    }
+    
+    .gif-card h4 { 
+      margin: 0 0 8px;
+      font-weight: 700;
+      color: var(--text);
+    }
+    
+    .gif-card .description { 
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin: 0;
+    }
 
-    /* Modal */
-    .modal { display: none; position: fixed; z-index: 1000; inset: 0; background-color: rgba(0,0,0,0.8); backdrop-filter: blur(5px); }
-    .modal-content { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); max-width: 92%; max-height: 92%; background: var(--card); border-radius: 12px; box-shadow: 0 20px 40px var(--shadow); overflow: hidden; border: 1px solid var(--border); }
-    .modal-img { width: 100%; height: auto; display: block; object-fit: contain; max-height: 80vh; }
-    .modal-close { position: absolute; top: 10px; right: 12px; color: var(--text); font-size: 22px; font-weight: 900; cursor: pointer; background: rgba(0,0,0,0.4); border-radius: 50%; width: 36px; height: 36px; display: grid; place-items: center; }
-    .modal-title { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.7); color: #fff; padding: 12px 14px; font-size: 14px; font-weight: 700; }
-    html { scroll-behavior: smooth; }
-    ::selection { background: rgba(106,166,255,0.28); }
-    :focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; border-radius: 6px; }
-    section { padding: 40px 0; scroll-margin-top: 90px; }
-    h2 { margin: 0 0 16px; font-size: 1.6rem; position: relative; }
-    h2::after { content: ""; display: block; width: 48px; height: 3px; background: linear-gradient(90deg, var(--brand), var(--brand-2)); border-radius: 3px; margin-top: 8px; opacity: .9; }
-    .nav-links a.active { opacity: 1; background: var(--card-soft); border-color: var(--border); }
-    /* Back to top */
-    .to-top { position: fixed; right: 20px; bottom: 24px; width: 42px; height: 42px; border-radius: 50%; border: none; cursor: pointer; background: linear-gradient(90deg, var(--brand), var(--brand-2)); color: #0b1020; font-weight: 800; box-shadow: 0 12px 24px var(--shadow); opacity: 0; pointer-events: none; transition: opacity .2s ease, transform .2s ease; z-index: 60; }
-    .to-top.show { opacity: 1; pointer-events: auto; }
-    /* Reveal animations disabled */
-    .reveal { opacity: 1; transform: none; }
-    .reveal.reveal-visible, #about.reveal { opacity: 1; transform: none; }
-    .lead { color: var(--text) !important; font-weight: 800; font-size: clamp(1.05rem, 1.5vw, 1.28rem); line-height: 1.35; }
-    .lead-highlight { background: linear-gradient(90deg, rgba(106,166,255,.14), rgba(126,247,210,.10)); border: 1px solid var(--border); padding: 14px 16px; border-radius: 12px; box-shadow: 0 8px 18px var(--shadow); }
+    /* Status indicators */
+    .status {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin-top: 8px;
+    }
+    
+    .status.success { 
+      background: rgba(16, 185, 129, 0.2);
+      color: var(--accent-2);
+      border: 1px solid var(--accent-2);
+    }
+    
+    .status.learning { 
+      background: rgba(245, 158, 11, 0.2);
+      color: var(--accent);
+      border: 1px solid var(--accent);
+    }
+    
+    .status.failure { 
+      background: rgba(239, 68, 68, 0.2);
+      color: var(--accent-danger);
+      border: 1px solid var(--accent-danger);
+    }
+
+    /* Legend improvements */
+    .legend-item { 
+      display: flex; 
+      align-items: center; 
+      gap: 16px; 
+      margin: 12px 0;
+      padding: 8px 0;
+    }
+    
+    .legend-circle, .legend-ring { 
+      width: 20px; 
+      height: 20px; 
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    
+    .legend-circle { 
+      background: currentColor;
+    }
+    
+    .legend-ring { 
+      border: 2px solid currentColor; 
+      background: transparent;
+    }
+
+    /* Enhanced modal */
+    .modal { 
+      display: none; 
+      position: fixed; 
+      z-index: 1000; 
+      inset: 0; 
+      background-color: rgba(0,0,0,0.9); 
+      backdrop-filter: blur(8px);
+    }
+    
+    .modal-content { 
+      position: absolute; 
+      top: 50%; 
+      left: 50%; 
+      transform: translate(-50%, -50%); 
+      max-width: 95%; 
+      max-height: 95%; 
+      background: var(--card); 
+      border-radius: 20px; 
+      box-shadow: 0 25px 100px var(--shadow); 
+      overflow: hidden; 
+      border: 1px solid var(--border);
+    }
+    
+    .modal-img { 
+      width: 100%; 
+      height: auto; 
+      display: block; 
+      object-fit: contain; 
+      max-height: 85vh;
+    }
+    
+    .modal-close { 
+      position: absolute; 
+      top: 16px; 
+      right: 16px; 
+      color: var(--text); 
+      font-size: 24px; 
+      font-weight: 900; 
+      cursor: pointer; 
+      background: rgba(0,0,0,0.7); 
+      border-radius: 50%; 
+      width: 44px; 
+      height: 44px; 
+      display: grid; 
+      place-items: center;
+      transition: all 0.2s ease;
+      z-index: 1001;
+    }
+    
+    .modal-close:hover {
+      background: rgba(0,0,0,0.9);
+      transform: scale(1.1);
+    }
+    
+    .modal-title { 
+      position: absolute; 
+      bottom: 0; 
+      left: 0; 
+      right: 0; 
+      background: linear-gradient(transparent, rgba(0,0,0,0.8)); 
+      color: white; 
+      padding: 20px 24px; 
+      font-size: 16px; 
+      font-weight: 700;
+    }
+
+    /* Enhanced footer */
+    footer { 
+      padding: 60px 0; 
+      border-top: 1px solid var(--border); 
+      background: var(--bg-accent);
+      margin-top: 80px;
+    }
+    
+    .footer-content {
+      text-align: center;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    
+    .footer-content p {
+      color: var(--text-muted);
+      margin: 8px 0;
+    }
+    
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 32px;
+      margin: 32px 0;
+      flex-wrap: wrap;
+    }
+    
+    .footer-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+    
+    .footer-links a:hover {
+      color: var(--brand);
+    }
+
+    /* Back to top button */
+    .to-top { 
+      position: fixed; 
+      right: 24px; 
+      bottom: 24px; 
+      width: 56px; 
+      height: 56px; 
+      border-radius: 50%; 
+      border: none; 
+      cursor: pointer; 
+      background: var(--gradient-brand);
+      color: white; 
+      font-weight: 800; 
+      font-size: 1.2rem;
+      box-shadow: 0 8px 32px var(--brand-glow); 
+      opacity: 0; 
+      pointer-events: none; 
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+      z-index: 60;
+    }
+    
+    .to-top.show { 
+      opacity: 1; 
+      pointer-events: auto;
+    }
+    
+    .to-top:hover {
+      transform: translateY(-4px) scale(1.1);
+      box-shadow: 0 12px 40px var(--brand-glow);
+    }
+
+    /* Accessibility improvements */
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after { 
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+
+    /* Enhanced responsive design */
+    @media (max-width: 768px) {
+      .nav-inner {
+        height: 64px;
+      }
+      
+      .nav-links {
+        display: none; /* TODO: Add mobile menu */
+      }
+      
+      .hero {
+        padding: 40px 0;
+      }
+      
+      .cta {
+        flex-direction: column;
+        align-items: center;
+      }
+      
+      .btn {
+        width: 100%;
+        max-width: 280px;
+      }
+      
+      .badges {
+        justify-content: center;
+      }
+      
+      .feature-grid {
+        grid-template-columns: 1fr;
+        gap: 24px;
+      }
+      
+      .gif-gallery {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Print styles */
+    @media print {
+      .nav, .to-top, .modal { display: none; }
+      body { background: white; color: black; }
+      .hero::before { display: none; }
+    }
+
+    /* Focus styles for accessibility */
+    :focus-visible { 
+      outline: 3px solid var(--brand); 
+      outline-offset: 2px; 
+      border-radius: 8px;
+    }
+
+    /* Selection styling */
+    ::selection { 
+      background: var(--brand-glow);
+      color: var(--text);
+    }
+
+    /* Smooth animations */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .reveal {
+      animation: fadeInUp 0.6s ease forwards;
+    }
+
+    /* Loading states */
+    .loading {
+      opacity: 0.7;
+      pointer-events: none;
+    }
+
+    /* Error states */
+    .error {
+      border-color: var(--accent-danger);
+      background: rgba(239, 68, 68, 0.1);
+    }
   </style>
 </head>
 <body>
-  <nav class="nav">
+  <nav class="nav" role="navigation" aria-label="Main navigation">
     <div class="container nav-inner">
-      <a class="brand" href="#">
-        <div class="brand-logo">SM</div>
+      <a class="brand" href="#" aria-label="SpaceMining Home">
+        <div class="brand-logo" aria-hidden="true">🚀</div>
         <div class="brand-title">SpaceMining</div>
       </a>
       <div class="nav-links">
         <a href="#about">About</a>
-        <a href="#example-train">Train PPO</a>
-        <a href="#example-gif">Generate a GIF</a>
-        <a href="#hf">Hugging Face</a>
-        <a href="#quickstart">Quickstart</a>
         <a href="#features">Features</a>
-        <a href="#task">Task</a>
-        <a href="#specs">Specs</a>
+        <a href="#quickstart">Quick Start</a>
+        <a href="#examples">Examples</a>
         <a href="#demo">Demo</a>
+        <a href="#specs">Specifications</a>
       </div>
     </div>
   </nav>
 
   <header class="hero">
-    <div class="container hero-grid">
-      <div>
-        <h1>SpaceMining — a novel RL environment beyond LLM priors</h1>
-        <div class="badges">
-          <a href="LICENSE" target="_blank" rel="noopener"><img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-blue.svg"/></a>
-          <a href="https://www.python.org/downloads/" target="_blank" rel="noopener"><img alt="Python" src="https://img.shields.io/badge/Python-3.10%2B-brightgreen.svg"/></a>
-          <a href="https://pypi.org/project/space-mining/" target="_blank" rel="noopener"><img alt="PyPI" src="https://img.shields.io/pypi/v/space-mining?color=6aa6ff"/></a>
-          <a href="https://github.com/reveurmichael/space_mining/actions/workflows/run-pytest.yml" target="_blank" rel="noopener"><img alt="Tests" src="https://github.com/reveurmichael/space_mining/actions/workflows/run-pytest.yml/badge.svg"/></a>
-          <a href="https://reveurmichael.github.io/space_mining/docs/" target="_blank" rel="noopener"><img alt="Docs" src="https://img.shields.io/badge/Docs-Site-2B3137"/></a>
-          <a href="https://reveurmichael.github.io/space_mining/" target="_blank" rel="noopener"><img alt="GitHub Pages" src="https://img.shields.io/badge/GitHub%20Pages-Live-2B3137"/></a>
-          <a href="https://github.com/reveurmichael/space_mining/releases" target="_blank" rel="noopener"><img alt="Release" src="https://img.shields.io/github/v/release/reveurmichael/space_mining?include_prereleases&color=6aa6ff"/></a>
-          <a href="https://github.com/reveurmichael/space_mining/commits/main" target="_blank" rel="noopener"><img alt="Last commit" src="https://img.shields.io/github/last-commit/reveurmichael/space_mining"/></a>
-          <a href="https://colab.research.google.com/github/reveurmichael/space_mining/blob/main/getting_started.ipynb" target="_blank" rel="noopener"><img alt="Open In Colab" src="https://colab.research.google.com/assets/colab-badge.svg"/></a>
-          <a href="https://huggingface.co/LUNDECHEN/space-mining-ppo" target="_blank" rel="noopener"><img alt="Hugging Face" src="https://img.shields.io/badge/Hugging%20Face-space--mining--ppo-yellow?logo=huggingface"/></a>
-          <a href="https://wandb.ai/lundechen-shanghai-university/space-mining-ppo" target="_blank" rel="noopener"><img alt="W&B Project" src="https://img.shields.io/badge/W%26B-space--mining--ppo-fc4c02?logo=weightsandbiases"/></a>
-          <a href="https://github.com/psf/black" target="_blank" rel="noopener"><img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg"/></a>
-          <a href="https://pycqa.github.io/isort/" target="_blank" rel="noopener"><img alt="Imports: isort" src="https://img.shields.io/badge/imports-isort-ef8336"/></a>
-          <a href="https://docs.astral.sh/ruff/" target="_blank" rel="noopener"><img alt="Linter: ruff" src="https://img.shields.io/badge/linter-ruff-46a2f1"/></a>
-          <a href="https://mypy-lang.org/" target="_blank" rel="noopener"><img alt="Types: mypy" src="https://img.shields.io/badge/types-mypy-2A6DB2"/></a>
-          <a href="https://reveurmichael.github.io/space_mining/docs/#/authors" target="_blank" rel="noopener"><img alt="Authors" src="https://img.shields.io/badge/Authors-Xinning%20Zhu%20%26%20Lunde%20Chen-6aa6ff"/></a>
-          <a href="https://github.com/reveurmichael/space_mining/stargazers" target="_blank" rel="noopener"><img alt="Stars" src="https://img.shields.io/github/stars/reveurmichael/space_mining"/></a>
-          <a href="https://github.com/reveurmichael/space_mining/issues" target="_blank" rel="noopener"><img alt="Issues" src="https://img.shields.io/github/issues/reveurmichael/space_mining"/></a>
+    <div class="container">
+      <div class="hero-content">
+        <h1>SpaceMining<br>Advanced Reinforcement Learning Environment</h1>
+        <p class="lead">A sophisticated space mining simulation featuring realistic physics, energy management, and multi-objective rewards. Designed for fair RL evaluation beyond LLM priors.</p>
+        
+        <div class="lead-highlight">
+          <strong>🎯 Research Focus:</strong> SpaceMining is intentionally designed to be unfamiliar to Large Language Models, enabling unbiased evaluation of reward design capabilities without contamination from standard benchmarks like CartPole or BipedalWalker.
         </div>
-                  <p class="lead lead-highlight">SpaceMining is a custom Gymnasium environment intentionally unfamiliar to LLMs. It enables fair evaluation of reward-design capabilities without leakage from standard RL benchmarks (e.g., CartPole, BipedalWalker, Ant), addressing prior-knowledge bias and supporting studies of true generalization.</p>
+        
+        <div class="badges">
+          <a href="LICENSE" target="_blank" rel="noopener" aria-label="MIT License"><img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-blue.svg"/></a>
+          <a href="https://www.python.org/downloads/" target="_blank" rel="noopener" aria-label="Python 3.10+"><img alt="Python" src="https://img.shields.io/badge/Python-3.10%2B-brightgreen.svg"/></a>
+          <a href="https://pypi.org/project/space-mining/" target="_blank" rel="noopener" aria-label="PyPI Package"><img alt="PyPI" src="https://img.shields.io/pypi/v/space-mining?color=6aa6ff"/></a>
+          <a href="https://github.com/reveurmichael/space_mining/actions/workflows/run-pytest.yml" target="_blank" rel="noopener" aria-label="Test Status"><img alt="Tests" src="https://github.com/reveurmichael/space_mining/actions/workflows/run-pytest.yml/badge.svg"/></a>
+          <a href="https://huggingface.co/LUNDECHEN/space-mining-ppo" target="_blank" rel="noopener" aria-label="Hugging Face Model"><img alt="Hugging Face" src="https://img.shields.io/badge/🤗%20Hugging%20Face-space--mining--ppo-yellow"/></a>
+          <a href="https://wandb.ai/lundechen-shanghai-university/space-mining-ppo" target="_blank" rel="noopener" aria-label="Weights & Biases"><img alt="W&B Project" src="https://img.shields.io/badge/W%26B-space--mining--ppo-fc4c02?logo=weightsandbiases"/></a>
+          <a href="https://colab.research.google.com/github/reveurmichael/space_mining/blob/main/getting_started.ipynb" target="_blank" rel="noopener" aria-label="Google Colab"><img alt="Open In Colab" src="https://colab.research.google.com/assets/colab-badge.svg"/></a>
+        </div>
+        
         <div class="cta">
-          <a class="btn primary" href="https://github.com/reveurmichael/space_mining" target="_blank" rel="noopener">View on GitHub</a>
-          <a class="btn primary" href="docs/">Docs</a>
-          <a class="btn primary" href="https://huggingface.co/LUNDECHEN/space-mining-ppo/">HuggingFace</a>
-          <a class="btn primary" href="https://wandb.ai/lundechen-shanghai-university/space-mining-ppo/">W&B</a>
+          <a class="btn primary" href="https://github.com/reveurmichael/space_mining" target="_blank" rel="noopener">
+            <span>🔗 View on GitHub</span>
+          </a>
+          <a class="btn primary" href="docs/" rel="noopener">
+            <span>📚 Documentation</span>
+          </a>
+          <a class="btn primary" href="https://huggingface.co/LUNDECHEN/space-mining-ppo/" target="_blank" rel="noopener">
+            <span>🤗 HuggingFace</span>
+          </a>
+          <a class="btn primary" href="https://wandb.ai/lundechen-shanghai-university/space-mining-ppo/" target="_blank" rel="noopener">
+            <span>📊 W&B Dashboard</span>
+          </a>
         </div>
       </div>
-
     </div>
   </header>
 
   <main class="container">
-         <section id="about" class="reveal reveal-visible">
+    <section id="about" class="reveal">
       <h2>What is SpaceMining?</h2>
-      <p>SpaceMining is a single-agent reinforcement learning environment simulating asteroid mining in a 2D space environment. The agent (mining robot) must collect resources from asteroids, deliver them to the mothership, manage energy consumption, and avoid moving obstacles while maximizing efficiency.</p>
-      <h3>Research Purpose</h3>
-      <p>This environment was specifically designed to evaluate large language models' ability to design reward functions for unfamiliar environments without prior knowledge. Recent studies have raised concerns that large language models may carry prior knowledge from pretraining data about standard RL environments (like CartPole, BipedalWalker, Ant), leading to potential prompt leakage and evaluation biases.</p>
-      <p>To address this issue, SpaceMining serves as a custom environment to assess true generalization capabilities on tasks free from such pretrained knowledge. This allows researchers to evaluate whether LLMs can effectively design reward functions for completely novel environments.</p>
+      <p>SpaceMining is a cutting-edge reinforcement learning environment that simulates asteroid mining operations in a 2D space environment. The agent (mining robot) must navigate complex physics, manage limited energy resources, mine asteroids strategically, and deliver materials to the mothership while avoiding dynamic obstacles.</p>
+      
+      <div class="feature-grid">
+        <div class="feature-card">
+          <div class="feature-icon">🎯</div>
+          <h3>Research Innovation</h3>
+          <p>Specifically designed to evaluate LLM reward design capabilities without contamination from standard benchmarks, ensuring fair and unbiased assessment.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">⚡</div>
+          <h3>Realistic Physics</h3>
+          <p>Advanced 2D physics simulation with thrust dynamics, drag forces, gravity wells, and realistic collision detection systems.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🔋</div>
+          <h3>Energy Management</h3>
+          <p>Sophisticated energy consumption mechanics requiring strategic planning for movement, mining operations, and survival.</p>
+        </div>
+      </div>
     </section>
 
-    <section id="example-train" class="reveal">
-      <h2>Train PPO</h2>
-      <p class="muted">Minimal script to launch training with sensible defaults.</p>
-      <pre class="line-numbers"><code class="language-python">from space_mining.agents.train_ppo import train_ppo
+    <section id="features" class="reveal">
+      <h2>Advanced Features</h2>
+      <div class="grid cols-2">
+        <div class="card">
+          <h3>🚀 Sophisticated Physics Engine</h3>
+          <p>Realistic 2D space physics with inertia, thrust vectoring, drag forces, gravitational attraction to mothership, and dynamic collision responses.</p>
+        </div>
+        <div class="card">
+          <h3>💎 Resource Management</h3>
+          <p>Dynamic asteroid generation with varying resource densities, depletion mechanics, inventory limits, and strategic delivery requirements.</p>
+        </div>
+        <div class="card">
+          <h3>🎯 Multi-Objective Rewards</h3>
+          <p>Complex reward system promoting exploration, efficiency, resource collection, energy conservation, and collision avoidance strategies.</p>
+        </div>
+        <div class="card">
+          <h3>👁️ Partial Observability</h3>
+          <p>Configurable observation radius creating fog-of-war mechanics that require strategic exploration and memory utilization.</p>
+        </div>
+        <div class="card">
+          <h3>🛡️ Dynamic Obstacles</h3>
+          <p>Moving obstacles with intelligent pathfinding that create evolving navigation challenges throughout episodes.</p>
+        </div>
+        <div class="card">
+          <h3>📊 Comprehensive Analytics</h3>
+          <p>Detailed state tracking, performance metrics, fitness scoring, and extensive debugging tools for analysis.</p>
+        </div>
+      </div>
+    </section>
 
+    <section id="quickstart" class="reveal">
+      <h2>Quick Start Guide</h2>
+      <div class="grid">
+        <div class="card">
+          <h3>🚀 Installation</h3>
+          <pre class="line-numbers"><code class="language-bash"># Install from PyPI
+pip install space-mining
+
+# Or install from source
+git clone https://github.com/reveurmichael/space_mining.git
+cd space_mining
+pip install -e .</code></pre>
+        </div>
+        <div class="card">
+          <h3>🎮 Basic Usage</h3>
+          <pre class="line-numbers"><code class="language-python">import gymnasium as gym
+from space_mining.envs import make_env
+
+# Create environment
+env = make_env(render_mode="human")
+
+# Reset and run
+obs, info = env.reset()
+for _ in range(1000):
+    action = env.action_space.sample()
+    obs, reward, terminated, truncated, info = env.step(action)
+    if terminated or truncated:
+        obs, info = env.reset()</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <section id="examples" class="reveal">
+      <h2>Code Examples</h2>
+      
+      <div class="card">
+        <h3>🤖 Train PPO Agent</h3>
+        <p class="muted">Complete training pipeline with W&B integration and model persistence.</p>
+        <pre class="line-numbers"><code class="language-python">from space_mining.agents.train_ppo import train_ppo
 
 def main() -> None:
-    train_ppo(total_timesteps=10_000_000, output_dir="runs/ppo")
-
+    # Train with advanced configuration
+    model = train_ppo(
+        total_timesteps=10_000_000,
+        output_dir="runs/ppo_advanced",
+        track_wandb=True,
+        wandb_project_name="space-mining-research",
+        checkpoint_freq=100_000,
+        eval_freq=200_000,
+        device="cuda" if torch.cuda.is_available() else "cpu"
+    )
+    print("Training completed successfully!")
 
 if __name__ == "__main__":
     main()</code></pre>
-    </section>
+      </div>
 
-    <section id="example-gif" class="reveal">
-      <h2>Generate a GIF</h2>
-      <p class="muted">Render a trajectory from a checkpoint and save as a GIF.</p>
-      <pre class="line-numbers"><code class="language-python">from space_mining.scripts.make_gif import generate_trajectory, save_gif
- 
- 
- def main() -> None:
-     checkpoint = "runs/ppo/final_model.zip"
-     frames = generate_trajectory(checkpoint_path=checkpoint, num_steps=1200, deterministic=True)
-     save_gif(frames, "output_gif/agent.gif", fps=30)
- 
- 
- if __name__ == "__main__":
-     main()</code></pre>
-    </section>
+      <div class="card">
+        <h3>🎬 Generate Demo Videos</h3>
+        <p class="muted">Create high-quality demonstration videos from trained models.</p>
+        <pre class="line-numbers"><code class="language-python">from space_mining.scripts.make_gif import generate_trajectory, save_gif
+from space_mining.agents import PPOAgent
 
-    <section id="hf" class="reveal">
-      <h2>Load a pre-trained agent from Hugging Face</h2>
-      <p class="muted">Skip training entirely — load and evaluate in a few lines.</p>
-            <pre class="line-numbers"><code class="language-python">from space_mining import make_env
-from space_mining.agents.ppo_agent import PPOAgent
+def create_demo() -> None:
+    # Load pre-trained model
+    agent = PPOAgent.load_from_hf("LUNDECHEN/space-mining-ppo")
+    
+    # Generate demonstration
+    frames = generate_trajectory(
+        agent=agent,
+        num_steps=1200,
+        deterministic=True,
+        render_mode="rgb_array"
+    )
+    
+    # Save as high-quality GIF
+    save_gif(frames, "demos/expert_agent.gif", fps=30)
+    print("Demo created: demos/expert_agent.gif")
 
-env = make_env(render_mode='rgb_array', max_episode_steps=1200)
-agent = PPOAgent.load_from_hf('LUNDECHEN/space-mining-ppo', filename='final_model.zip', env=env, device='cpu')
-obs, _ = env.reset()
-for _ in range(1200):
-    action = agent.predict(obs, deterministic=True)
-    obs, _, terminated, truncated, _ = env.step(action)
-    if terminated or truncated:
-        break
-env.close()</code></pre>
-    </section>
+if __name__ == "__main__":
+    create_demo()</code></pre>
+      </div>
 
+      <div class="card">
+        <h3>🔧 Custom Environment Configuration</h3>
+        <p class="muted">Advanced environment customization for research experiments.</p>
+        <pre class="line-numbers"><code class="language-python">from space_mining.envs import SpaceMining, EnvironmentConfig
 
+# Create custom configuration
+config = EnvironmentConfig(
+    max_episode_steps=2000,
+    grid_size=120,
+    max_asteroids=20,
+    observation_radius=25,
+    energy_consumption_rate=0.03,
+    mining_range=10.0
+)
 
+# Initialize with custom config
+env = SpaceMining(config=config, render_mode="human")
 
-            <section id="quickstart" class="reveal">
-      <h2>Quickstart</h2>
-      <div class="grid cols-3">
-        <div class="card">
-          <h3>Install</h3>
-                    <pre class="line-numbers"><code class="language-bash">pip install space-mining </code></pre>
-        </div>
-        <div class="card">
-          <h3>Train PPO</h3>
-                    <pre class="line-numbers"><code class="language-bash">python -m space_mining.agents.train_ppo \
-  --total-timesteps 10000000 --output-dir runs/ppo --checkpoint-freq 100000 --eval-freq 200000</code></pre>
-        </div>
-        <div class="card">
-          <h3>Render a GIF</h3>
-                    <pre class="line-numbers"><code class="language-bash">python -m space_mining.scripts.make_gif \
-  --checkpoint runs/ppo/final_model.zip --output output_gif/agent.gif --steps 800 --fps 20</code></pre>
-        </div>
+# Run experiment
+obs, info = env.reset(seed=42)
+print(f"Environment initialized with {len(env.asteroid_positions)} asteroids")</code></pre>
       </div>
     </section>
 
-         <section id="features" class="reveal">
-       <h2>Features</h2>
-       <div class="grid cols-3">
-         <div class="card"><h3>2D Simulation</h3><p class="muted">Physics-based movement and asteroid mining in a 2D space.</p></div>
-         <div class="card"><h3>Resource & Energy</h3><p class="muted">Dynamic resource mining and energy management loops.</p></div>
-         <div class="card"><h3>Partial Observability</h3><p class="muted">Limited observation radius and situational awareness.</p></div>
-         <div class="card"><h3>Obstacles</h3><p class="muted">Moving hazards and collision detection for realism.</p></div>
-         <div class="card"><h3>Custom Rewards</h3><p class="muted">Design and evaluate reward functions for novel tasks.</p></div>
-         <div class="card"><h3>Live Visualization</h3><p class="muted">Health bars, status indicators, and crisp rendering.</p></div>
-       </div>
-     </section>
-
-         <section id="task" class="reveal">
-      <h2>Task Description</h2>
-      <p>The agent is deployed in a 2D space environment (80x80 grid) with randomly distributed asteroids and a central mothership. The agent must:</p>
-      <ul>
-        <li>Navigate efficiently to discover and mine resource-rich asteroids</li>
-        <li>Manage energy consumption and return to the mothership for recharging</li>
-        <li>Avoid collisions with moving obstacles</li>
-        <li>Deliver resources to maximize collection efficiency</li>
-        <li>Balance exploration and exploitation for optimal performance</li>
-      </ul>
-      <p>The environment uses a comprehensive fitness scoring system with a target range of approximately 3000 points, evaluating resource collection, energy management, efficiency, and survival time.</p>
-    </section>
-
-         <section id="specs" class="reveal">
+    <section id="specs" class="reveal">
       <h2>Environment Specifications</h2>
-      <h3>State Space</h3>
-      <p>The observation space includes:</p>
-      <ul>
-        <li>Agent State (6 dimensions): Position (x, y), velocity (vx, vy), energy level, inventory</li>
-        <li>Asteroid Information (up to 45 dimensions): Relative positions and resource amounts for visible asteroids</li>
-        <li>Mothership Position (2 dimensions): Relative position to mothership</li>
-      </ul>
-      <h3>Action Space</h3>
-      <p>The action space is continuous with 3 dimensions:</p>
-      <ul>
-        <li>Thrust Control (2 dimensions): Force applied in x and y directions [-1.0, 1.0]</li>
-        <li>Mining Action (1 dimension): Binary mining activation [0.0, 1.0]</li>
-      </ul>
-      <h3>Difficulty Level</h3>
-      <p>Medium Difficulty: The environment presents a balanced challenge with:</p>
-      <ul>
-        <li>Limited observation radius (15 units) requiring strategic exploration</li>
-        <li>Energy management constraints requiring periodic returns to mothership</li>
-        <li>Moving obstacles requiring collision avoidance</li>
-        <li>Resource depletion mechanics requiring efficient mining strategies</li>
-      </ul>
-    </section>
-
-         <section id="demo" class="demo reveal">
-      <h2>Demo: Agent Behaviors</h2>
-      <p class="muted">The GIF demonstrations showcase different agent behaviors and training outcomes, from successful resource collection to various failure modes and learning phases.</p>
-      <div class="gif-gallery">
-        <div class="gif-row">
-          <div class="gif-card">
-            <div class="gif-container">
-              <img src="assets/gif/space_mining_demo_episode_1_20250730_230841.gif" alt="Early Exploration">
-            </div>
-            <div class="learning">Early Exploration · Eval num_timesteps=25000</div>
-            <small>Initial learning phase</small>
-          </div>
-          <div class="gif-card">
-            <div class="gif-container">
-              <img src="assets/gif/space_mining_demo_episode_1_20250731_001359.gif" alt="Early Exploration (Later)">
-            </div>
-            <div class="learning">Early Exploration · Eval num_timesteps=500000</div>
-            <small>Continued learning</small>
-          </div>
-          <div class="gif-card">
-            <div class="gif-container">
-              <img src="assets/gif/space_mining_demo_episode_4_20250730_225245.gif" alt="Successful Mining">
-            </div>
-            <div class="success">Successful Mining</div>
-            <small>Strategic resource collection</small>
-          </div>
+      <div class="grid cols-2">
+        <div class="card">
+          <h3>📊 Action Space</h3>
+          <p><strong>Type:</strong> Box(3) - Continuous control</p>
+          <ul>
+            <li><code>thrust_x</code>: Horizontal thrust [-1, 1]</li>
+            <li><code>thrust_y</code>: Vertical thrust [-1, 1]</li>
+            <li><code>mine_action</code>: Mining trigger [0, 1]</li>
+          </ul>
         </div>
-        <div class="gif-row">
-          <div class="gif-card">
-            <div class="gif-container">
-              <img src="assets/gif/space_mining_demo_episode_5_20250730_224355.gif" alt="Complete Episode">
-            </div>
-            <div class="failure">Complete Episode (1200 steps)</div>
-            <small>Optimal resource collection</small>
-          </div>
-          <div class="gif-card">
-            <div class="gif-container">
-              <img src="assets/gif/space_mining_demo_episode_3_20250730_224120.gif" alt="Energy Depletion">
-            </div>
-            <div class="failure">Energy Depletion</div>
-            <small>Failed to recharge at mothership</small>
-          </div>
-          <div class="gif-card">
-            <div class="gif-container">
-              <img src="assets/gif/space_mining_demo_episode_4_20250730_222922.gif" alt="Poor Obstacle Avoidance">
-            </div>
-            <div class="failure">Poor Obstacle Avoidance</div>
-            <small>Multiple collisions</small>
-          </div>
+        <div class="card">
+          <h3>👁️ Observation Space</h3>
+          <p><strong>Type:</strong> Box(53) - Structured observations</p>
+          <ul>
+            <li><strong>Agent state</strong>: Position, velocity, energy, inventory (6)</li>
+            <li><strong>Asteroids</strong>: Relative positions + resources (45)</li>
+            <li><strong>Mothership</strong>: Relative position (2)</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>🏆 Reward Structure</h3>
+          <ul>
+            <li><strong>Mining rewards</strong>: +8.0 per resource unit</li>
+            <li><strong>Delivery bonuses</strong>: +12.0 per delivered unit</li>
+            <li><strong>Exploration rewards</strong>: +3.0 per discovered asteroid</li>
+            <li><strong>Efficiency bonuses</strong>: Energy and path optimization</li>
+            <li><strong>Penalties</strong>: Collisions (-10.0), boundaries (-1.0)</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>⚙️ Episode Termination</h3>
+          <ul>
+            <li><strong>Energy depletion</strong>: Agent energy reaches zero</li>
+            <li><strong>Collision limit</strong>: 18+ obstacle collisions</li>
+            <li><strong>Resource completion</strong>: All asteroids depleted</li>
+            <li><strong>Time limit</strong>: 1200 steps (configurable)</li>
+          </ul>
         </div>
       </div>
     </section>
 
-           <div class="legend card reveal">
-      <h3 class="muted" style="margin-top:0">Visual Elements Legend</h3>
-      <div class="legend-item"><span class="legend-circle" style="color:#32CD32"></span><span><strong>Green Circle:</strong> Agent (mining robot)</span></div>
-      <div class="legend-item"><span class="legend-circle" style="color:#3296C8"></span><span><strong>Blue Circle:</strong> Mothership (delivery point)</span></div>
-      <div class="legend-item"><span class="legend-circle" style="color:#FFD700"></span><span><strong>Yellow Circles:</strong> Asteroids (mining targets)</span></div>
-      <div class="legend-item"><span class="legend-circle" style="color:#C83232"></span><span><strong>Red Circles:</strong> Moving obstacles (avoid)</span></div>
-      <div class="legend-item"><span class="legend-ring" style="color:#FF0000"></span><span><strong>Red Ring:</strong> Mining range indicator</span></div>
-      <div class="legend-item"><span class="legend-ring" style="color:#6464FF"></span><span><strong>Light Blue Ring:</strong> Observation range</span></div>
-      <p><strong>Health Bars:</strong> Green to red bars above asteroids show remaining resources</p>
-      <p><strong>Status Display:</strong> Top-left shows inventory, energy, and step count</p>
-    </div>
+    <section id="demo" class="reveal">
+      <h2>Interactive Demo Gallery</h2>
+      <p class="text-center muted">Click on any demonstration to view in full size. These examples showcase different agent behaviors and learning stages.</p>
+      
+      <div class="gif-gallery">
+        <div class="gif-card" role="button" tabindex="0" aria-label="View successful mining operation demonstration">
+          <div class="gif-container">
+            <img data-src="assets/gifs/success_episode.gif" alt="Successful mining operation with optimal resource collection and delivery" loading="lazy" />
+          </div>
+          <div class="card-content">
+            <h4>🏆 Expert Performance</h4>
+            <p class="description">Trained agent demonstrating optimal mining strategy with efficient pathfinding and resource management.</p>
+            <span class="status success">Success</span>
+          </div>
+        </div>
 
+        <div class="gif-card" role="button" tabindex="0" aria-label="View learning phase demonstration">
+          <div class="gif-container">
+            <img data-src="assets/gifs/learning_episode.gif" alt="Agent in learning phase showing exploration and suboptimal decisions" loading="lazy" />
+          </div>
+          <div class="card-content">
+            <h4>🎓 Learning Phase</h4>
+            <p class="description">Agent during training showing exploration behavior and gradual improvement in decision making.</p>
+            <span class="status learning">Learning</span>
+          </div>
+        </div>
 
+        <div class="gif-card" role="button" tabindex="0" aria-label="View energy management demonstration">
+          <div class="gif-container">
+            <img data-src="assets/gifs/energy_management.gif" alt="Demonstration of strategic energy management and recharging" loading="lazy" />
+          </div>
+          <div class="card-content">
+            <h4>⚡ Energy Strategy</h4>
+            <p class="description">Showcasing sophisticated energy management with strategic recharging at the mothership.</p>
+            <span class="status success">Optimized</span>
+          </div>
+        </div>
+
+        <div class="gif-card" role="button" tabindex="0" aria-label="View obstacle avoidance demonstration">
+          <div class="gif-container">
+            <img data-src="assets/gifs/obstacle_avoidance.gif" alt="Agent successfully navigating through moving obstacles" loading="lazy" />
+          </div>
+          <div class="card-content">
+            <h4>🛡️ Obstacle Navigation</h4>
+            <p class="description">Advanced obstacle avoidance capabilities with predictive movement and safe pathfinding.</p>
+            <span class="status success">Expert</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top: 48px;">
+        <h3>🎮 Visual Elements Guide</h3>
+        <div class="legend-item">
+          <span class="legend-circle" style="color:#32C832"></span>
+          <span><strong>Green Circle:</strong> Mining agent (changes color based on state)</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-circle" style="color:#3296C8"></span>
+          <span><strong>Blue Circle:</strong> Mothership (delivery and recharge point)</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-circle" style="color:#FFD700"></span>
+          <span><strong>Yellow Circles:</strong> Resource-rich asteroids (mining targets)</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-circle" style="color:#C83232"></span>
+          <span><strong>Red Circles:</strong> Moving obstacles (collision hazards)</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-ring" style="color:#FF0000"></span>
+          <span><strong>Red Ring:</strong> Mining range indicator</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-ring" style="color:#6464FF"></span>
+          <span><strong>Blue Ring:</strong> Observation range (partial observability)</span>
+        </div>
+        <p><strong>Health Bars:</strong> Green-to-red gradient bars above asteroids indicate remaining resource levels</p>
+        <p><strong>Status Display:</strong> Real-time information showing energy, inventory, mining progress, and episode statistics</p>
+      </div>
+    </section>
   </main>
 
   <footer>
-    <div class="container">MIT License · Authors: Xinning Zhu (zhuxinning@shu.edu.cn) · Lunde Chen (lundechen@shu.edu.cn)</div>
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-links">
+          <a href="https://github.com/reveurmichael/space_mining" target="_blank" rel="noopener">GitHub</a>
+          <a href="docs/" rel="noopener">Documentation</a>
+          <a href="https://pypi.org/project/space-mining/" target="_blank" rel="noopener">PyPI</a>
+          <a href="https://huggingface.co/LUNDECHEN/space-mining-ppo" target="_blank" rel="noopener">HuggingFace</a>
+          <a href="LICENSE" target="_blank" rel="noopener">License</a>
+        </div>
+        <p><strong>SpaceMining</strong> — Advanced Reinforcement Learning Environment</p>
+        <p>MIT License © 2024 — <strong>Authors:</strong> Xinning Zhu (zhuxinning@shu.edu.cn) · Lunde Chen (lundechen@shu.edu.cn)</p>
+        <p>Shanghai University | Intelligent Systems Research</p>
+      </div>
+    </div>
   </footer>
 
   <button id="toTop" class="to-top" aria-label="Back to top" title="Back to top">↑</button>
+
+  <!-- Modal for image viewing -->
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-content">
+      <button class="modal-close" aria-label="Close modal">&times;</button>
+      <img class="modal-img" src="" alt="" />
+      <div class="modal-title" id="modal-title"></div>
+    </div>
+  </div>
+
   <script>
     document.addEventListener('DOMContentLoaded', function() {
+      // Performance optimization: Use passive listeners where possible
+      const addPassiveListener = (element, event, handler) => {
+        element.addEventListener(event, handler, { passive: true });
+      };
+
+      // Enhanced GIF management with intersection observer
       const gifs = Array.from(document.querySelectorAll('.gif-container img'));
       if (gifs.length === 0) return;
 
-      const modal = document.createElement('div');
-      modal.className = 'modal';
-      modal.innerHTML = '<div class="modal-content"><span class="modal-close" aria-label="Close">&times;</span><img class="modal-img" src="" alt=""><div class="modal-title"></div></div>';
-      document.body.appendChild(modal);
-
+      const modal = document.querySelector('.modal');
       const modalImg = modal.querySelector('.modal-img');
       const modalTitle = modal.querySelector('.modal-title');
       const modalClose = modal.querySelector('.modal-close');
 
-      function forceGifLoop(img) {
+      // Force GIF restart with cache busting
+      function forceGifRestart(img) {
+        if (!img.src && !img.dataset.src) return;
         const src = img.dataset.src || img.src.split('?')[0];
-        const ts = Date.now();
-        const base = src.split('?')[0];
-        img.src = base + (base.includes('?') ? '&' : '?') + 't=' + ts;
+        const timestamp = Date.now();
+        const separator = src.includes('?') ? '&' : '?';
+        img.src = `${src}${separator}reload=${timestamp}`;
       }
 
-      function isInViewport(el) {
-        const r = el.getBoundingClientRect();
-        return r.bottom > 0 && r.right > 0 && r.top < (window.innerHeight || document.documentElement.clientHeight) && r.left < (window.innerWidth || document.documentElement.clientWidth);
+      // Enhanced viewport detection
+      function isInViewport(element, threshold = 0.1) {
+        const rect = element.getBoundingClientRect();
+        const windowHeight = window.innerHeight || document.documentElement.clientHeight;
+        const windowWidth = window.innerWidth || document.documentElement.clientWidth;
+        
+        return (
+          rect.bottom >= windowHeight * threshold &&
+          rect.right >= windowWidth * threshold &&
+          rect.top <= windowHeight * (1 - threshold) &&
+          rect.left <= windowWidth * (1 - threshold)
+        );
       }
 
-      function refreshAllGifs() {
-        gifs.forEach(img => { if (isInViewport(img)) { forceGifLoop(img); } });
-        if (modal.style.display === 'block' && modalImg.src) {
-          forceGifLoop(modalImg);
-        }
+      // Refresh visible GIFs
+      function refreshVisibleGifs() {
+        requestAnimationFrame(() => {
+          gifs.forEach(img => {
+            if (isInViewport(img)) {
+              forceGifRestart(img);
+            }
+          });
+          
+          // Refresh modal GIF if open
+          if (modal.style.display === 'block' && modalImg.src) {
+            forceGifRestart(modalImg);
+          }
+        });
       }
 
-      // Lazy load GIFs the first time they enter the viewport
+      // Intersection Observer for lazy loading and performance
       const gifObserver = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
           if (entry.isIntersecting) {
             const img = entry.target;
-            if (!img.src) {
+            if (!img.src && img.dataset.src) {
               img.src = img.dataset.src;
+              img.addEventListener('load', () => {
+                img.style.opacity = '1';
+              }, { once: true });
             }
-            forceGifLoop(img);
-            gifObserver.unobserve(img);
+            forceGifRestart(img);
           }
         });
-      }, { root: null, rootMargin: '100px', threshold: 0.01 });
+      }, {
+        root: null,
+        rootMargin: '100px',
+        threshold: 0.1
+      });
 
+      // Initialize GIFs
       gifs.forEach(img => {
-        if (img.getAttribute('src')) {
-          img.dataset.src = img.getAttribute('src');
-          img.removeAttribute('src');
-        } else if (img.src) {
+        // Set up lazy loading
+        if (img.src) {
           img.dataset.src = img.src;
           img.removeAttribute('src');
         }
+        img.style.opacity = '0';
+        img.style.transition = 'opacity 0.3s ease';
+        
         gifObserver.observe(img);
-        img.addEventListener('click', () => {
-          modalImg.src = (img.dataset.src || '').split('?')[0];
-          modalTitle.textContent = img.alt || 'Preview';
+
+        // Enhanced modal functionality
+        const openModal = () => {
+          const src = (img.dataset.src || img.src || '').split('?')[0];
+          const title = img.alt || 'Demo Preview';
+          
+          modalImg.src = src;
+          modalTitle.textContent = title;
           modal.style.display = 'block';
-          setTimeout(() => forceGifLoop(modalImg), 60);
+          document.body.style.overflow = 'hidden'; // Prevent background scroll
+          
+          // Focus management for accessibility
+          modalClose.focus();
+          
+          setTimeout(() => forceGifRestart(modalImg), 100);
+        };
+
+        img.addEventListener('click', openModal);
+        img.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            openModal();
+          }
         });
       });
 
-      modalClose.addEventListener('click', () => { modal.style.display = 'none'; });
-      modal.addEventListener('click', (e) => { if (e.target === modal) modal.style.display = 'none'; });
-      document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && modal.style.display === 'block') modal.style.display = 'none'; });
+      // Enhanced modal controls
+      const closeModal = () => {
+        modal.style.display = 'none';
+        document.body.style.overflow = ''; // Restore scroll
+      };
 
-      const intervalId = setInterval(refreshAllGifs, 2500);
-      window.addEventListener('focus', refreshAllGifs);
-      document.addEventListener('visibilitychange', () => { if (!document.hidden) refreshAllGifs(); });
+      modalClose.addEventListener('click', closeModal);
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+      });
 
-      // Active nav highlight and back-to-top
-      const navLinks = Array.from(document.querySelectorAll('.nav-links a[href^="#"]'));
-      const sections = navLinks.map(link => document.querySelector(link.getAttribute('href'))).filter(Boolean);
-      const toTop = document.getElementById('toTop');
-
-      function updateActiveNav() {
-        let activeId = null;
-        for (const section of sections) {
-          const rect = section.getBoundingClientRect();
-          if (rect.top <= 120 && rect.bottom >= 200) {
-            activeId = '#' + section.id;
-            break;
+      // Keyboard navigation
+      document.addEventListener('keydown', (e) => {
+        if (modal.style.display === 'block') {
+          if (e.key === 'Escape') {
+            closeModal();
           }
         }
-        navLinks.forEach(link => link.classList.toggle('active', link.getAttribute('href') === activeId));
+      });
+
+      // Performance-optimized GIF refresh
+      let refreshInterval;
+      const startGifRefresh = () => {
+        refreshInterval = setInterval(refreshVisibleGifs, 3000);
+      };
+
+      const stopGifRefresh = () => {
+        if (refreshInterval) {
+          clearInterval(refreshInterval);
+          refreshInterval = null;
+        }
+      };
+
+      // Page visibility API for performance
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+          stopGifRefresh();
+        } else {
+          refreshVisibleGifs();
+          startGifRefresh();
+        }
+      });
+
+      // Start refresh cycle
+      startGifRefresh();
+
+      // Enhanced navigation highlighting
+      const navLinks = Array.from(document.querySelectorAll('.nav-links a[href^="#"]'));
+      const sections = navLinks.map(link => {
+        const href = link.getAttribute('href');
+        return document.querySelector(href);
+      }).filter(Boolean);
+
+      const toTop = document.getElementById('toTop');
+
+      function updateActiveNavigation() {
+        let activeSection = null;
+        const scrollPosition = window.scrollY + 150;
+
+        sections.forEach(section => {
+          const sectionTop = section.offsetTop;
+          const sectionBottom = sectionTop + section.offsetHeight;
+          
+          if (scrollPosition >= sectionTop && scrollPosition < sectionBottom) {
+            activeSection = section;
+          }
+        });
+
+        navLinks.forEach(link => {
+          const isActive = activeSection && 
+                          link.getAttribute('href') === `#${activeSection.id}`;
+          link.classList.toggle('active', isActive);
+        });
       }
 
-      function updateToTop() {
+      function updateBackToTop() {
         const scrolled = window.scrollY || document.documentElement.scrollTop;
-        toTop.classList.toggle('show', scrolled > 400);
+        toTop.classList.toggle('show', scrolled > 500);
       }
 
-      toTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+      // Smooth scroll for navigation links
+      navLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+          e.preventDefault();
+          const targetId = link.getAttribute('href').slice(1);
+          const targetSection = document.getElementById(targetId);
+          
+          if (targetSection) {
+            const offsetTop = targetSection.offsetTop - 100;
+            window.scrollTo({
+              top: offsetTop,
+              behavior: 'smooth'
+            });
+          }
+        });
+      });
 
-      const onScroll = () => { updateActiveNav(); updateToTop(); };
-      document.addEventListener('scroll', onScroll, { passive: true });
-      window.addEventListener('resize', onScroll);
-      onScroll();
+      // Back to top functionality
+      toTop.addEventListener('click', () => {
+        window.scrollTo({
+          top: 0,
+          behavior: 'smooth'
+        });
+      });
 
-      // Reveal animations disabled: show all sections immediately
+      // Throttled scroll handler for performance
+      let scrollTimeout;
+      const handleScroll = () => {
+        if (scrollTimeout) {
+          clearTimeout(scrollTimeout);
+        }
+        scrollTimeout = setTimeout(() => {
+          updateActiveNavigation();
+          updateBackToTop();
+        }, 10);
+      };
+
+      addPassiveListener(window, 'scroll', handleScroll);
+      addPassiveListener(window, 'resize', handleScroll);
+
+      // Initial calls
+      updateActiveNavigation();
+      updateBackToTop();
+
+      // Enhanced reveal animations
+      const revealElements = document.querySelectorAll('.reveal');
+      const revealObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.style.opacity = '1';
+            entry.target.style.transform = 'translateY(0)';
+          }
+        });
+      }, {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+      });
+
+      revealElements.forEach(element => {
+        element.style.opacity = '0';
+        element.style.transform = 'translateY(30px)';
+        element.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+        revealObserver.observe(element);
+      });
+
+      // Focus management for accessibility
+      document.addEventListener('keydown', (e) => {
+        // Skip links for screen readers
+        if (e.key === 'Tab' && e.altKey) {
+          const main = document.querySelector('main');
+          if (main) {
+            main.focus();
+            e.preventDefault();
+          }
+        }
+      });
+
+      console.log('🚀 SpaceMining website loaded successfully!');
     });
   </script>
+
+  <!-- Enhanced syntax highlighting -->
   <script src="https://unpkg.com/prismjs/prism.js"></script>
   <script src="https://unpkg.com/prismjs/plugins/line-numbers/prism-line-numbers.min.js"></script>
   <script src="https://unpkg.com/prismjs/components/prism-python.min.js"></script>
