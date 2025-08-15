@@ -1,4 +1,5 @@
 from typing import Any, Dict, Optional, Tuple
+import math
 
 import gymnasium as gym
 import numpy as np
@@ -53,6 +54,44 @@ class SpaceMining(gym.Env):
         self.steps_count: int = 0
         self.mothership_pos: np.ndarray = np.array([grid_size / 2, grid_size / 2])
 
+        # Animation and visual effects (for renderer communication)
+        self.delivery_particles = []
+        self.agent_trail = []
+        self.score_popups = []
+        self.collision_flash_timer = 0.0
+        self.screen_shake_timer = 0.0
+        self.mining_beam_offset = 0.0
+        
+        # Screen size for renderer
+        self.window_width = 1920   # Standard 1080p width
+        self.window_height = 1080  # Standard 1080p height
+        
+        # Zoom system for gameplay
+        self.zoom_level = 1.0
+        self.target_zoom = 1.0
+        self.zoom_speed = 0.025
+        
+        # Game over screen state
+        self.game_over_state = {
+            "active": False,
+            "fade_alpha": 0,
+            "final_stats": {},
+            "success": False
+        }
+        
+        # Floating event timeline
+        self.event_timeline = []
+        self.max_timeline_events = 5
+        
+        # Score combo system
+        self.combo_state = {
+            "chain_count": 0,
+            "last_mining_step": 0,
+            "combo_window": 50,
+            "display_timer": 0,
+            "combo_alpha": 0
+        }
+
         self.action_space: spaces.Box = spaces.Box(
             low=np.array([-1.0, -1.0, 0.0]),
             high=np.array([1.0, 1.0, 1.0]),
@@ -83,6 +122,32 @@ class SpaceMining(gym.Env):
 
         self.steps_count = 0
         self.collision_count = 0
+
+        # Reset animation data structures
+        self.delivery_particles = []
+        self.agent_trail = []
+        self.score_popups = []
+        self.collision_flash_timer = 0.0
+        self.screen_shake_timer = 0.0
+        self.mining_beam_offset = 0.0
+
+        # Reset cosmic background and game over state
+        self.game_over_state = {
+            "active": False,
+            "fade_alpha": 0,
+            "final_stats": {},
+            "success": False
+        }
+
+        # Reset event timeline and combo system
+        self.event_timeline = []
+        self.combo_state = {
+            "chain_count": 0,
+            "last_mining_step": 0,
+            "combo_window": 50,
+            "display_timer": 0,
+            "combo_alpha": 0
+        }
 
         self.agent_position = self.np_random.uniform(low=0, high=self.grid_size, size=(2,))
         self.agent_velocity = np.zeros(2, dtype=np.float32)
@@ -182,6 +247,7 @@ class SpaceMining(gym.Env):
             self.agent_energy = 0
             reward += -10.0
             terminated = True
+            self._trigger_game_over(success=False)
         else:
             terminated = False
 
@@ -195,6 +261,11 @@ class SpaceMining(gym.Env):
                 if not hasattr(self, "last_collision_step"):
                     self.last_collision_step = 0
                 self.last_collision_step = self.steps_count
+                # Trigger collision effects
+                self.collision_flash_timer = 0.3  # Flash for 0.3 seconds
+                self.screen_shake_timer = 0.2  # Shake for 0.2 seconds
+                # Add to event timeline
+                self._add_timeline_event("collision", "Collision!", (255, 100, 100))
                 to_obstacle = self.agent_position - obstacle_pos
                 if np.linalg.norm(to_obstacle) > 0:
                     to_obstacle = to_obstacle / np.linalg.norm(to_obstacle)
@@ -202,6 +273,7 @@ class SpaceMining(gym.Env):
         if self.collision_count >= 18:
             print(f"[EPISODE END] Step {self.steps_count}: Too many collisions, terminating episode.")
             terminated = True
+            self._trigger_game_over(success=False)
 
         if mine and self.agent_energy > 0 and self.agent_inventory < self.max_inventory:
             mined_something = False
@@ -237,6 +309,12 @@ class SpaceMining(gym.Env):
                         }
                         self.mining_asteroid_id = i
                         reward += max_possible * 8.0
+                        # Add score popup for mining
+                        self._add_score_popup(f"+{max_possible:.1f}", asteroid_pos.copy(), (255, 255, 0))
+                        # Add to event timeline
+                        self._add_timeline_event("mining", f"+{max_possible:.1f}", (255, 255, 0))
+                        # Update combo system
+                        self._process_mining_combo()
                         mined_something = True
                         self.agent_velocity *= 0.8
                         break
@@ -260,6 +338,12 @@ class SpaceMining(gym.Env):
         if distance_to_mothership < 12.0 and self.agent_inventory > 0:
             delivered_amount = self.agent_inventory
             reward += delivered_amount * 12.0
+            # Spawn delivery particles
+            self._spawn_delivery_particles(self.agent_position.copy(), self.mothership_pos.copy())
+            # Add score popup for delivery
+            self._add_score_popup(f"+{delivered_amount:.1f}", self.agent_position.copy(), (0, 255, 0))
+            # Add to event timeline
+            self._add_timeline_event("delivery", f"Delivered +{delivered_amount:.1f}", (0, 255, 0))
             if not hasattr(self, "last_delivery_info"):
                 self.last_delivery_info = {}
             energy_recharged = 150.0 - self.agent_energy
@@ -278,10 +362,15 @@ class SpaceMining(gym.Env):
                 if self.obstacle_positions[i][axis] < 0 or self.obstacle_positions[i][axis] > self.grid_size:
                     self.obstacle_velocities[i][axis] *= -1
 
+        # Update animations and zoom
+        self._update_animations()
+        self._update_zoom()
+
         observation = self._get_observation()
 
         truncated = self.steps_count >= self.max_episode_steps
         if truncated:
+            self._trigger_game_over(success=False)
             print(
                 (
                     f"[EPISODE END] Step {self.steps_count}: Time limit reached "
@@ -291,6 +380,7 @@ class SpaceMining(gym.Env):
 
         if np.all(self.asteroid_resources < 0.1):
             terminated = True
+            self._trigger_game_over(success=True)
             info = self._get_info()
             info["exploration_complete"] = True
             print((f"[EPISODE END] Step {self.steps_count}: All asteroids depleted " f"- Episode completed successfully"))
@@ -451,6 +541,184 @@ class SpaceMining(gym.Env):
             "path_efficiency_reward": path_efficiency_reward,
             "mining_guidance_reward": mining_guidance_reward,
             "delivery_guidance_reward": delivery_guidance_reward,
+        }
+
+    def _update_animations(self) -> None:
+        """Update all animation states."""
+        # Update agent trail
+        self.agent_trail.append({"pos": self.agent_position.copy(), "alpha": 255})
+        # Fade existing trail points
+        for trail_point in self.agent_trail:
+            trail_point["alpha"] -= 15
+        # Remove faded trail points
+        self.agent_trail = [p for p in self.agent_trail if p["alpha"] > 0]
+
+        # Update delivery particles
+        for particle in self.delivery_particles:
+            particle["progress"] += 0.05
+            if particle["progress"] >= 1.0:
+                particle["progress"] = 1.0
+        # Remove completed particles
+        self.delivery_particles = [p for p in self.delivery_particles if p["progress"] < 1.0]
+
+        # Update score popups
+        for popup in self.score_popups:
+            popup["pos"][1] -= 0.3  # Move upward
+            popup["alpha"] -= 5
+        # Remove faded popups
+        self.score_popups = [p for p in self.score_popups if p["alpha"] > 0]
+
+        # Update collision effects
+        if self.collision_flash_timer > 0:
+            self.collision_flash_timer -= self.dt
+        if self.screen_shake_timer > 0:
+            self.screen_shake_timer -= self.dt
+
+        # Update mining beam animation
+        self.mining_beam_offset += 0.2
+
+        # Update event timeline
+        self._update_event_timeline()
+
+        # Update combo system
+        self._update_combo_system()
+
+    def _spawn_delivery_particles(self, start_pos: np.ndarray, target_pos: np.ndarray) -> None:
+        """Spawn glowing particles for resource delivery animation."""
+        for _ in range(10):
+            particle = {
+                "start_pos": start_pos.copy(),
+                "target_pos": target_pos.copy(),
+                "progress": 0.0
+            }
+            self.delivery_particles.append(particle)
+
+    def _add_score_popup(self, text: str, pos: np.ndarray, color: tuple) -> None:
+        """Add a floating score popup."""
+        popup = {
+            "text": text,
+            "pos": pos.copy(),
+            "alpha": 255,
+            "color": color
+        }
+        self.score_popups.append(popup)
+
+
+
+    def _update_zoom(self) -> None:
+        """Update zoom system for cosmic immersion."""
+        zoom_diff = self.target_zoom - self.zoom_level
+        self.zoom_speed = 0.025
+        self.zoom_level += zoom_diff * self.zoom_speed
+        
+        # Perfect zoom logic for cosmic experience
+        if hasattr(self, 'agent_energy') and self.agent_energy < 20:
+            self.target_zoom = 1.25  # Focus when energy critical
+        elif hasattr(self, 'collision_flash_timer') and self.collision_flash_timer > 0:
+            self.target_zoom = 0.85  # Pull back for drama
+        elif len([a for a in self.asteroid_resources if a > 0.1]) <= 2:
+            self.target_zoom = 0.9   # Overview when few asteroids
+        elif hasattr(self, 'mining_asteroid_id') and self.mining_asteroid_id is not None:
+            self.target_zoom = 1.1   # Subtle mining focus
+        else:
+            self.target_zoom = 1.0   # Perfect cosmic view
+        
+        # Perfect zoom bounds for cosmic viewing
+        self.zoom_level = max(0.8, min(1.3, self.zoom_level))
+
+    def _add_timeline_event(self, event_type: str, text: str, color: tuple) -> None:
+        """Add an event to the floating timeline."""
+        event = {
+            "type": event_type,
+            "text": text,
+            "color": color,
+            "step": self.steps_count,
+            "alpha": 255,
+            "lifetime": 300  # Steps before fading
+        }
+        
+        # Add to front of timeline
+        self.event_timeline.insert(0, event)
+        
+        # Keep only the last N events
+        if len(self.event_timeline) > self.max_timeline_events:
+            self.event_timeline = self.event_timeline[:self.max_timeline_events]
+
+    def _update_event_timeline(self) -> None:
+        """Update event timeline animations."""
+        # Age all events and remove expired ones
+        for event in self.event_timeline[:]:  # Copy list to avoid modification during iteration
+            age = self.steps_count - event["step"]
+            if age > event["lifetime"]:
+                self.event_timeline.remove(event)
+            else:
+                # Fade out over last 60 steps
+                fade_start = event["lifetime"] - 60
+                if age > fade_start:
+                    fade_progress = (age - fade_start) / 60.0
+                    event["alpha"] = int(255 * (1 - fade_progress))
+                else:
+                    event["alpha"] = 255
+
+    def _process_mining_combo(self) -> None:
+        """Process mining combo chain detection."""
+        current_step = self.steps_count
+        
+        # Check if this mining action extends a combo
+        if (current_step - self.combo_state["last_mining_step"]) <= self.combo_state["combo_window"]:
+            self.combo_state["chain_count"] += 1
+        else:
+            self.combo_state["chain_count"] = 1
+        
+        self.combo_state["last_mining_step"] = current_step
+        
+        # Show combo if we have 2 or more
+        if self.combo_state["chain_count"] >= 2:
+            self.combo_state["display_timer"] = 120  # Show for 4 seconds at 30fps
+            self.combo_state["combo_alpha"] = 255
+            
+            # Add special combo timeline event
+            combo_text = f"x{self.combo_state['chain_count']} COMBO!"
+            self._add_timeline_event("combo", combo_text, (255, 200, 0))
+
+    def _update_combo_system(self) -> None:
+        """Update combo display animations."""
+        # Fade out combo display
+        if self.combo_state["display_timer"] > 0:
+            self.combo_state["display_timer"] -= 1
+            
+            # Pulsing effect
+            pulse = abs(math.sin(self.steps_count * 0.3)) * 0.3 + 0.7
+            self.combo_state["combo_alpha"] = int(255 * pulse)
+            
+            if self.combo_state["display_timer"] <= 0:
+                self.combo_state["combo_alpha"] = 0
+        
+        # Reset combo if too much time has passed
+        if (self.steps_count - self.combo_state["last_mining_step"]) > self.combo_state["combo_window"]:
+            if self.combo_state["chain_count"] > 0:
+                self.combo_state["chain_count"] = 0
+                self.combo_state["display_timer"] = 0
+
+    def _trigger_game_over(self, success: bool) -> None:
+        """Trigger game over screen with final statistics."""
+        cumulative_mining = getattr(self, "cumulative_mining_amount", 0.0)
+        
+        self.game_over_state = {
+            "active": True,
+            "fade_alpha": 0,
+            "success": success,
+            "final_stats": {
+                "total_resources_mined": cumulative_mining,
+                "resources_delivered": cumulative_mining - self.agent_inventory,
+                "current_inventory": self.agent_inventory,
+                "collisions": self.collision_count,
+                "steps_taken": self.steps_count,
+                "final_energy": self.agent_energy,
+                "asteroids_depleted": len(self.asteroid_positions) - np.sum(self.asteroid_resources >= 0.1),
+                "total_asteroids": len(self.asteroid_positions),
+                "efficiency_score": self.compute_fitness_score()
+            }
         }
 
 __all__ = ["SpaceMining"]
