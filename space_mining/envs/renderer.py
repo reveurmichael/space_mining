@@ -411,97 +411,354 @@ class Renderer:
                             gfxdraw.aacircle(self.window, x, y, size + 1, glow_color)
 
     def _draw_game_ui(self, agent_pos_2d) -> None:
-        """Draw the main game UI elements."""
+        """Draw the main game UI elements with adaptive layout and icons."""
         try:
             import pygame
             import numpy as np
+            from pygame import gfxdraw
+            import math
         except ImportError:
             return
 
-        # Enhanced status panel with better layout
+        # Enhanced status panel with adaptive layout
         cumulative_mining = getattr(self.env, "cumulative_mining_amount", 0.0)
         
         # Agent state indicator
-        state_indicator = "🔍 EXPLORING"
+        state_text = "EXPLORING"
+        state_color = (200, 200, 255)
         if hasattr(self.env, "mining_asteroid_id"):
-            state_indicator = f"🔨 MINING Asteroid {self.env.mining_asteroid_id}"
+            state_text = f"MINING A{self.env.mining_asteroid_id}"
+            state_color = (255, 255, 100)
         elif self.env.agent_inventory > 0:
-            state_indicator = f"📦 CARRYING {self.env.agent_inventory:.1f} resources"
+            state_text = f"CARRYING {self.env.agent_inventory:.0f}"
+            state_color = (255, 255, 0)
         
-        status_text = [
-            f"Energy: {self.env.agent_energy:.0f}/150 {'⚠️' if self.env.agent_energy < 30 else '⚡'}",
-            f"Inventory: {self.env.agent_inventory:.0f}/{self.env.max_inventory}",
-            f"Total Mined: {cumulative_mining:.1f}",
-            f"Collisions: {self.env.collision_count} {'💥' if hasattr(self.env, 'last_collision_step') and self.env.last_collision_step == self.env.steps_count else ''}",
-            f"Step: {self.env.steps_count}/{self.env.max_episode_steps}",
-            f"Asteroids: {np.sum(self.env.asteroid_resources >= 0.1)}/{len(self.env.asteroid_positions)}",
-            "",
-            state_indicator
+        # Create adaptive status panel with icons
+        self._draw_adaptive_status_panel(state_text, state_color, cumulative_mining)
+        
+        # Create adaptive legend with icons
+        self._draw_adaptive_legend()
+
+    def _draw_adaptive_status_panel(self, state_text, state_color, cumulative_mining) -> None:
+        """Draw an adaptive status panel with icons and multi-column layout."""
+        try:
+            import pygame
+            import numpy as np
+            from pygame import gfxdraw
+        except ImportError:
+            return
+
+        # Status data with icons
+        status_items = [
+            {
+                "icon": "energy",
+                "value": f"{self.env.agent_energy:.0f}/150",
+                "warning": self.env.agent_energy < 30,
+                "color": (255, 100, 100) if self.env.agent_energy < 30 else (100, 255, 100)
+            },
+            {
+                "icon": "inventory", 
+                "value": f"{self.env.agent_inventory:.0f}/{self.env.max_inventory}",
+                "warning": False,
+                "color": (255, 255, 100) if self.env.agent_inventory > 0 else (200, 200, 200)
+            },
+            {
+                "icon": "mining",
+                "value": f"{cumulative_mining:.1f}",
+                "warning": False,
+                "color": (100, 255, 100)
+            },
+            {
+                "icon": "collision",
+                "value": str(self.env.collision_count),
+                "warning": hasattr(self.env, 'last_collision_step') and self.env.last_collision_step == self.env.steps_count,
+                "color": (255, 100, 100) if hasattr(self.env, 'last_collision_step') and self.env.last_collision_step == self.env.steps_count else (200, 200, 200)
+            },
+            {
+                "icon": "step",
+                "value": f"{self.env.steps_count}/{self.env.max_episode_steps}",
+                "warning": False,
+                "color": (200, 200, 255)
+            },
+            {
+                "icon": "asteroid",
+                "value": f"{np.sum(self.env.asteroid_resources >= 0.1)}/{len(self.env.asteroid_positions)}",
+                "warning": False,
+                "color": (255, 215, 100)
+            }
         ]
 
-        # Add recent events
+        # Calculate adaptive panel size (2 columns, 3 rows)
+        cols = 2
+        rows = 3
+        item_width = 160
+        item_height = 35
+        panel_width = cols * item_width + 30
+        panel_height = rows * item_height + 60
+
+        # Create main status panel
+        status_bg = pygame.Surface((panel_width, panel_height), pygame.SRCALPHA)
+        status_bg.fill((0, 0, 0, 220))
+        pygame.draw.rect(status_bg, (60, 60, 80, 150), (0, 0, panel_width, panel_height), 3)
+
+        # Title with state
+        title_font = pygame.font.SysFont("Arial", 16, bold=True)
+        title_surface = title_font.render(state_text, True, state_color)
+        title_rect = title_surface.get_rect(center=(panel_width // 2, 20))
+        status_bg.blit(title_surface, title_rect)
+
+        # Draw status items in grid
+        for i, item in enumerate(status_items):
+            row = i // cols
+            col = i % cols
+            x = 15 + col * item_width
+            y = 40 + row * item_height
+
+            # Draw icon
+            icon_x = x + 5
+            icon_y = y + 5
+            self._draw_status_icon(status_bg, item["icon"], icon_x, icon_y, item["warning"])
+
+            # Draw value text
+            value_font = pygame.font.SysFont("Arial", 14, bold=item["warning"])
+            value_surface = value_font.render(item["value"], True, item["color"])
+            status_bg.blit(value_surface, (x + 30, y + 8))
+
+        self.window.blit(status_bg, (10, 10))
+
+        # Recent events (adaptive)
+        self._draw_recent_events_compact()
+
+    def _draw_status_icon(self, surface, icon_type, x, y, warning=False) -> None:
+        """Draw a small status icon."""
+        try:
+            import pygame
+            from pygame import gfxdraw
+        except ImportError:
+            return
+
+        size = 20
+        warning_color = (255, 100, 100) if warning else None
+
+        if icon_type == "energy":
+            # Battery icon
+            color = warning_color or (100, 255, 100)
+            pygame.draw.rect(surface, color, (x, y+5, 16, 10), 2)
+            pygame.draw.rect(surface, color, (x+16, y+7, 3, 6))
+            # Fill based on energy
+            fill_width = int(14 * (self.env.agent_energy / 150.0))
+            pygame.draw.rect(surface, color, (x+1, y+6, fill_width, 8))
+
+        elif icon_type == "inventory":
+            # Package/box icon
+            color = warning_color or (255, 255, 100)
+            pygame.draw.rect(surface, color, (x+2, y+3, 14, 14), 2)
+            pygame.draw.line(surface, color, (x+2, y+8), (x+16, y+8), 2)
+            pygame.draw.line(surface, color, (x+9, y+3), (x+9, y+17), 2)
+
+        elif icon_type == "mining":
+            # Pickaxe icon
+            color = warning_color or (100, 255, 100)
+            pygame.draw.line(surface, color, (x+3, y+15), (x+15, y+3), 3)
+            pygame.draw.rect(surface, color, (x+12, y+1, 6, 4))
+
+        elif icon_type == "collision":
+            # Warning/explosion icon
+            color = warning_color or (200, 200, 200)
+            gfxdraw.filled_circle(surface, x+10, y+10, 8, color)
+            font = pygame.font.SysFont("Arial", 12, bold=True)
+            text = font.render("!", True, (0, 0, 0))
+            surface.blit(text, (x+7, y+4))
+
+        elif icon_type == "step":
+            # Clock icon
+            color = warning_color or (200, 200, 255)
+            gfxdraw.aacircle(surface, x+10, y+10, 8, color)
+            pygame.draw.line(surface, color, (x+10, y+10), (x+10, y+5), 2)
+            pygame.draw.line(surface, color, (x+10, y+10), (x+14, y+10), 2)
+
+        elif icon_type == "asteroid":
+            # Asteroid icon (rough circle)
+            color = warning_color or (255, 215, 100)
+            points = [(x+10, y+2), (x+16, y+6), (x+15, y+14), (x+8, y+17), (x+3, y+12), (x+4, y+5)]
+            pygame.draw.polygon(surface, color, points, 2)
+
+    def _draw_recent_events_compact(self) -> None:
+        """Draw recent events in a compact horizontal strip."""
+        try:
+            import pygame
+        except ImportError:
+            return
+
+        events = []
+        
+        # Collect recent events
         if (hasattr(self.env, "last_mining_info") and self.env.last_mining_info.get("step", 0) == self.env.steps_count):
             extracted = self.env.last_mining_info['extracted']
-            status_text.append(f"⛏️ Mined {extracted:.1f} resources!")
+            events.append(f"⛏️ +{extracted:.1f}")
             if self.env.last_mining_info.get("asteroid_depleted", False):
-                status_text.append("💀 Asteroid depleted!")
+                events.append("💀 DEPLETED")
 
         if (hasattr(self.env, "last_delivery_info") and self.env.last_delivery_info.get("step", 0) == self.env.steps_count):
             delivered = self.env.last_delivery_info['delivered']
-            status_text.append(f"🚀 Delivered {delivered:.1f} resources!")
-            status_text.append("⚡ Fully recharged!")
+            events.append(f"🚀 +{delivered:.1f}")
+            events.append("⚡ RECHARGED")
 
         if hasattr(self.env, "tried_depleted_asteroid") and self.env.tried_depleted_asteroid:
-            status_text.append("⚠️ Tried mining depleted asteroid!")
+            events.append("⚠️ NO RESOURCES")
 
-        # Enhanced status panel with better background
-        panel_height = len(status_text) * 24 + 20
-        status_bg = pygame.Surface((350, panel_height), pygame.SRCALPHA)
-        status_bg.fill((0, 0, 0, 200))
-        pygame.draw.rect(status_bg, (50, 50, 50, 100), (0, 0, 350, panel_height), 2)
-        self.window.blit(status_bg, (10, 10))
-        
-        for i, text in enumerate(status_text):
-            color = (255, 255, 255) if text != "" else (200, 200, 200)
-            if "⚠️" in text or "💥" in text:
-                color = (255, 200, 200)
-            elif "✅" in text or "🚀" in text or "⚡" in text:
-                color = (200, 255, 200)
+        if events:
+            # Create horizontal event strip
+            event_text = "  |  ".join(events)
+            event_font = pygame.font.SysFont("Arial", 14, bold=True)
             
-            rendered_text = self.font.render(text, True, color)
-            self.window.blit(rendered_text, (20, 20 + i * 24))
+            # Calculate background size
+            text_surface = event_font.render(event_text, True, (255, 255, 255))
+            bg_width = text_surface.get_width() + 20
+            bg_height = 30
+            
+            # Create event background
+            event_bg = pygame.Surface((bg_width, bg_height), pygame.SRCALPHA)
+            event_bg.fill((50, 50, 50, 200))
+            pygame.draw.rect(event_bg, (100, 100, 100, 100), (0, 0, bg_width, bg_height), 2)
+            
+            # Add text
+            event_bg.blit(text_surface, (10, 8))
+            
+            # Position below status panel
+            self.window.blit(event_bg, (10, 170))
 
-        # Enhanced legend with horizontal layout optimization
-        legend_text = [
-            "🎮 GAME LEGEND",
-            "",
-            "🤖 Green Circle = Mining Agent (always green)",
-            "🏭 Blue Circle = Mothership (recharge & delivery)",
-            "🌕 Yellow Circles = Asteroids (size = resources)",
-            "💀 Gray Circle + X = Depleted Asteroids",
-            "☄️ Red Pulsing = Moving Obstacles (danger!)",
-            "",
-            "🔵 Blue Ring = Observation Range",
-            "🔴 Red Ring = Mining Range", 
-            "⚡ Yellow Beam = Active Mining Energy",
-            "✨ Yellow Dots = Resource Delivery",
-            "🌑 Dim Area = Outside Observation Range",
-            "💫 Blue Aura = Mothership Safe Zone"
+    def _draw_adaptive_legend(self) -> None:
+        """Draw an adaptive legend with icons and optimized layout."""
+        try:
+            import pygame
+            from pygame import gfxdraw
+            import math
+        except ImportError:
+            return
+
+        # Legend items with visual icons
+        legend_items = [
+            {"icon": "agent", "text": "Mining Agent", "color": (50, 255, 50)},
+            {"icon": "mothership", "text": "Mothership", "color": (30, 120, 200)},
+            {"icon": "asteroid", "text": "Asteroids", "color": (255, 215, 0)},
+            {"icon": "obstacle", "text": "Obstacles", "color": (220, 50, 50)},
+            {"icon": "depleted", "text": "Depleted", "color": (100, 100, 100)},
+            {"icon": "obs_range", "text": "View Range", "color": (100, 150, 255)},
+            {"icon": "mine_range", "text": "Mine Range", "color": (255, 100, 100)},
+            {"icon": "safe_zone", "text": "Safe Zone", "color": (30, 120, 255)},
+            {"icon": "energy_beam", "text": "Mining", "color": (255, 255, 0)},
+            {"icon": "particles", "text": "Delivery", "color": (255, 255, 0)},
+            {"icon": "trail", "text": "Agent Trail", "color": (50, 255, 50)},
+            {"icon": "dim_area", "text": "Dim Area", "color": (50, 50, 50)}
         ]
-        
-        legend_height = len(legend_text) * 22 + 20
-        legend_bg = pygame.Surface((420, legend_height), pygame.SRCALPHA)
-        legend_bg.fill((0, 0, 0, 200))
-        pygame.draw.rect(legend_bg, (50, 50, 50, 100), (0, 0, 420, legend_height), 2)
-        self.window.blit(legend_bg, (370, 580 - legend_height))
-        
-        for i, text in enumerate(legend_text):
-            if text == "":
-                continue
-            color = (255, 255, 100) if i == 0 else (220, 220, 220)
-            font_to_use = pygame.font.SysFont("Arial", 14, bold=(i == 0))
-            rendered_text = font_to_use.render(text, True, color)
-            self.window.blit(rendered_text, (380, 590 - legend_height + i * 22))
+
+        # Calculate adaptive layout (3 columns, 4 rows)
+        cols = 3
+        item_width = 130
+        item_height = 25
+        panel_width = cols * item_width + 30
+        panel_height = len(legend_items) // cols * item_height + 80
+        if len(legend_items) % cols != 0:
+            panel_height += item_height
+
+        # Create legend background
+        legend_bg = pygame.Surface((panel_width, panel_height), pygame.SRCALPHA)
+        legend_bg.fill((0, 0, 0, 220))
+        pygame.draw.rect(legend_bg, (60, 60, 80, 150), (0, 0, panel_width, panel_height), 3)
+
+        # Title
+        title_font = pygame.font.SysFont("Arial", 16, bold=True)
+        title_surface = title_font.render("LEGEND", True, (255, 255, 150))
+        title_rect = title_surface.get_rect(center=(panel_width // 2, 20))
+        legend_bg.blit(title_surface, title_rect)
+
+        # Draw legend items in grid
+        for i, item in enumerate(legend_items):
+            row = i // cols
+            col = i % cols
+            x = 15 + col * item_width
+            y = 40 + row * item_height
+
+            # Draw icon
+            self._draw_legend_icon(legend_bg, item["icon"], x + 5, y + 2, item["color"])
+
+            # Draw text
+            text_font = pygame.font.SysFont("Arial", 12)
+            text_surface = text_font.render(item["text"], True, (220, 220, 220))
+            legend_bg.blit(text_surface, (x + 30, y + 5))
+
+        # Position legend
+        legend_x = 800 - panel_width - 10
+        legend_y = 800 - panel_height - 10
+        self.window.blit(legend_bg, (legend_x, legend_y))
+
+    def _draw_legend_icon(self, surface, icon_type, x, y, color) -> None:
+        """Draw legend icons that match the actual game elements."""
+        try:
+            import pygame
+            from pygame import gfxdraw
+        except ImportError:
+            return
+
+        if icon_type == "agent":
+            # Agent circle
+            gfxdraw.filled_circle(surface, x+10, y+10, 8, color)
+            gfxdraw.aacircle(surface, x+10, y+10, 8, (255, 255, 255))
+
+        elif icon_type == "mothership":
+            # Mothership with glow
+            gfxdraw.filled_circle(surface, x+10, y+10, 8, color)
+            gfxdraw.aacircle(surface, x+10, y+10, 10, color)
+
+        elif icon_type == "asteroid":
+            # Asteroid shape
+            points = [(x+10, y+2), (x+16, y+6), (x+15, y+14), (x+8, y+17), (x+3, y+12), (x+4, y+5)]
+            gfxdraw.filled_polygon(surface, points, color)
+
+        elif icon_type == "obstacle":
+            # Pulsing obstacle
+            gfxdraw.filled_circle(surface, x+10, y+10, 7, color)
+            gfxdraw.aacircle(surface, x+10, y+10, 9, (255, 100, 100))
+
+        elif icon_type == "depleted":
+            # Gray circle with X
+            gfxdraw.filled_circle(surface, x+10, y+10, 6, color)
+            pygame.draw.line(surface, (200, 200, 200), (x+6, y+6), (x+14, y+14), 2)
+            pygame.draw.line(surface, (200, 200, 200), (x+14, y+6), (x+6, y+14), 2)
+
+        elif icon_type == "obs_range":
+            # Observation range circle
+            gfxdraw.aacircle(surface, x+10, y+10, 8, color)
+
+        elif icon_type == "mine_range":
+            # Mining range circle
+            gfxdraw.aacircle(surface, x+10, y+10, 6, color)
+
+        elif icon_type == "safe_zone":
+            # Safe zone aura
+            for i in range(3):
+                alpha = 100 - i * 30
+                gfxdraw.aacircle(surface, x+10, y+10, 8 + i * 2, (*color[:3], alpha))
+
+        elif icon_type == "energy_beam":
+            # Mining beam
+            pygame.draw.line(surface, color, (x+3, y+15), (x+17, y+5), 3)
+
+        elif icon_type == "particles":
+            # Delivery particles
+            for i, pos in enumerate([(x+5, y+8), (x+10, y+6), (x+15, y+10)]):
+                gfxdraw.filled_circle(surface, pos[0], pos[1], 2, color)
+
+        elif icon_type == "trail":
+            # Agent trail
+            for i, alpha in enumerate([255, 180, 120]):
+                gfxdraw.filled_circle(surface, x+4+i*4, y+10, 2, (*color[:3], alpha))
+
+        elif icon_type == "dim_area":
+            # Dimmed area
+            pygame.draw.rect(surface, color, (x+3, y+3, 14, 14))
+            gfxdraw.filled_circle(surface, x+10, y+10, 5, (0, 0, 0, 0))
 
     def _draw_game_over_screen(self) -> None:
         """Draw the game over/success screen with final statistics."""
