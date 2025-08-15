@@ -1240,7 +1240,7 @@ print(f"Environment initialized with {len(env.asteroid_positions)} asteroids")</
         <div class="gif-card" role="button" tabindex="0" aria-label="View early exploration demonstration">
           <div class="gif-container">
             <img data-src="assets/gif/space_mining_demo_episode_1_20250730_230841.gif"
-              alt="Early exploration phase at 25,000 timesteps showing initial learning behavior" loading="lazy" />
+              alt="Early exploration phase at 25,000 timesteps showing initial learning behavior" />
           </div>
           <div class="card-content">
             <h4>🔍 Early Exploration</h4>
@@ -1252,7 +1252,7 @@ print(f"Environment initialized with {len(env.asteroid_positions)} asteroids")</
         <div class="gif-card" role="button" tabindex="0" aria-label="View continued early exploration demonstration">
           <div class="gif-container">
             <img data-src="assets/gif/space_mining_demo_episode_1_20250730_230841.gif"
-              alt="Early exploration phase at 500,000 timesteps showing continued learning" loading="lazy" />
+              alt="Early exploration phase at 500,000 timesteps showing continued learning" />
           </div>
           <div class="card-content">
             <h4>🔍 Early Exploration (Later)</h4>
@@ -1264,7 +1264,7 @@ print(f"Environment initialized with {len(env.asteroid_positions)} asteroids")</
         <div class="gif-card" role="button" tabindex="0" aria-label="View successful mining demonstration">
           <div class="gif-container">
             <img data-src="assets/gif/space_mining_demo_episode_4_20250730_225245.gif"
-              alt="Successful mining operation with strategic resource collection" loading="lazy" />
+              alt="Successful mining operation with strategic resource collection" />
           </div>
           <div class="card-content">
             <h4>⛏️ Successful Mining</h4>
@@ -1277,7 +1277,7 @@ print(f"Environment initialized with {len(env.asteroid_positions)} asteroids")</
           <div class="gif-container">
             <img data-src="assets/gif/space_mining_demo_episode_5_20250730_224355.gif"
               alt="Complete episode demonstration running full 1200 steps with optimal resource collection"
-              loading="lazy" />
+              />
           </div>
           <div class="card-content">
             <h4>🏆 Complete Episode</h4>
@@ -1289,7 +1289,7 @@ print(f"Environment initialized with {len(env.asteroid_positions)} asteroids")</
         <div class="gif-card" role="button" tabindex="0" aria-label="View energy depletion failure demonstration">
           <div class="gif-container">
             <img data-src="assets/gif/space_mining_demo_episode_3_20250730_224120.gif"
-              alt="Energy depletion failure showing agent failing to recharge at mothership" loading="lazy" />
+              alt="Energy depletion failure showing agent failing to recharge at mothership" />
           </div>
           <div class="card-content">
             <h4>🔋 Energy Depletion</h4>
@@ -1301,7 +1301,7 @@ print(f"Environment initialized with {len(env.asteroid_positions)} asteroids")</
         <div class="gif-card" role="button" tabindex="0" aria-label="View poor obstacle avoidance demonstration">
           <div class="gif-container">
             <img data-src="assets/gif/space_mining_demo_episode_4_20250730_222922.gif"
-              alt="Poor obstacle avoidance showing multiple collisions with moving obstacles" loading="lazy" />
+              alt="Poor obstacle avoidance showing multiple collisions with moving obstacles" />
           </div>
           <div class="card-content">
             <h4>💥 Poor Obstacle Avoidance</h4>
@@ -1427,17 +1427,11 @@ print(f"Environment initialized with {len(env.asteroid_positions)} asteroids")</
         });
       }
 
-      // Intersection Observer for lazy loading and performance
+      // Intersection Observer for GIF refresh performance
       const gifObserver = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
           if (entry.isIntersecting) {
             const img = entry.target;
-            if (!img.src && img.dataset.src) {
-              img.src = img.dataset.src;
-              img.addEventListener('load', () => {
-                img.style.opacity = '1';
-              }, { once: true });
-            }
             forceGifRestart(img);
           }
         });
@@ -1447,20 +1441,13 @@ print(f"Environment initialized with {len(env.asteroid_positions)} asteroids")</
         threshold: 0.1
       });
 
-      // Initialize GIFs
+      // Initialize GIFs - load all immediately without lazy loading
       gifs.forEach(img => {
-        // Set up lazy loading - preserve existing data-src, don't remove src if it exists
-        if (img.src && !img.dataset.src) {
-          img.dataset.src = img.src;
-          img.removeAttribute('src');
-        }
-        
-        // If data-src exists but no src, start with opacity 0 for lazy loading
+        // Ensure all GIFs are loaded immediately
         if (img.dataset.src && !img.src) {
-          img.style.opacity = '0';
-        } else {
-          img.style.opacity = '1'; // If src already exists, show it
+          img.src = img.dataset.src;
         }
+        img.style.opacity = '1';
         img.style.transition = 'opacity 0.3s ease';
 
         gifObserver.observe(img);
