@@ -65,7 +65,7 @@ def generate_trajectory(
     frames: List[Union[np.ndarray, Image.Image]] = [env.render()]
 
     for _ in range(num_steps):
-        action = agent.predict(obs, deterministic=deterministic)
+        action, _ = agent.predict(obs, deterministic=deterministic)
         obs, _, terminated, truncated, _ = env.step(action)
         frames.append(env.render())
         if terminated or truncated:

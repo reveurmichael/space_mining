@@ -24,7 +24,7 @@ class PPOAgent:
         
         # Load a pre-trained agent
         >>> agent = PPOAgent.load("./model.zip")
-        >>> action = agent.predict(observation)
+        >>> action, _ = agent.predict(observation)
         
         # Load from Hugging Face Hub
         >>> agent = PPOAgent.load_from_hf("LUNDECHEN/space-mining-ppo")

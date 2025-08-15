@@ -13,7 +13,7 @@ def test_ppo_agent_predict_shape(tmp_path):
 
     agent = PPOAgent.load(model_path)
     obs, _ = env.reset()
-    action = agent.predict(obs)
+    action, _ = agent.predict(obs)
     assert isinstance(action, np.ndarray)
     assert action.shape == (3,)
 

@@ -22,7 +22,7 @@ def main() -> None:
 
     obs, _ = env.reset()
     for _ in range(600):
-        action = agent.predict(obs, deterministic=True)
+        action, _ = agent.predict(obs, deterministic=True)
         obs, _, terminated, truncated, _ = env.step(action)
         env.render()
         if terminated or truncated:

@@ -14,7 +14,7 @@ def test_ppo_agent_learn_and_reload(tmp_path):
 
     loaded = PPOAgent.load(save_path, env=env)
     obs, _ = env.reset()
-    action = loaded.predict(obs)
+    action, _ = loaded.predict(obs)
     assert isinstance(action, np.ndarray)
 
     env.close()
