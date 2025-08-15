@@ -3,19 +3,19 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <title>SpaceMining — Advanced Reinforcement Learning Environment</title>
-  <meta name="description" content="SpaceMining is a sophisticated Gymnasium environment for space mining simulation featuring realistic physics, energy management, and multi-objective rewards. Perfect for RL research beyond LLM priors." />
-  <meta name="keywords" content="reinforcement learning, gymnasium, space mining, rl environment, pytorch, ppo, artificial intelligence, machine learning" />
-  <meta property="og:title" content="SpaceMining — Advanced RL Environment" />
-  <meta property="og:description" content="Sophisticated space mining simulation with realistic physics, energy management, and comprehensive reward systems for fair RL evaluation." />
+  <title>SpaceMining — a novel RL environment beyond LLM priors</title>
+  <meta name="description" content="SpaceMining is a custom Gymnasium environment intentionally unfamiliar to LLMs. It enables fair evaluation of reward-design capabilities without leakage from standard RL benchmarks, addressing prior-knowledge bias." />
+  <meta name="keywords" content="reinforcement learning, gymnasium, space mining, rl environment, llm evaluation, reward design, custom environment, novel benchmark" />
+  <meta property="og:title" content="SpaceMining — Novel RL Environment Beyond LLM Priors" />
+  <meta property="og:description" content="Custom environment for fair evaluation of LLM reward-design capabilities without standard benchmark leakage." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://reveurmichael.github.io/space_mining/" />
   <meta property="og:image" content="https://reveurmichael.github.io/space_mining/assets/og/cover.png" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="SpaceMining — Advanced RL Environment" />
-  <meta name="twitter:description" content="Sophisticated space mining simulation for fair RL evaluation beyond LLM priors." />
+  <meta name="twitter:title" content="SpaceMining — Novel RL Environment Beyond LLM Priors" />
+  <meta name="twitter:description" content="Custom environment for fair evaluation of LLM reward-design capabilities without standard benchmark leakage." />
   <meta name="twitter:image" content="https://reveurmichael.github.io/space_mining/assets/og/cover.png" />
   <meta name="theme-color" content="#0b1020" />
   <meta name="author" content="Xinning Zhu, Lunde Chen" />
@@ -840,6 +840,8 @@
       </a>
       <div class="nav-links">
         <a href="#about">About</a>
+        <a href="#research">Research</a>
+        <a href="#task">Task</a>
         <a href="#features">Features</a>
         <a href="#quickstart">Quick Start</a>
         <a href="#examples">Examples</a>
@@ -852,11 +854,11 @@
   <header class="hero">
     <div class="container">
       <div class="hero-content">
-        <h1>SpaceMining<br>Reinforcement Learning Environment</h1>
-        <p class="lead">A space mining simulation featuring realistic physics, energy management, and multi-objective rewards. Designed for fair RL evaluation beyond LLM priors.</p>
+        <h1>SpaceMining<br>A Novel RL Environment Beyond LLM Priors</h1>
+        <p class="lead">A custom Gymnasium environment intentionally unfamiliar to LLMs. It enables fair evaluation of reward-design capabilities without leakage from standard RL benchmarks, addressing prior-knowledge bias and supporting studies of true generalization.</p>
         
         <div class="lead-highlight">
-          <strong>🎯 Research Focus:</strong> SpaceMining is intentionally designed to be unfamiliar to Large Language Models, enabling unbiased evaluation of reward design capabilities without contamination from standard benchmarks like CartPole or BipedalWalker.
+          <strong>🎯 Research Innovation:</strong> SpaceMining addresses concerns about LLM prior knowledge from pretraining data on standard RL environments (CartPole, BipedalWalker, Ant), providing a novel benchmark for evaluating true generalization capabilities in reward function design.
         </div>
         
         <div class="badges">
@@ -890,21 +892,81 @@
   <main class="container">
     <section id="about" class="reveal">
       <h2>What is SpaceMining?</h2>
-      <p>SpaceMining is a reinforcement learning environment that simulates asteroid mining operations in a 2D space environment. The agent (mining robot) must navigate complex physics, manage limited energy resources, mine asteroids strategically, and deliver materials to the mothership while avoiding dynamic obstacles.</p>
+      <p>SpaceMining is a single-agent reinforcement learning environment simulating asteroid mining in a 2D space environment. The agent (mining robot) must collect resources from asteroids, deliver them to the mothership, manage energy consumption, and avoid moving obstacles while maximizing efficiency.</p>
       
       <div class="grid cols-3">
         <div class="card">
-          <h3>🎯 Research Focus</h3>
-          <p>Designed to evaluate LLM reward design capabilities without contamination from standard benchmarks, ensuring fair and unbiased assessment.</p>
+          <h3>🎯 Novel Benchmark</h3>
+          <p>Custom environment intentionally unfamiliar to LLMs, enabling evaluation of reward-design capabilities without leakage from standard RL benchmarks.</p>
         </div>
         <div class="card">
-          <h3>⚡ Physics Simulation</h3>
-          <p>2D physics simulation with thrust dynamics, drag forces, gravity wells, and collision detection systems.</p>
+          <h3>⚡ 2D Space Physics</h3>
+          <p>Realistic physics simulation with thrust dynamics, drag forces, gravitational attraction, and collision detection in an 80×80 grid environment.</p>
         </div>
         <div class="card">
-          <h3>🔋 Resource Constraints</h3>
-          <p>Energy consumption mechanics requiring strategic planning for movement, mining operations, and survival.</p>
+          <h3>🔋 Strategic Constraints</h3>
+          <p>Energy management requiring periodic mothership returns, limited observation radius, and moving obstacles creating balanced difficulty.</p>
         </div>
+      </div>
+    </section>
+
+    <section id="research" class="reveal">
+      <h2>Research Purpose</h2>
+      <p>This environment was specifically designed to evaluate large language models' ability to design reward functions for unfamiliar environments without prior knowledge. Recent studies have raised concerns that large language models may carry prior knowledge from pretraining data about standard RL environments (like CartPole, BipedalWalker, Ant), leading to potential prompt leakage and evaluation biases.</p>
+      
+      <p>To address this issue, SpaceMining serves as a custom environment to assess true generalization capabilities on tasks free from such pretrained knowledge. This allows researchers to evaluate whether LLMs can effectively design reward functions for completely novel environments.</p>
+      
+      <div class="card" style="margin-top: 32px;">
+        <h3>🔬 Research Applications</h3>
+        <div class="grid cols-2" style="margin-top: 16px;">
+          <div>
+            <h4>Prior Knowledge Issues</h4>
+            <ul>
+              <li>Standard benchmarks (CartPole, BipedalWalker, Ant) may be in LLM training data</li>
+              <li>Potential prompt leakage and evaluation biases</li>
+              <li>Difficulty assessing true generalization capabilities</li>
+            </ul>
+          </div>
+          <div>
+            <h4>SpaceMining Solutions</h4>
+            <ul>
+              <li>Novel environment unfamiliar to existing LLMs</li>
+              <li>Fair evaluation of reward design capabilities</li>
+              <li>Assessment of true generalization without bias</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="task" class="reveal">
+      <h2>Task Description</h2>
+      <p>The agent is deployed in a 2D space environment (80×80 grid) with randomly distributed asteroids and a central mothership. The comprehensive task requires balancing multiple objectives:</p>
+      
+      <div class="grid cols-2">
+        <div class="card">
+          <h3>🎯 Primary Objectives</h3>
+          <ul>
+            <li><strong>Resource Collection:</strong> Navigate efficiently to discover and mine resource-rich asteroids</li>
+            <li><strong>Energy Management:</strong> Monitor consumption and return to mothership for recharging</li>
+            <li><strong>Obstacle Avoidance:</strong> Avoid collisions with moving obstacles</li>
+            <li><strong>Delivery Optimization:</strong> Transport resources to maximize collection efficiency</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>⚖️ Strategic Balance</h3>
+          <ul>
+            <li><strong>Exploration vs Exploitation:</strong> Discover new asteroids vs mine known resources</li>
+            <li><strong>Risk vs Reward:</strong> Navigate through obstacles vs safe paths</li>
+            <li><strong>Energy vs Progress:</strong> Conservative movement vs aggressive mining</li>
+            <li><strong>Efficiency Optimization:</strong> Minimize travel time while maximizing collection</li>
+          </ul>
+        </div>
+      </div>
+      
+      <div class="card" style="margin-top: 32px;">
+        <h3>🏆 Fitness Scoring System</h3>
+        <p>The environment uses a comprehensive fitness scoring system with a target range of approximately <strong>3000 points</strong>, evaluating resource collection, energy management, efficiency, and survival time. This multi-faceted scoring encourages agents to develop sophisticated strategies rather than optimizing for single objectives.</p>
       </div>
     </section>
 
@@ -1060,6 +1122,8 @@ print(f"Environment initialized with {len(env.asteroid_positions)} asteroids")</
             <li><strong>Max asteroids</strong>: 8-12 per episode (random)</li>
             <li><strong>Moving obstacles</strong>: 4-8 dynamic collision hazards</li>
             <li><strong>Observation radius</strong>: 15 units (partial observability)</li>
+            <li><strong>Episode limit</strong>: 1200 steps (configurable)</li>
+            <li><strong>Collision limit</strong>: 18+ obstacle collisions</li>
           </ul>
         </div>
         <div class="card">
@@ -1081,12 +1145,13 @@ print(f"Environment initialized with {len(env.asteroid_positions)} asteroids")</
           </ul>
         </div>
         <div class="card">
-          <h3>⚙️ Difficulty & Termination</h3>
+          <h3>⚙️ Difficulty Level</h3>
+          <p><strong>Medium Difficulty:</strong> Balanced challenge with:</p>
           <ul>
-            <li><strong>Energy depletion</strong>: Agent energy reaches zero</li>
-            <li><strong>Collision limit</strong>: 18+ obstacle collisions</li>
-            <li><strong>Resource completion</strong>: All asteroids depleted</li>
-            <li><strong>Time limit</strong>: 1200 steps (configurable)</li>
+            <li><strong>Limited observation radius</strong>: 15 units requiring strategic exploration</li>
+            <li><strong>Energy constraints</strong>: Periodic mothership returns required</li>
+            <li><strong>Moving obstacles</strong>: Collision avoidance required</li>
+            <li><strong>Resource depletion</strong>: Efficient mining strategies needed</li>
           </ul>
         </div>
       </div>
@@ -1206,7 +1271,7 @@ print(f"Environment initialized with {len(env.asteroid_positions)} asteroids")</
           <a href="https://huggingface.co/LUNDECHEN/space-mining-ppo" target="_blank" rel="noopener">HuggingFace</a>
           <a href="LICENSE" target="_blank" rel="noopener">License</a>
         </div>
-        <p><strong>SpaceMining</strong> — Reinforcement Learning Environment</p>
+        <p><strong>SpaceMining</strong> — A Novel RL Environment Beyond LLM Priors</p>
         <p>MIT License © 2024 — <strong>Authors:</strong> Xinning Zhu (zhuxinning@shu.edu.cn) · Lunde Chen (lundechen@shu.edu.cn)</p>
         <p>Shanghai University | Intelligent Systems Research</p>
       </div>
