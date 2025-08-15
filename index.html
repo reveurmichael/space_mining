@@ -852,8 +852,8 @@
   <header class="hero">
     <div class="container">
       <div class="hero-content">
-        <h1>SpaceMining<br>Advanced Reinforcement Learning Environment</h1>
-        <p class="lead">A sophisticated space mining simulation featuring realistic physics, energy management, and multi-objective rewards. Designed for fair RL evaluation beyond LLM priors.</p>
+        <h1>SpaceMining<br>Reinforcement Learning Environment</h1>
+        <p class="lead">A space mining simulation featuring realistic physics, energy management, and multi-objective rewards. Designed for fair RL evaluation beyond LLM priors.</p>
         
         <div class="lead-highlight">
           <strong>🎯 Research Focus:</strong> SpaceMining is intentionally designed to be unfamiliar to Large Language Models, enabling unbiased evaluation of reward design capabilities without contamination from standard benchmarks like CartPole or BipedalWalker.
@@ -909,10 +909,10 @@
     </section>
 
     <section id="features" class="reveal">
-      <h2>Advanced Features</h2>
+      <h2>Features</h2>
       <div class="grid cols-2">
         <div class="card">
-          <h3>🚀 Sophisticated Physics Engine</h3>
+          <h3>🚀 Physics Engine</h3>
           <p>Realistic 2D space physics with inertia, thrust vectoring, drag forces, gravitational attraction to mothership, and dynamic collision responses.</p>
         </div>
         <div class="card">
@@ -979,7 +979,7 @@ for _ in range(1000):
         <pre class="line-numbers"><code class="language-python">from space_mining.agents.train_ppo import train_ppo
 
 def main() -> None:
-    # Train with advanced configuration
+    # Train with configuration
     model = train_ppo(
         total_timesteps=10_000_000,
         output_dir="runs/ppo_advanced",
@@ -1010,7 +1010,7 @@ python -m space_mining.scripts.make_gif \
 
       <div class="card">
         <h3>🔧 Custom Environment Configuration</h3>
-        <p class="muted">Advanced environment customization for research experiments.</p>
+        <p class="muted">Environment customization for research experiments.</p>
         <pre class="line-numbers"><code class="language-python">from space_mining.envs import SpaceMining, EnvironmentConfig
 
 # Create custom configuration
@@ -1206,7 +1206,7 @@ print(f"Environment initialized with {len(env.asteroid_positions)} asteroids")</
           <a href="https://huggingface.co/LUNDECHEN/space-mining-ppo" target="_blank" rel="noopener">HuggingFace</a>
           <a href="LICENSE" target="_blank" rel="noopener">License</a>
         </div>
-        <p><strong>SpaceMining</strong> — Advanced Reinforcement Learning Environment</p>
+        <p><strong>SpaceMining</strong> — Reinforcement Learning Environment</p>
         <p>MIT License © 2024 — <strong>Authors:</strong> Xinning Zhu (zhuxinning@shu.edu.cn) · Lunde Chen (lundechen@shu.edu.cn)</p>
         <p>Shanghai University | Intelligent Systems Research</p>
       </div>
