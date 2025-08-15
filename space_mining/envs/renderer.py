@@ -30,11 +30,11 @@ class Renderer:
             # For headless rendering, avoid creating a window
             if self.env.render_mode == "human":
                 pygame.display.init()
-                self.window = pygame.display.set_mode((2560, 1600))  # MASSIVE ultra-wide for ULTIMATE cosmic immersion
+                self.window = pygame.display.set_mode((3440, 1440))  # MASSIVE 21:9 ultrawide for ULTIMATE cosmic immersion
                 pygame.display.set_caption("🌌 ULTIMATE COSMIC SPACE MINING UNIVERSE - INFINITE GALAXY EXPLORER 🌌")
             else:
                 # Off-screen surface for rgb_array mode
-                self.window = pygame.Surface((2560, 1600))
+                self.window = pygame.Surface((3440, 1440))
             if self.clock is None:
                 self.clock = pygame.time.Clock()
             if self.font is None:
@@ -55,11 +55,11 @@ class Renderer:
         self._draw_cosmic_background()
 
         # Helper function to convert 2D coordinates to screen coordinates with zoom
-        def to_screen(pos, scale=18.0):  # Enhanced scale for massive ultra-wide screen
+        def to_screen(pos, scale=20.0):  # Enhanced scale for MASSIVE ultrawide screen
             x, y = pos
             zoom_scale = scale * self.env.zoom_level
-            screen_x = int(1280 + (x - 40) * zoom_scale + shake_offset[0])  # Center at 2560/2
-            screen_y = int(800 + (y - 40) * zoom_scale + shake_offset[1])  # Center at 1600/2
+            screen_x = int(1720 + (x - 40) * zoom_scale + shake_offset[0])  # Center at 3440/2
+            screen_y = int(720 + (y - 40) * zoom_scale + shake_offset[1])  # Center at 1440/2
             return screen_x, screen_y
 
         # Draw agent trail first (behind everything)
@@ -411,6 +411,10 @@ class Renderer:
         self._draw_enhanced_starfield()
         
         # Draw ULTIMATE spectacular cosmic phenomena
+        self._draw_plasma_fields()  # NEW: Ionized gas regions (background)
+        self._draw_cosmic_winds()  # NEW: Flowing particle streams
+        self._draw_asteroid_belts()  # NEW: Dense asteroid formations
+        self._draw_supernovas()  # NEW: Explosive stellar deaths
         self._draw_black_holes()  # NEW: Massive gravitational monsters
         self._draw_quasars()  # NEW: Ultra-bright galactic nuclei
         self._draw_cosmic_ribbons()  # NEW: Flowing energy streams
@@ -621,6 +625,173 @@ class Renderer:
                             glow_brightness = brightness // 3
                                                          glow_color = (glow_brightness, glow_brightness, glow_brightness)
                              gfxdraw.aacircle(self.window, x, y, size + 1, glow_color)
+
+    def _draw_plasma_fields(self) -> None:
+        """Draw ionized plasma fields with pulsing glow."""
+        try:
+            import pygame
+            from pygame import gfxdraw
+            import math
+        except ImportError:
+            return
+
+        for plasma in self.env.plasma_fields:
+            x, y = int(plasma["x"]), int(plasma["y"])
+            width = int(plasma["width"] * self.env.zoom_level)
+            height = int(plasma["height"] * self.env.zoom_level)
+            
+            # Skip if outside screen bounds
+            if x < -width or x > 3440 + width or y < -height or y > 1440 + height:
+                continue
+            
+            r, g, b, base_alpha = plasma["color"]
+            intensity = plasma["intensity"]
+            
+            # Pulsing effect
+            pulse_intensity = math.sin(self.env.cosmic_time * plasma["pulse_frequency"] + plasma["pulse_offset"]) * 0.3 + 0.7
+            
+            # Draw plasma field as overlapping circles with glow
+            for layer in range(5):
+                layer_width = width - layer * 20
+                layer_height = height - layer * 15
+                if layer_width > 0 and layer_height > 0:
+                    layer_alpha = int(base_alpha * intensity * pulse_intensity * (1.0 - layer * 0.2))
+                    if layer_alpha > 5:
+                        # Create elliptical plasma field
+                        plasma_surface = pygame.Surface((layer_width * 2, layer_height * 2), pygame.SRCALPHA)
+                        for angle in range(0, 360, 30):
+                            ellipse_x = int(layer_width + layer_width * 0.8 * math.cos(math.radians(angle)))
+                            ellipse_y = int(layer_height + layer_height * 0.8 * math.sin(math.radians(angle)))
+                            gfxdraw.filled_circle(plasma_surface, ellipse_x, ellipse_y, 
+                                                max(3, layer_width // 10), (r, g, b, layer_alpha))
+                        
+                        self.window.blit(plasma_surface, (x - layer_width, y - layer_height))
+
+    def _draw_cosmic_winds(self) -> None:
+        """Draw flowing cosmic wind particle streams."""
+        try:
+            import pygame
+            from pygame import gfxdraw
+            import math
+        except ImportError:
+            return
+
+        for wind in self.env.cosmic_winds:
+            start_x, start_y = int(wind["start_x"]), int(wind["start_y"])
+            direction = wind["direction"]
+            length = int(wind["length"] * self.env.zoom_level)
+            width = int(wind["width"] * self.env.zoom_level)
+            
+            # Skip if completely outside screen bounds
+            if start_x < -length or start_x > 3440 + length or start_y < -length or start_y > 1440 + length:
+                continue
+            
+            r, g, b, base_alpha = wind["color"]
+            
+            # Draw individual particles in the wind stream
+            for particle in wind["particles"]:
+                if "x" in particle and "y" in particle:
+                    particle_x = int(particle["x"])
+                    particle_y = int(particle["y"])
+                    
+                    # Only draw if on screen
+                    if 0 <= particle_x <= 3440 and 0 <= particle_y <= 1440:
+                        particle_size = max(1, int(particle["size"] * self.env.zoom_level))
+                        particle_alpha = int(base_alpha * particle["brightness"])
+                        
+                        if particle_alpha > 5:
+                            particle_color = (r, g, b, particle_alpha)
+                            if particle_size > 1:
+                                gfxdraw.filled_circle(self.window, particle_x, particle_y, 
+                                                    particle_size, particle_color)
+                            else:
+                                self.window.set_at((particle_x, particle_y), particle_color)
+
+    def _draw_asteroid_belts(self) -> None:
+        """Draw dense asteroid belt formations."""
+        try:
+            import pygame
+            from pygame import gfxdraw
+            import math
+        except ImportError:
+            return
+
+        for belt in self.env.asteroid_belts:
+            center_x, center_y = int(belt["center_x"]), int(belt["center_y"])
+            radius = int(belt["radius"] * self.env.zoom_level)
+            
+            # Skip if completely outside screen bounds
+            if center_x < -radius or center_x > 3440 + radius or center_y < -radius or center_y > 1440 + radius:
+                continue
+            
+            # Draw individual asteroids in the belt
+            for asteroid in belt["asteroids"]:
+                if "x" in asteroid and "y" in asteroid:
+                    asteroid_x = int(asteroid["x"])
+                    asteroid_y = int(asteroid["y"])
+                    
+                    # Only draw if on screen
+                    if 0 <= asteroid_x <= 3440 and 0 <= asteroid_y <= 1440:
+                        asteroid_size = max(1, int(asteroid["size"] * self.env.zoom_level))
+                        
+                        # Draw asteroid as small rock
+                        gfxdraw.filled_circle(self.window, asteroid_x, asteroid_y, asteroid_size, (150, 120, 80))
+                        
+                        # Add slight glow
+                        if asteroid_size > 2:
+                            gfxdraw.aacircle(self.window, asteroid_x, asteroid_y, asteroid_size + 1, (100, 80, 50))
+
+    def _draw_supernovas(self) -> None:
+        """Draw spectacular supernova explosions."""
+        try:
+            import pygame
+            from pygame import gfxdraw
+            import math
+        except ImportError:
+            return
+
+        for supernova in self.env.supernovas:
+            x, y = int(supernova["x"]), int(supernova["y"])
+            explosion_radius = int(supernova["explosion_radius"] * self.env.zoom_level)
+            
+            # Skip if completely outside screen bounds
+            if x < -explosion_radius or x > 3440 + explosion_radius or y < -explosion_radius or y > 1440 + explosion_radius:
+                continue
+            
+            core_r, core_g, core_b = supernova["color_core"]
+            outer_r, outer_g, outer_b = supernova["color_outer"]
+            intensity = supernova["intensity"]
+            brightness = supernova["brightness"]
+            
+            if intensity > 0:
+                # Draw expanding shockwave rings
+                for ring_idx in range(8):
+                    ring_radius = explosion_radius - ring_idx * (explosion_radius // 10)
+                    if ring_radius > 0:
+                        ring_alpha = int(120 * intensity * brightness * (1.0 - ring_idx / 8))
+                        if ring_alpha > 10:
+                            # Outer rings use outer color
+                            if ring_idx > 3:
+                                ring_color = (outer_r, outer_g, outer_b, ring_alpha)
+                            else:
+                                ring_color = (core_r, core_g, core_b, ring_alpha)
+                            
+                            gfxdraw.aacircle(self.window, x, y, ring_radius, ring_color)
+                
+                # Draw brilliant core
+                core_radius = max(3, explosion_radius // 8)
+                if core_radius > 0:
+                    core_alpha = int(255 * intensity * brightness)
+                    gfxdraw.filled_circle(self.window, x, y, core_radius, 
+                                        (core_r, core_g, core_b, min(255, core_alpha)))
+                    
+                    # Add intense glow around core
+                    for glow_ring in range(3):
+                        glow_radius = core_radius + glow_ring * 5
+                        glow_alpha = int(150 * intensity * brightness * (1.0 - glow_ring / 3))
+                        if glow_alpha > 10:
+                            gfxdraw.aacircle(self.window, x, y, glow_radius, 
+                                           (255, 255, 255, glow_alpha))
 
     def _draw_black_holes(self) -> None:
         """Draw spectacular massive black holes with accretion disks and gravitational lensing."""

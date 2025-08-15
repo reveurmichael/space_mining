@@ -76,11 +76,21 @@ class SpaceMining(gym.Env):
         self.black_holes = []  # NEW: Massive gravitational monsters
         self.quasars = []  # NEW: Ultra-bright galactic nuclei
         self.cosmic_ribbons = []  # NEW: Flowing energy streams
+        self.supernovas = []  # NEW: Explosive stellar deaths
+        self.asteroid_belts = []  # NEW: Dense asteroid formations
+        self.cosmic_winds = []  # NEW: Flowing particle streams
+        self.plasma_fields = []  # NEW: Ionized gas regions
         self.cosmic_time = 0.0
         
         # MASSIVE screen size for ultimate cosmic immersion
-        self.window_width = 2560
-        self.window_height = 1600
+        self.window_width = 3440
+        self.window_height = 1440
+        
+        # Add spectacular new cosmic phenomena
+        self.supernovas = []  # NEW: Explosive stellar deaths
+        self.asteroid_belts = []  # NEW: Dense asteroid formations
+        self.cosmic_winds = []  # NEW: Flowing particle streams
+        self.plasma_fields = []  # NEW: Ionized gas regions
         
         self._initialize_cosmic_background()
         
@@ -624,19 +634,19 @@ class SpaceMining(gym.Env):
         self.score_popups.append(popup)
 
     def _initialize_cosmic_background(self) -> None:
-        """Initialize ULTIMATE cosmic background with massive scale for 2560x1600 screen."""
+        """Initialize ULTIMATE cosmic background with MASSIVE scale for 3440x1440 ultrawide screen."""
         # Reset cosmic time
         self.cosmic_time = 0.0
         
-        # Create MASSIVE starfield layers for ultimate ultra-wide screen
+        # Create MASSIVE starfield layers for ultimate 21:9 ultrawide screen
         self.starfield_layers = []
         
         # Layer 1: Distant background stars (very slow, subtle)
         layer1_stars = []
-        for _ in range(500):  # Massive star count for 2560x1600 screen
+        for _ in range(800):  # MASSIVE star count for 3440x1440 screen
             star = {
-                "x": np.random.uniform(0, 2560),
-                "y": np.random.uniform(0, 1600),
+                "x": np.random.uniform(0, 3440),
+                "y": np.random.uniform(0, 1440),
                 "size": 1,
                 "brightness": np.random.randint(30, 80),
                 "speed": 0.1,
@@ -649,10 +659,10 @@ class SpaceMining(gym.Env):
         
         # Layer 2: Medium distance stars
         layer2_stars = []
-        for _ in range(300):  # More medium stars for massive screen
+        for _ in range(500):  # More medium stars for MASSIVE ultrawide
             star = {
-                "x": np.random.uniform(0, 2560),
-                "y": np.random.uniform(0, 1600),
+                "x": np.random.uniform(0, 3440),
+                "y": np.random.uniform(0, 1440),
                 "size": 2,
                 "brightness": np.random.randint(60, 150),
                 "speed": 0.3,
@@ -665,10 +675,10 @@ class SpaceMining(gym.Env):
         
         # Layer 3: Bright foreground stars
         layer3_stars = []
-        for _ in range(150):  # More bright stars for epic scale
+        for _ in range(250):  # More bright stars for epic ultrawide scale
             star = {
-                "x": np.random.uniform(0, 2560),
-                "y": np.random.uniform(0, 1600),
+                "x": np.random.uniform(0, 3440),
+                "y": np.random.uniform(0, 1440),
                 "size": np.random.randint(3, 5),
                 "brightness": np.random.randint(100, 255),
                 "speed": 0.6,
@@ -679,13 +689,13 @@ class SpaceMining(gym.Env):
             layer3_stars.append(star)
         self.starfield_layers.append(layer3_stars)
         
-        # Create SPECTACULAR nebula clouds for massive screen
+        # Create SPECTACULAR nebula clouds for MASSIVE ultrawide screen
         self.nebula_clouds = []
-        for _ in range(24):  # More nebulae for ultimate cosmic experience
+        for _ in range(32):  # More nebulae for ultimate ultrawide experience
             nebula = {
-                "x": np.random.uniform(-500, 3060),
-                "y": np.random.uniform(-500, 2100),
-                "size": np.random.uniform(600, 1600),  # Larger nebulae for bigger screen
+                "x": np.random.uniform(-600, 4040),
+                "y": np.random.uniform(-300, 1740),
+                "size": np.random.uniform(800, 2000),  # Larger nebulae for ultrawide screen
                 "inner_size": np.random.uniform(0.3, 0.7),
                 "color": np.random.choice([
                     (80, 20, 150, 35),    # Deep purple
@@ -705,13 +715,13 @@ class SpaceMining(gym.Env):
             }
             self.nebula_clouds.append(nebula)
         
-        # Create MORE distant galaxies for epic cosmic scale
+        # Create EVEN MORE distant galaxies for epic ultrawide cosmic scale
         self.distant_galaxies = []
-        for _ in range(18):  # More galaxies for ultimate cosmic immersion
+        for _ in range(25):  # More galaxies for ultimate ultrawide immersion
             galaxy = {
-                "x": np.random.uniform(0, 2560),
-                "y": np.random.uniform(0, 1600),
-                "size": np.random.uniform(120, 400),  # Larger galaxies for bigger screen
+                "x": np.random.uniform(0, 3440),
+                "y": np.random.uniform(0, 1440),
+                "size": np.random.uniform(150, 500),  # Larger galaxies for ultrawide screen
                 "brightness": np.random.randint(12, 35),
                 "speed": np.random.uniform(0.01, 0.06),
                 "spiral_arms": np.random.randint(2, 6),
@@ -722,14 +732,14 @@ class SpaceMining(gym.Env):
             }
             self.distant_galaxies.append(galaxy)
         
-        # Create MASSIVE enhanced space dust system
+        # Create MASSIVE enhanced space dust system for ultrawide
         self.space_dust = []
         
         # Fine cosmic dust
-        for _ in range(750):  # Much more dust for massive screen
+        for _ in range(1200):  # Much more dust for MASSIVE ultrawide screen
             dust = {
-                "x": np.random.uniform(0, 2560),
-                "y": np.random.uniform(0, 1600),
+                "x": np.random.uniform(0, 3440),
+                "y": np.random.uniform(0, 1440),
                 "size": np.random.uniform(0.3, 1.0),
                 "brightness": np.random.randint(8, 25),
                 "speed": np.random.uniform(0.5, 2.0),
@@ -740,10 +750,10 @@ class SpaceMining(gym.Env):
             self.space_dust.append(dust)
         
         # Larger dust particles
-        for _ in range(200):  # More large dust for epic scale
+        for _ in range(350):  # More large dust for epic ultrawide scale
             dust = {
-                "x": np.random.uniform(0, 2560),
-                "y": np.random.uniform(0, 1600),
+                "x": np.random.uniform(0, 3440),
+                "y": np.random.uniform(0, 1440),
                 "size": np.random.uniform(1.0, 2.5),
                 "brightness": np.random.randint(15, 40),
                 "speed": np.random.uniform(0.8, 1.5),
@@ -755,17 +765,17 @@ class SpaceMining(gym.Env):
         
         # Create spectacular shooting stars
         self.shooting_stars = []
-        for _ in range(4):  # More shooting stars for massive screen
+        for _ in range(6):  # More shooting stars for MASSIVE ultrawide screen
             self._spawn_shooting_star()
         
-        # Create MORE cosmic auroras for ultimate experience
+        # Create MORE cosmic auroras for ultimate ultrawide experience
         self.cosmic_auroras = []
-        for _ in range(12):  # More ethereal energy curtains for massive screen
+        for _ in range(16):  # More ethereal energy curtains for MASSIVE ultrawide
             aurora = {
-                "x": np.random.uniform(-400, 2960),
-                "y": np.random.uniform(-400, 2000),
-                "width": np.random.uniform(200, 600),  # Larger auroras
-                "height": np.random.uniform(400, 1000),
+                "x": np.random.uniform(-500, 3940),
+                "y": np.random.uniform(-300, 1740),
+                "width": np.random.uniform(250, 800),  # Larger auroras for ultrawide
+                "height": np.random.uniform(500, 1200),
                 "intensity": np.random.uniform(0.3, 0.8),
                 "color": np.random.choice([
                     (0, 255, 150, 25),    # Green aurora
@@ -780,16 +790,16 @@ class SpaceMining(gym.Env):
             }
             self.cosmic_auroras.append(aurora)
         
-        # Create MORE pulsars for cosmic grandeur
+        # Create MORE pulsars for cosmic grandeur on ultrawide
         self.pulsars = []
-        for _ in range(9):  # More spectacular pulsing stars for massive screen
+        for _ in range(12):  # More spectacular pulsing stars for MASSIVE ultrawide
             pulsar = {
-                "x": np.random.uniform(0, 2560),
-                "y": np.random.uniform(0, 1600),
+                "x": np.random.uniform(0, 3440),
+                "y": np.random.uniform(0, 1440),
                 "pulse_period": np.random.uniform(0.5, 2.0),
                 "pulse_offset": np.random.uniform(0, 2 * math.pi),
                 "brightness": np.random.randint(150, 255),
-                "beam_length": np.random.uniform(200, 500),
+                "beam_length": np.random.uniform(300, 700),  # Longer beams for ultrawide
                 "beam_angle": np.random.uniform(0, 2 * math.pi),
                 "rotation_speed": np.random.uniform(0.005, 0.02),
                 "color": np.random.choice([
@@ -876,11 +886,11 @@ class SpaceMining(gym.Env):
         
         # Create FLOWING cosmic ribbons - energy streams across space
         self.cosmic_ribbons = []
-        for _ in range(4):  # Flowing energy streams
+        for _ in range(6):  # More flowing energy streams for ultrawide
             ribbon = {
                 "points": [],  # List of control points for the ribbon
                 "width": np.random.uniform(15, 35),
-                "length": np.random.uniform(600, 1200),
+                "length": np.random.uniform(800, 1600),  # Longer for ultrawide
                 "flow_speed": np.random.uniform(2.0, 5.0),
                 "wave_frequency": np.random.uniform(0.01, 0.03),
                 "wave_amplitude": np.random.uniform(50, 150),
@@ -892,42 +902,147 @@ class SpaceMining(gym.Env):
                 ]),
                 "flow_offset": 0.0
             }
-            # Generate ribbon control points
-            start_x = np.random.uniform(0, 2560)
-            start_y = np.random.uniform(0, 1600)
+            # Generate ribbon control points for ultrawide screen
+            start_x = np.random.uniform(0, 3440)
+            start_y = np.random.uniform(0, 1440)
             for i in range(8):  # 8 control points for smooth curves
                 point_x = start_x + (i * ribbon["length"] / 7) + np.random.uniform(-100, 100)
                 point_y = start_y + np.random.uniform(-200, 200)
                 ribbon["points"].append([point_x, point_y])
             self.cosmic_ribbons.append(ribbon)
         
+        # Create SPECTACULAR SUPERNOVAS - explosive stellar deaths
+        self.supernovas = []
+        for _ in range(3):  # Rare, massive stellar explosions
+            supernova = {
+                "x": np.random.uniform(500, 2940),
+                "y": np.random.uniform(200, 1240),
+                "explosion_radius": np.random.uniform(100, 300),
+                "max_radius": np.random.uniform(400, 800),
+                "intensity": np.random.uniform(0.8, 1.0),
+                "expansion_speed": np.random.uniform(2.0, 5.0),
+                "age": np.random.uniform(0, 100),  # Different explosion stages
+                "brightness": np.random.uniform(0.7, 1.0),
+                "color_core": np.random.choice([
+                    (255, 255, 255),  # White core
+                    (255, 200, 100),  # Orange core
+                    (200, 255, 255),  # Blue core
+                ]),
+                "color_outer": np.random.choice([
+                    (255, 100, 100),  # Red outer
+                    (255, 150, 100),  # Orange outer
+                    (200, 100, 255),  # Purple outer
+                ])
+            }
+            self.supernovas.append(supernova)
+        
+        # Create DENSE ASTEROID BELTS - massive rock formations
+        self.asteroid_belts = []
+        for _ in range(4):  # Spectacular asteroid formations
+            belt = {
+                "center_x": np.random.uniform(600, 2840),
+                "center_y": np.random.uniform(300, 1140),
+                "radius": np.random.uniform(200, 500),
+                "thickness": np.random.uniform(50, 150),
+                "asteroid_count": np.random.randint(30, 80),
+                "rotation_speed": np.random.uniform(0.002, 0.008),
+                "rotation_angle": np.random.uniform(0, 2 * math.pi),
+                "asteroids": []
+            }
+            # Generate asteroids in the belt
+            for _ in range(belt["asteroid_count"]):
+                angle = np.random.uniform(0, 2 * math.pi)
+                distance = np.random.uniform(belt["radius"] - belt["thickness"]/2, 
+                                           belt["radius"] + belt["thickness"]/2)
+                asteroid = {
+                    "angle": angle,
+                    "distance": distance,
+                    "size": np.random.uniform(2, 8),
+                    "rotation": np.random.uniform(0, 2 * math.pi),
+                    "rotation_speed": np.random.uniform(-0.05, 0.05)
+                }
+                belt["asteroids"].append(asteroid)
+            self.asteroid_belts.append(belt)
+        
+        # Create FLOWING COSMIC WINDS - particle streams
+        self.cosmic_winds = []
+        for _ in range(8):  # Flowing particle streams across ultrawide space
+            wind = {
+                "start_x": np.random.uniform(-200, 3640),
+                "start_y": np.random.uniform(-100, 1540),
+                "direction": np.random.uniform(0, 2 * math.pi),
+                "speed": np.random.uniform(3.0, 8.0),
+                "width": np.random.uniform(30, 80),
+                "length": np.random.uniform(400, 1000),
+                "particle_count": np.random.randint(20, 50),
+                "color": np.random.choice([
+                    (100, 200, 255, 40),  # Blue wind
+                    (255, 200, 100, 35),  # Orange wind
+                    (200, 255, 150, 40),  # Green wind
+                    (255, 150, 200, 35),  # Pink wind
+                ]),
+                "particles": []
+            }
+            # Generate particles in the wind
+            for i in range(wind["particle_count"]):
+                particle = {
+                    "offset": i * (wind["length"] / wind["particle_count"]),
+                    "cross_offset": np.random.uniform(-wind["width"]/2, wind["width"]/2),
+                    "size": np.random.uniform(1, 3),
+                    "brightness": np.random.uniform(0.3, 1.0)
+                }
+                wind["particles"].append(particle)
+            self.cosmic_winds.append(wind)
+        
+        # Create IONIZED PLASMA FIELDS - glowing gas regions
+        self.plasma_fields = []
+        for _ in range(5):  # Spectacular ionized gas regions
+            plasma = {
+                "x": np.random.uniform(300, 3140),
+                "y": np.random.uniform(200, 1240),
+                "width": np.random.uniform(200, 600),
+                "height": np.random.uniform(150, 400),
+                "intensity": np.random.uniform(0.4, 0.8),
+                "pulse_frequency": np.random.uniform(0.01, 0.04),
+                "pulse_offset": np.random.uniform(0, 2 * math.pi),
+                "drift_speed": np.random.uniform(0.5, 2.0),
+                "drift_direction": np.random.uniform(0, 2 * math.pi),
+                "color": np.random.choice([
+                    (100, 255, 255, 30),  # Cyan plasma
+                    (255, 100, 255, 25),  # Magenta plasma
+                    (255, 255, 100, 30),  # Yellow plasma
+                    (100, 255, 150, 25),  # Green plasma
+                ])
+            }
+            self.plasma_fields.append(plasma)
+        
         # Initialize cosmic lightning system
         self.cosmic_lightning = []
 
     def _spawn_shooting_star(self) -> None:
-        """Spawn a spectacular shooting star for massive 2560x1600 screen."""
+        """Spawn a spectacular shooting star for MASSIVE 3440x1440 ultrawide screen."""
         # Random entry point from screen edge
         side = np.random.choice(['top', 'left', 'right', 'bottom'])
         
         if side == 'top':
-            start_x = np.random.uniform(0, 2560)
+            start_x = np.random.uniform(0, 3440)
             start_y = -50
-            end_x = np.random.uniform(0, 2560)
-            end_y = 1650
+            end_x = np.random.uniform(0, 3440)
+            end_y = 1490
         elif side == 'left':
             start_x = -50
-            start_y = np.random.uniform(0, 1600)
-            end_x = 2610
-            end_y = np.random.uniform(0, 1600)
+            start_y = np.random.uniform(0, 1440)
+            end_x = 3490
+            end_y = np.random.uniform(0, 1440)
         elif side == 'right':
-            start_x = 2610
-            start_y = np.random.uniform(0, 1600)
+            start_x = 3490
+            start_y = np.random.uniform(0, 1440)
             end_x = -50
-            end_y = np.random.uniform(0, 1600)
+            end_y = np.random.uniform(0, 1440)
         else:  # bottom
-            start_x = np.random.uniform(0, 2560)
-            start_y = 1650
-            end_x = np.random.uniform(0, 2560)
+            start_x = np.random.uniform(0, 3440)
+            start_y = 1490
+            end_x = np.random.uniform(0, 3440)
             end_y = -50
         
         shooting_star = {
@@ -1241,6 +1356,107 @@ class SpaceMining(gym.Env):
                     point[1] = 1900
                 elif point[1] > 1900:
                     point[1] = -300
+        
+        # Update supernovae
+        for supernova in self.supernovas:
+            supernova["age"] += 0.016
+            supernova["x"] += supernova["expansion_speed"] * math.cos(supernova["rotation_angle"])
+            supernova["y"] += supernova["expansion_speed"] * math.sin(supernova["rotation_angle"])
+
+            # Update explosion radius
+            supernova["explosion_radius"] += supernova["expansion_speed"] * 0.5
+            if supernova["explosion_radius"] > supernova["max_radius"]:
+                supernova["explosion_radius"] = supernova["max_radius"]
+                supernova["intensity"] = 0.0 # Fade out after max radius
+            
+            # Remove if intensity is zero
+            if supernova["intensity"] <= 0:
+                self.supernovas.remove(supernova)
+        
+        # Update asteroid belts
+        for belt in self.asteroid_belts:
+            belt["rotation_angle"] += belt["rotation_speed"]
+            belt["center_x"] += belt["rotation_speed"] * 10 # Slight drift
+            belt["center_y"] += belt["rotation_speed"] * 10 # Slight drift
+
+            # Wrap around for ultra-wide screen
+            if belt["center_x"] < -belt["radius"]:
+                belt["center_x"] = 1920 + belt["radius"]
+            elif belt["center_x"] > 1920 + belt["radius"]:
+                belt["center_x"] = -belt["radius"]
+            if belt["center_y"] < -belt["radius"]:
+                belt["center_y"] = 1200 + belt["radius"]
+            elif belt["center_y"] > 1200 + belt["radius"]:
+                belt["center_y"] = -belt["radius"]
+
+            # Rotate asteroids within the belt
+            for asteroid in belt["asteroids"]:
+                asteroid["angle"] += asteroid["rotation_speed"]
+                asteroid["distance"] = belt["radius"] + belt["thickness"]/2 * math.sin(asteroid["angle"])
+                asteroid["x"] = belt["center_x"] + asteroid["distance"] * math.cos(asteroid["angle"])
+                asteroid["y"] = belt["center_y"] + asteroid["distance"] * math.sin(asteroid["angle"])
+
+                # Wrap around for ultra-wide screen
+                if asteroid["x"] < -belt["radius"]:
+                    asteroid["x"] = 1920 + belt["radius"]
+                elif asteroid["x"] > 1920 + belt["radius"]:
+                    asteroid["x"] = -belt["radius"]
+                if asteroid["y"] < -belt["radius"]:
+                    asteroid["y"] = 1200 + belt["radius"]
+                elif asteroid["y"] > 1200 + belt["radius"]:
+                    asteroid["y"] = -belt["radius"]
+        
+        # Update cosmic winds
+        for wind in self.cosmic_winds:
+            wind["start_x"] += wind["speed"] * math.cos(wind["direction"]) * 0.5
+            wind["start_y"] += wind["speed"] * math.sin(wind["direction"]) * 0.5
+
+            # Wrap around for ultra-wide screen
+            if wind["start_x"] < -200:
+                wind["start_x"] = 3640
+            elif wind["start_x"] > 3640:
+                wind["start_x"] = -200
+            if wind["start_y"] < -100:
+                wind["start_y"] = 1540
+            elif wind["start_y"] > 1540:
+                wind["start_y"] = -100
+
+            # Move particles within the wind
+            for particle in wind["particles"]:
+                particle["offset"] += wind["speed"] * 0.016
+                particle["cross_offset"] += wind["speed"] * math.sin(wind["direction"]) * 0.016
+                particle["x"] = wind["start_x"] + particle["offset"] * math.cos(wind["direction"]) + particle["cross_offset"] * math.sin(wind["direction"])
+                particle["y"] = wind["start_y"] + particle["offset"] * math.sin(wind["direction"]) - particle["cross_offset"] * math.cos(wind["direction"])
+
+                # Wrap particles around screen
+                if particle["x"] < -200:
+                    particle["x"] = 3640
+                elif particle["x"] > 3640:
+                    particle["x"] = -200
+                if particle["y"] < -100:
+                    particle["y"] = 1540
+                elif particle["y"] > 1540:
+                    particle["y"] = -100
+        
+        # Update plasma fields
+        for plasma in self.plasma_fields:
+            plasma["x"] += plasma["drift_speed"] * math.cos(plasma["drift_direction"]) * 0.5
+            plasma["y"] += plasma["drift_speed"] * math.sin(plasma["drift_direction"]) * 0.5
+
+            # Wrap around for ultra-wide screen
+            if plasma["x"] < 300:
+                plasma["x"] = 3140
+            elif plasma["x"] > 3140:
+                plasma["x"] = 300
+            if plasma["y"] < 200:
+                plasma["y"] = 1240
+            elif plasma["y"] > 1240:
+                plasma["y"] = 200
+
+            # Pulse effect
+            plasma["intensity"] += plasma["pulse_frequency"] * 0.016
+            if plasma["intensity"] > plasma["pulse_offset"] + 0.5:
+                plasma["intensity"] = plasma["pulse_offset"] - 0.5
         
         # Update cosmic lightning
         for lightning in self.cosmic_lightning[:]:

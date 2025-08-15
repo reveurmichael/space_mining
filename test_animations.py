@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
 """
-🌌 ULTIMATE SPACE MINING UNIVERSE - THE MOST SPECTACULAR COSMIC EXPERIENCE 🌌
+🌌 ULTIMATE COSMIC SPACE MINING UNIVERSE - THE MOST SPECTACULAR EXPERIENCE EVER CREATED 🌌
 
 THE DEFINITIVE COSMIC SPACE EXPLORATION SIMULATION:
-- Ultra-wide 1920x1200 display for maximum cosmic immersion
-- 1000+ cosmic elements creating a living, breathing universe
-- Spectacular phenomena: storms, wormholes, lightning, auroras, pulsars
+- MASSIVE 3440x1440 21:9 ultrawide display for ULTIMATE cosmic immersion
+- 2000+ cosmic elements creating the most living, breathing universe ever conceived
+- Spectacular phenomena: supernovas, asteroid belts, cosmic winds, plasma fields, storms, wormholes, lightning
 - Perfect visual coherence and elegant design throughout
-- Dynamic cinematography with context-sensitive zoom
-- The most beautiful space simulation ever created
+- Enhanced dynamic cinematography with smooth focus shifts
+- The most beautiful and immersive space simulation ever created
 
-THIS IS THE ULTIMATE COSMIC EXPERIENCE!
+THIS IS THE ULTIMATE COSMIC EXPERIENCE - NOTHING COMES CLOSE!
 """
 
 import time
@@ -19,53 +19,52 @@ from space_mining.envs.space_mining import SpaceMining
 
 def main():
     """Experience the ultimate cosmic space mining universe."""
-    print("🌌" + "="*120 + "🌌")
-    print("🚀                    ULTIMATE SPACE MINING UNIVERSE - THE MOST SPECTACULAR COSMIC EXPERIENCE                    🚀")
-    print("🌌" + "="*120 + "🌌")
+    print("🌌" + "="*130 + "🌌")
+    print("🚀              ULTIMATE COSMIC SPACE MINING UNIVERSE - THE MOST SPECTACULAR EXPERIENCE EVER CREATED              🚀")
+    print("🌌" + "="*130 + "🌌")
     print()
-    print("✨ ULTIMATE COSMIC TRANSFORMATION:")
-    print("  🖥️ ULTRA-WIDE DISPLAY - 1920x1200 for maximum cosmic immersion")
-    print("  🌀 COSMIC STORMS - 3 massive rotating storm systems with branching lightning")
-    print("  🌌 MYSTICAL WORMHOLES - 2 dimensional portals with distortion rings")
-    print("  ⚡ COSMIC LIGHTNING - Spectacular branching energy discharges from storms")
-    print("  🌈 ENHANCED AURORAS - 8 ethereal energy curtains dancing across space") 
-    print("  🌌 SPECTACULAR NEBULAE - 16 multi-layered pulsing gas clouds")
-    print("  🌀 DISTANT GALAXIES - 12 spiral formations with detailed rotating arms")
-    print("  ⚡ ENHANCED PULSARS - 6 neutron stars with rotating energy beams")
-    print("  ⭐ MASSIVE STARFIELD - 570 colored, twinkling stars across 3 layers")
-    print("  💎 ENHANCED DUST - 570 cosmic particles (450 fine + 120 coarse)")
-    print("  💫 DYNAMIC SHOOTING STARS - Rare meteors with spectacular glowing trails")
+    print("✨ ULTIMATE COSMIC TRANSFORMATION - BEYOND IMAGINATION:")
+    print("  🖥️ MASSIVE ULTRAWIDE DISPLAY - 3440x1440 21:9 for ULTIMATE cosmic immersion")
+    print("  💥 SPECTACULAR SUPERNOVAS - 3 explosive stellar deaths with expanding shockwaves")
+    print("  🪨 DENSE ASTEROID BELTS - 4 massive formations with 200+ individual asteroids")
+    print("  🌪️ FLOWING COSMIC WINDS - 8 particle streams flowing across ultrawide space")
+    print("  ⚡ IONIZED PLASMA FIELDS - 5 pulsing regions of ionized gas")
+    print("  🌀 COSMIC STORMS - 4 massive rotating storm systems with branching lightning")
+    print("  🌌 MYSTICAL WORMHOLES - 3 dimensional portals with distortion rings")
+    print("  ⚡ COSMIC LIGHTNING - Spectacular branching energy discharges")
+    print("  🌈 ENHANCED AURORAS - 16 ethereal energy curtains dancing across ultrawide space") 
+    print("  🌌 SPECTACULAR NEBULAE - 32 multi-layered pulsing gas clouds")
+    print("  🌀 DISTANT GALAXIES - 25 spiral formations with detailed rotating arms")
+    print("  ⚡ ENHANCED PULSARS - 12 neutron stars with rotating energy beams")
+    print("  ⭐ MASSIVE STARFIELD - 1550 colored, twinkling stars across 3 layers")
+    print("  💎 ENHANCED DUST - 1550 cosmic particles (1200 fine + 350 coarse)")
+    print("  💫 DYNAMIC SHOOTING STARS - 6 meteors with spectacular glowing trails")
+    print("  🕳️ BLACK HOLES - 2 gravitational monsters with accretion disks")
+    print("  💫 ULTRA-BRIGHT QUASARS - 3 galactic powerhouses with intense beams")
+    print("  🎀 FLOWING COSMIC RIBBONS - 6 energy streams across ultrawide space")
     print()
-    print("🎬 ULTIMATE CINEMATOGRAPHY:")
-    print("  🔍 ENHANCED ZOOM SYSTEM - Even more dramatic camera work")
-    print("  📺 PERFECT SCALING - All 1000+ elements scale beautifully")
+    print("🎬 ULTIMATE CINEMATOGRAPHY - HOLLYWOOD-LEVEL QUALITY:")
+    print("  🔍 ENHANCED ZOOM SYSTEM - Dramatic multi-factor camera work")
+    print("  📺 PERFECT SCALING - All 2000+ elements scale beautifully")
     print("  🎯 SMOOTH TRANSITIONS - Professional cinematic interpolation")
-    print("  ⚡ DYNAMIC EFFECTS - Lightning, storms, and cosmic phenomena")
+    print("  ⚡ DYNAMIC EFFECTS - Lightning, explosions, and cosmic phenomena")
+    print("  🎥 CONTEXT-SENSITIVE FOCUS - Camera responds to game state")
     print()
-    print("🎨 PERFECT VISUAL DESIGN:")
-    print("  📺 Ultra-Wide Ratio - Optimized for maximum cosmic viewing")
-    print("  🎯 6-Column Legend - Perfect layout for ultra-wide display")
-    print("  🌟 Enhanced Typography - Larger, more readable fonts")
-    print("  💫 Minimal Dimming - Maximum cosmic beauty visibility")
-    print("  🧹 Perfect Coherence - Every element works in harmony")
+    print("🎨 PERFECT VISUAL DESIGN - UNMATCHED COHERENCE:")
+    print("  📺 21:9 Ultrawide Ratio - Optimized for maximum cosmic viewing")
+    print("  🎯 Adaptive UI Layout - Perfect organization for ultrawide display")
+    print("  🌟 Enhanced Typography - Crystal clear, readable fonts")
+    print("  💫 Optimized Dimming - Maximum cosmic beauty visibility")
+    print("  🧹 Perfect Coherence - Every element works in perfect harmony")
+    print("  ✨ Professional Polish - Museum-quality visual experience")
     print()
-    print("🌠 SPECTACULAR COSMIC COUNT:")
-    print("  🌀 Cosmic Storms: 3 rotating systems with lightning generation")
-    print("  🌌 Wormholes: 2 mystical dimensional portals")
-    print("  ⚡ Lightning Bolts: Dynamic branching energy discharges")
-    print("  🌌 Nebulae: 16 multi-layered rotating clouds")
-    print("  🌀 Galaxies: 12 spiral formations")
-    print("  ⭐ Stars: 570 with enhanced twinkling")
-    print("  💫 Dust: 570 atmospheric particles")
-    print("  🌈 Auroras: 8 wavy energy curtains")
-    print("  ⚡ Pulsars: 6 neutron beacons")
-    print("  💥 Shooting Stars: Up to 5 simultaneous meteors")
-    print("  🎯 TOTAL: 1000+ active cosmic phenomena!")
+    print("🌠 TOTAL COSMIC ELEMENTS: 2000+ individual phenomena!")
+    print("🌌 ULTIMATE SCALE: Every pixel optimized for cosmic grandeur!")
+    print("⚡ REAL-TIME PHYSICS: All elements interact with parallax and zoom!")
     print()
-    print("🌌" + "="*120 + "🌌")
-    print("🚀 PREPARE FOR THE ULTIMATE COSMIC JOURNEY - THE MOST BEAUTIFUL UNIVERSE EVER CREATED! 🚀")
-    print("🌌" + "="*120 + "🌌")
-    print()
+    print("Starting the most spectacular cosmic experience ever created...")
+    print("Prepare to witness the ultimate fusion of science and art!")
+    time.sleep(3)
 
     # Create environment with human rendering
     env = SpaceMining(render_mode="human")
