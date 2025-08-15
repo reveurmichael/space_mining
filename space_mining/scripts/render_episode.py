@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Script to render an episode of the SpaceMining environment using a trained PPO model.
 Can be run as a CLI script to visualize agent behavior.
 """
@@ -8,7 +7,7 @@ from typing import Optional
 from space_mining import PPOAgent, make_env
 
 
-def render_episode(model_path: str, max_steps: int = 1000, device: str = "cpu") -> None:
+def render_episode(model_path: str, max_steps: int = 1200, device: str = "cpu") -> None:
     """Render an episode of the SpaceMining environment using a trained PPO model.
 
     Args:
@@ -46,7 +45,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--max_steps",
         type=int,
-        default=1000,
+        default=1200,
         help="Maximum number of steps to run the episode",
     )
     parser.add_argument(
