@@ -22,7 +22,8 @@ def render_episode(model_path: str, max_steps: int = 1000, device: str = "cpu") 
     obs, _ = env.reset()
 
     for step_idx in range(max_steps):
-        action, _ = agent.predict(obs, deterministic=True)
+        prediction = agent.predict(obs, deterministic=True)
+        action = prediction[0] if isinstance(prediction, (tuple, list)) else prediction
         obs, _, terminated, truncated, _ = env.step(action)
         env.render()
         if terminated or truncated:

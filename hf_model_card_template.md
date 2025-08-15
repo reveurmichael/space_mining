@@ -22,7 +22,9 @@ model = PPO.load(ckpt_path)
 env = make_env(render_mode='rgb_array')
 obs, _ = env.reset()
 for _ in range(300):
-    action, _ = model.predict(obs, deterministic=True)
+    # SB3 `predict` may return `(action, state, *extras)` depending on version.
+    prediction = model.predict(obs, deterministic=True)
+    action = prediction[0] if isinstance(prediction, (tuple, list)) else prediction
     obs, reward, terminated, truncated, info = env.step(action)
     if terminated or truncated:
         break

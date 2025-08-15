@@ -22,7 +22,8 @@ def main() -> None:
 
     obs, _ = env.reset()
     for _ in range(600):
-        action, _ = agent.predict(obs, deterministic=True)
+        prediction = agent.predict(obs, deterministic=True)
+        action = prediction[0] if isinstance(prediction, (tuple, list)) else prediction
         obs, _, terminated, truncated, _ = env.step(action)
         env.render()
         if terminated or truncated:
