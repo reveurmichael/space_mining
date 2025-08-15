@@ -841,12 +841,10 @@
       <div class="nav-links">
         <a href="#about">About</a>
         <a href="#research">Research</a>
-        <a href="#task">Task</a>
-        <a href="#specs">Specifications</a>
-        <a href="#features">Features</a>
         <a href="#demo">Demo</a>
         <a href="#quickstart">Quick Start</a>
-        <a href="#examples">Implementation</a>
+        <a href="#examples">Examples</a>
+        <a href="#specs">Specs</a>
       </div>
     </div>
   </nav>
@@ -916,251 +914,56 @@
       
       <p>To address this issue, SpaceMining serves as a custom environment to assess true generalization capabilities on tasks free from such pretrained knowledge. This allows researchers to evaluate whether LLMs can effectively design reward functions for completely novel environments.</p>
       
+      <div class="grid cols-2" style="margin-top: 32px;">
+        <div class="card">
+          <h3>⚠️ Prior Knowledge Issues</h3>
+          <p>Challenges with existing RL benchmarks for LLM evaluation:</p>
+          <ul>
+            <li>Standard benchmarks (CartPole, BipedalWalker, Ant) may be in LLM training data</li>
+            <li>Potential prompt leakage and evaluation biases</li>
+            <li>Difficulty assessing true generalization capabilities</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>✅ SpaceMining Solutions</h3>
+          <p>How SpaceMining addresses these challenges:</p>
+          <ul>
+            <li>Novel environment unfamiliar to existing LLMs</li>
+            <li>Fair evaluation of reward design capabilities</li>
+            <li>Assessment of true generalization without bias</li>
+          </ul>
+        </div>
+      </div>
+
       <div class="card" style="margin-top: 32px;">
-        <h3>🔬 Research Applications</h3>
+        <h3>🎯 Task Description</h3>
+        <p>The agent is deployed in a 2D space environment (80×80 grid) with randomly distributed asteroids and a central mothership. The comprehensive task requires balancing multiple objectives:</p>
+        
         <div class="grid cols-2" style="margin-top: 16px;">
           <div>
-            <h4>Prior Knowledge Issues</h4>
+            <h4>Primary Objectives</h4>
             <ul>
-              <li>Standard benchmarks (CartPole, BipedalWalker, Ant) may be in LLM training data</li>
-              <li>Potential prompt leakage and evaluation biases</li>
-              <li>Difficulty assessing true generalization capabilities</li>
+              <li><strong>Resource Collection:</strong> Navigate efficiently to discover and mine resource-rich asteroids</li>
+              <li><strong>Energy Management:</strong> Monitor consumption and return to mothership for recharging</li>
+              <li><strong>Obstacle Avoidance:</strong> Avoid collisions with moving obstacles</li>
+              <li><strong>Delivery Optimization:</strong> Transport resources to maximize collection efficiency</li>
             </ul>
           </div>
           <div>
-            <h4>SpaceMining Solutions</h4>
+            <h4>Strategic Balance</h4>
             <ul>
-              <li>Novel environment unfamiliar to existing LLMs</li>
-              <li>Fair evaluation of reward design capabilities</li>
-              <li>Assessment of true generalization without bias</li>
+              <li><strong>Exploration vs Exploitation:</strong> Discover new asteroids vs mine known resources</li>
+              <li><strong>Risk vs Reward:</strong> Navigate through obstacles vs safe paths</li>
+              <li><strong>Energy vs Progress:</strong> Conservative movement vs aggressive mining</li>
+              <li><strong>Efficiency Optimization:</strong> Minimize travel time while maximizing collection</li>
             </ul>
           </div>
         </div>
-      </div>
-    </section>
-
-    <section id="task" class="reveal">
-      <h2>Task Description</h2>
-      <p>The agent is deployed in a 2D space environment (80×80 grid) with randomly distributed asteroids and a central mothership. The comprehensive task requires balancing multiple objectives:</p>
-      
-      <div class="grid cols-2">
-        <div class="card">
-          <h3>🎯 Primary Objectives</h3>
-          <ul>
-            <li><strong>Resource Collection:</strong> Navigate efficiently to discover and mine resource-rich asteroids</li>
-            <li><strong>Energy Management:</strong> Monitor consumption and return to mothership for recharging</li>
-            <li><strong>Obstacle Avoidance:</strong> Avoid collisions with moving obstacles</li>
-            <li><strong>Delivery Optimization:</strong> Transport resources to maximize collection efficiency</li>
-          </ul>
+        
+        <div style="margin-top: 16px;">
+          <h4>🏆 Fitness Scoring System</h4>
+          <p>The environment uses a comprehensive fitness scoring system with a target range of approximately <strong>3000 points</strong>, evaluating resource collection, energy management, efficiency, and survival time. This multi-faceted scoring encourages agents to develop sophisticated strategies rather than optimizing for single objectives.</p>
         </div>
-        <div class="card">
-          <h3>⚖️ Strategic Balance</h3>
-          <ul>
-            <li><strong>Exploration vs Exploitation:</strong> Discover new asteroids vs mine known resources</li>
-            <li><strong>Risk vs Reward:</strong> Navigate through obstacles vs safe paths</li>
-            <li><strong>Energy vs Progress:</strong> Conservative movement vs aggressive mining</li>
-            <li><strong>Efficiency Optimization:</strong> Minimize travel time while maximizing collection</li>
-          </ul>
-        </div>
-      </div>
-      
-      <div class="card" style="margin-top: 32px;">
-        <h3>🏆 Fitness Scoring System</h3>
-        <p>The environment uses a comprehensive fitness scoring system with a target range of approximately <strong>3000 points</strong>, evaluating resource collection, energy management, efficiency, and survival time. This multi-faceted scoring encourages agents to develop sophisticated strategies rather than optimizing for single objectives.</p>
-      </div>
-    </section>
-
-    <section id="specs" class="reveal">
-      <h2>Environment Specifications</h2>
-      <p>Technical specifications for researchers implementing experiments and designing reward functions for the SpaceMining environment.</p>
-      
-      <div class="grid cols-3">
-        <div class="card">
-          <h3>📊 Action Space</h3>
-          <p><strong>Type:</strong> Box(3) - Continuous control</p>
-          <ul>
-            <li><code>thrust_x</code>: Horizontal force [-1.0, 1.0]</li>
-            <li><code>thrust_y</code>: Vertical force [-1.0, 1.0]</li>
-            <li><code>mine_action</code>: Binary mining activation [0.0, 1.0]</li>
-          </ul>
-        </div>
-        <div class="card">
-          <h3>👁️ State Space</h3>
-          <p><strong>Type:</strong> Box(53) - Structured observations</p>
-          <ul>
-            <li><strong>Agent State (6)</strong>: Position (x, y), velocity (vx, vy), energy level, inventory</li>
-            <li><strong>Asteroid Information (45)</strong>: Relative positions and resource amounts for visible asteroids</li>
-            <li><strong>Mothership Position (2)</strong>: Relative position to mothership</li>
-          </ul>
-        </div>
-        <div class="card">
-          <h3>🌍 Environment Parameters</h3>
-          <ul>
-            <li><strong>Grid size</strong>: 80×80 units (default, configurable)</li>
-            <li><strong>Max asteroids</strong>: 8-12 per episode (random)</li>
-            <li><strong>Moving obstacles</strong>: 4-8 dynamic collision hazards</li>
-            <li><strong>Observation radius</strong>: 15 units (partial observability)</li>
-            <li><strong>Episode limit</strong>: 1200 steps (configurable)</li>
-            <li><strong>Collision limit</strong>: 18+ obstacle collisions</li>
-          </ul>
-        </div>
-        <div class="card">
-          <h3>🏆 Reward Structure</h3>
-          <ul>
-            <li><strong>Mining rewards</strong>: +8.0 per resource unit extracted</li>
-            <li><strong>Delivery bonuses</strong>: +12.0 per delivered unit</li>
-            <li><strong>Exploration rewards</strong>: +3.0 per discovered asteroid</li>
-            <li><strong>Energy recharge bonus</strong>: +0.5 per energy unit restored</li>
-          </ul>
-        </div>
-        <div class="card">
-          <h3>⚠️ Penalties & Constraints</h3>
-          <ul>
-            <li><strong>Obstacle collision</strong>: -10.0 per collision</li>
-            <li><strong>Boundary contact</strong>: -1.0 per boundary hit</li>
-            <li><strong>Energy depletion</strong>: -10.0 when energy reaches zero</li>
-            <li><strong>Inventory limit</strong>: 100 resource units maximum</li>
-          </ul>
-        </div>
-        <div class="card">
-          <h3>⚙️ Difficulty Level</h3>
-          <p><strong>Medium Difficulty:</strong> Balanced challenge with:</p>
-          <ul>
-            <li><strong>Limited observation radius</strong>: 15 units requiring strategic exploration</li>
-            <li><strong>Energy constraints</strong>: Periodic mothership returns required</li>
-            <li><strong>Moving obstacles</strong>: Collision avoidance required</li>
-            <li><strong>Resource depletion</strong>: Efficient mining strategies needed</li>
-          </ul>
-        </div>
-      </div>
-    </section>
-
-    <section id="features" class="reveal">
-      <h2>Environment Features</h2>
-      <p>SpaceMining incorporates carefully designed mechanics to create a novel challenge unfamiliar to existing language models, ensuring fair evaluation of reward design capabilities.</p>
-      
-      <div class="grid cols-2">
-        <div class="card">
-          <h3>🚀 Physics Simulation</h3>
-          <p>Realistic 2D space physics with inertia, thrust vectoring, drag forces, gravitational attraction to mothership, and collision responses that create emergent behavioral complexity.</p>
-        </div>
-        <div class="card">
-          <h3>💎 Resource Dynamics</h3>
-          <p>Dynamic asteroid generation with varying resource densities, depletion mechanics, and inventory constraints requiring strategic resource management decisions.</p>
-        </div>
-        <div class="card">
-          <h3>🎯 Multi-Objective Design</h3>
-          <p>Comprehensive reward structure balancing exploration, efficiency, resource collection, energy conservation, and survival to encourage sophisticated agent strategies.</p>
-        </div>
-        <div class="card">
-          <h3>👁️ Partial Observability</h3>
-          <p>Limited observation radius (15 units) creating fog-of-war mechanics that require strategic exploration, memory utilization, and planning under uncertainty.</p>
-        </div>
-        <div class="card">
-          <h3>🛡️ Dynamic Challenges</h3>
-          <p>Moving obstacles with varied pathfinding behaviors create evolving navigation challenges that prevent simple rule-based solutions.</p>
-        </div>
-        <div class="card">
-          <h3>📊 Research Analytics</h3>
-          <p>Comprehensive state tracking, performance metrics, and fitness scoring systems designed for rigorous evaluation of learning algorithms and reward functions.</p>
-        </div>
-      </div>
-    </section>
-
-    <section id="quickstart" class="reveal">
-      <h2>Quick Start Guide</h2>
-      <p>Get started with SpaceMining for your research experiments. The environment is designed to be easy to install and integrate into existing RL pipelines.</p>
-      
-      <div class="grid">
-        <div class="card">
-          <h3>🚀 Installation</h3>
-          <pre class="line-numbers"><code class="language-bash"># Install from PyPI
-pip install space-mining
-
-# Or install from source
-git clone https://github.com/reveurmichael/space_mining.git
-cd space_mining
-pip install -e .</code></pre>
-        </div>
-        <div class="card">
-          <h3>🎮 Basic Usage</h3>
-          <pre class="line-numbers"><code class="language-python">import gymnasium as gym
-from space_mining.envs import make_env
-
-# Create environment
-env = make_env(render_mode="human")
-
-# Reset and run
-obs, info = env.reset()
-for _ in range(1000):
-    action = env.action_space.sample()
-    obs, reward, terminated, truncated, info = env.step(action)
-    if terminated or truncated:
-        obs, info = env.reset()</code></pre>
-        </div>
-      </div>
-    </section>
-
-    <section id="examples" class="reveal">
-      <h2>Research Implementation</h2>
-      <p>Practical examples for conducting LLM evaluation research and agent training experiments with SpaceMining.</p>
-      
-      <div class="card">
-        <h3>🤖 Agent Training Pipeline</h3>
-        <p class="muted">Complete PPO training setup for baseline agent development and reward function evaluation.</p>
-        <pre class="line-numbers"><code class="language-python">from space_mining.agents.train_ppo import train_ppo
-
-def main() -> None:
-    # Train with configuration
-    model = train_ppo(
-        total_timesteps=10_000_000,
-        output_dir="runs/ppo_research",
-        track_wandb=True,
-        wandb_project_name="space-mining-research",
-        checkpoint_freq=100_000,
-        eval_freq=200_000,
-        device="cuda" if torch.cuda.is_available() else "cpu"
-    )
-    print("Training completed successfully!")
-
-if __name__ == "__main__":
-    main()</code></pre>
-      </div>
-
-      <div class="card">
-        <h3>🎬 Generate Demo GIFs</h3>
-        <p class="muted">Create demonstration GIFs from trained models for research analysis.</p>
-        <pre class="line-numbers"><code class="language-bash"># Train PPO Agent
-python -m space_mining.agents.train_ppo \
-  --total-timesteps 10000000 --output-dir runs/ppo --checkpoint-freq 100000 --eval-freq 200000
-
-# Render a GIF
-python -m space_mining.scripts.make_gif \
-  --checkpoint runs/ppo/final_model.zip --output output_gif/agent.gif --steps 800 --fps 20</code></pre>
-        <p class="muted">These commands provide a straightforward workflow for training agents and generating visual demonstrations for research documentation.</p>
-      </div>
-
-      <div class="card">
-        <h3>🔧 Research Configuration</h3>
-        <p class="muted">Environment parameter customization for controlled experiments and ablation studies.</p>
-        <pre class="line-numbers"><code class="language-python">from space_mining.envs import SpaceMining, EnvironmentConfig
-
-# Create custom configuration
-config = EnvironmentConfig(
-    max_episode_steps=2000,
-    grid_size=120,
-    max_asteroids=20,
-    observation_radius=25,
-    energy_consumption_rate=0.03,
-    mining_range=10.0
-)
-
-# Initialize with custom config
-env = SpaceMining(config=config, render_mode="human")
-
-# Run experiment
-obs, info = env.reset(seed=42)
-print(f"Environment initialized with {len(env.asteroid_positions)} asteroids")</code></pre>
       </div>
     </section>
 
@@ -1266,6 +1069,193 @@ print(f"Environment initialized with {len(env.asteroid_positions)} asteroids")</
         <p><strong>Status Display:</strong> Real-time information showing energy, inventory, mining progress, and episode statistics</p>
       </div>
     </section>
+
+    <section id="specs" class="reveal">
+      <h2>Environment Specifications</h2>
+      <p>Technical specifications for researchers implementing experiments and designing reward functions for the SpaceMining environment.</p>
+      
+      <div class="grid cols-3">
+        <div class="card">
+          <h3>📊 Action Space</h3>
+          <p><strong>Type:</strong> Box(3) - Continuous control</p>
+          <ul>
+            <li><code>thrust_x</code>: Horizontal force [-1.0, 1.0]</li>
+            <li><code>thrust_y</code>: Vertical force [-1.0, 1.0]</li>
+            <li><code>mine_action</code>: Binary mining activation [0.0, 1.0]</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>👁️ State Space</h3>
+          <p><strong>Type:</strong> Box(53) - Structured observations</p>
+          <ul>
+            <li><strong>Agent State (6)</strong>: Position (x, y), velocity (vx, vy), energy level, inventory</li>
+            <li><strong>Asteroid Information (45)</strong>: Relative positions and resource amounts for visible asteroids</li>
+            <li><strong>Mothership Position (2)</strong>: Relative position to mothership</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>🌍 Environment Parameters</h3>
+          <ul>
+            <li><strong>Grid size</strong>: 80×80 units (default, configurable)</li>
+            <li><strong>Max asteroids</strong>: 8-12 per episode (random)</li>
+            <li><strong>Moving obstacles</strong>: 4-8 dynamic collision hazards</li>
+            <li><strong>Observation radius</strong>: 15 units (partial observability)</li>
+            <li><strong>Episode limit</strong>: 1200 steps (configurable)</li>
+            <li><strong>Collision limit</strong>: 18+ obstacle collisions</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>🏆 Reward Structure</h3>
+          <ul>
+            <li><strong>Mining rewards</strong>: +8.0 per resource unit extracted</li>
+            <li><strong>Delivery bonuses</strong>: +12.0 per delivered unit</li>
+            <li><strong>Exploration rewards</strong>: +3.0 per discovered asteroid</li>
+            <li><strong>Energy recharge bonus</strong>: +0.5 per energy unit restored</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>⚠️ Penalties & Constraints</h3>
+          <ul>
+            <li><strong>Obstacle collision</strong>: -10.0 per collision</li>
+            <li><strong>Boundary contact</strong>: -1.0 per boundary hit</li>
+            <li><strong>Energy depletion</strong>: -10.0 when energy reaches zero</li>
+            <li><strong>Inventory limit</strong>: 100 resource units maximum</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>⚙️ Difficulty Level</h3>
+          <p><strong>Medium Difficulty:</strong> Balanced challenge with:</p>
+          <ul>
+            <li><strong>Limited observation radius</strong>: 15 units requiring strategic exploration</li>
+            <li><strong>Energy constraints</strong>: Periodic mothership returns required</li>
+            <li><strong>Moving obstacles</strong>: Collision avoidance required</li>
+            <li><strong>Resource depletion</strong>: Efficient mining strategies needed</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top: 32px;">
+        <h3>🚀 Environment Features</h3>
+        <p>SpaceMining incorporates carefully designed mechanics to create a novel challenge unfamiliar to existing language models, ensuring fair evaluation of reward design capabilities.</p>
+        
+        <div class="grid cols-2" style="margin-top: 16px;">
+          <div>
+            <h4>Core Mechanics</h4>
+            <ul>
+              <li><strong>Physics Simulation:</strong> Realistic 2D space physics with inertia, thrust vectoring, drag forces, and gravitational attraction</li>
+              <li><strong>Resource Dynamics:</strong> Dynamic asteroid generation with varying resource densities and depletion mechanics</li>
+              <li><strong>Multi-Objective Design:</strong> Comprehensive reward structure balancing exploration, efficiency, and survival</li>
+            </ul>
+          </div>
+          <div>
+            <h4>Advanced Features</h4>
+            <ul>
+              <li><strong>Partial Observability:</strong> Limited observation radius creating fog-of-war mechanics</li>
+              <li><strong>Dynamic Challenges:</strong> Moving obstacles with varied pathfinding behaviors</li>
+              <li><strong>Research Analytics:</strong> Comprehensive state tracking and performance metrics</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="quickstart" class="reveal">
+      <h2>Quick Start Guide</h2>
+      <p>Get started with SpaceMining for your research experiments. The environment is designed to be easy to install and integrate into existing RL pipelines.</p>
+      
+      <div class="grid">
+        <div class="card">
+          <h3>🚀 Installation</h3>
+          <pre class="line-numbers"><code class="language-bash"># Install from PyPI
+pip install space-mining
+
+# Or install from source
+git clone https://github.com/reveurmichael/space_mining.git
+cd space_mining
+pip install -e .</code></pre>
+        </div>
+        <div class="card">
+          <h3>🎮 Basic Usage</h3>
+          <pre class="line-numbers"><code class="language-python">import gymnasium as gym
+from space_mining.envs import make_env
+
+# Create environment
+env = make_env(render_mode="human")
+
+# Reset and run
+obs, info = env.reset()
+for _ in range(1000):
+    action = env.action_space.sample()
+    obs, reward, terminated, truncated, info = env.step(action)
+    if terminated or truncated:
+        obs, info = env.reset()</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <section id="examples" class="reveal">
+      <h2>Examples</h2>
+      <p>Practical examples for conducting LLM evaluation research and agent training experiments with SpaceMining.</p>
+      
+      <div class="card">
+        <h3>🤖 Agent Training Pipeline</h3>
+        <p class="muted">Complete PPO training setup for baseline agent development and reward function evaluation.</p>
+        <pre class="line-numbers"><code class="language-python">from space_mining.agents.train_ppo import train_ppo
+
+def main() -> None:
+    # Train with configuration
+    model = train_ppo(
+        total_timesteps=10_000_000,
+        output_dir="runs/ppo_research",
+        track_wandb=True,
+        wandb_project_name="space-mining-research",
+        checkpoint_freq=100_000,
+        eval_freq=200_000,
+        device="cuda" if torch.cuda.is_available() else "cpu"
+    )
+    print("Training completed successfully!")
+
+if __name__ == "__main__":
+    main()</code></pre>
+      </div>
+
+      <div class="card">
+        <h3>🎬 Generate Demo GIFs</h3>
+        <p class="muted">Create demonstration GIFs from trained models for research analysis.</p>
+        <pre class="line-numbers"><code class="language-bash"># Train PPO Agent
+python -m space_mining.agents.train_ppo \
+  --total-timesteps 10000000 --output-dir runs/ppo --checkpoint-freq 100000 --eval-freq 200000
+
+# Render a GIF
+python -m space_mining.scripts.make_gif \
+  --checkpoint runs/ppo/final_model.zip --output output_gif/agent.gif --steps 800 --fps 20</code></pre>
+        <p class="muted">These commands provide a straightforward workflow for training agents and generating visual demonstrations for research documentation.</p>
+      </div>
+
+      <div class="card">
+        <h3>🔧 Research Configuration</h3>
+        <p class="muted">Environment parameter customization for controlled experiments and ablation studies.</p>
+        <pre class="line-numbers"><code class="language-python">from space_mining.envs import SpaceMining, EnvironmentConfig
+
+# Create custom configuration
+config = EnvironmentConfig(
+    max_episode_steps=2000,
+    grid_size=120,
+    max_asteroids=20,
+    observation_radius=25,
+    energy_consumption_rate=0.03,
+    mining_range=10.0
+)
+
+# Initialize with custom config
+env = SpaceMining(config=config, render_mode="human")
+
+# Run experiment
+obs, info = env.reset(seed=42)
+print(f"Environment initialized with {len(env.asteroid_positions)} asteroids")</code></pre>
+      </div>
+    </section>
+
   </main>
 
   <footer>
