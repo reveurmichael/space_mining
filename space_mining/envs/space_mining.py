@@ -53,6 +53,14 @@ class SpaceMining(gym.Env):
         self.steps_count: int = 0
         self.mothership_pos: np.ndarray = np.array([grid_size / 2, grid_size / 2])
 
+        # Animation data structures
+        self.delivery_particles = []
+        self.agent_trail = []
+        self.score_popups = []
+        self.collision_flash_timer = 0.0
+        self.screen_shake_timer = 0.0
+        self.mining_beam_offset = 0.0
+
         self.action_space: spaces.Box = spaces.Box(
             low=np.array([-1.0, -1.0, 0.0]),
             high=np.array([1.0, 1.0, 1.0]),
@@ -83,6 +91,14 @@ class SpaceMining(gym.Env):
 
         self.steps_count = 0
         self.collision_count = 0
+
+        # Reset animation data structures
+        self.delivery_particles = []
+        self.agent_trail = []
+        self.score_popups = []
+        self.collision_flash_timer = 0.0
+        self.screen_shake_timer = 0.0
+        self.mining_beam_offset = 0.0
 
         self.agent_position = self.np_random.uniform(low=0, high=self.grid_size, size=(2,))
         self.agent_velocity = np.zeros(2, dtype=np.float32)
@@ -195,6 +211,9 @@ class SpaceMining(gym.Env):
                 if not hasattr(self, "last_collision_step"):
                     self.last_collision_step = 0
                 self.last_collision_step = self.steps_count
+                # Trigger collision effects
+                self.collision_flash_timer = 0.3  # Flash for 0.3 seconds
+                self.screen_shake_timer = 0.2  # Shake for 0.2 seconds
                 to_obstacle = self.agent_position - obstacle_pos
                 if np.linalg.norm(to_obstacle) > 0:
                     to_obstacle = to_obstacle / np.linalg.norm(to_obstacle)
@@ -237,6 +256,8 @@ class SpaceMining(gym.Env):
                         }
                         self.mining_asteroid_id = i
                         reward += max_possible * 8.0
+                        # Add score popup for mining
+                        self._add_score_popup(f"+{max_possible:.1f}", asteroid_pos.copy(), (255, 255, 0))
                         mined_something = True
                         self.agent_velocity *= 0.8
                         break
@@ -260,6 +281,10 @@ class SpaceMining(gym.Env):
         if distance_to_mothership < 12.0 and self.agent_inventory > 0:
             delivered_amount = self.agent_inventory
             reward += delivered_amount * 12.0
+            # Spawn delivery particles
+            self._spawn_delivery_particles(self.agent_position.copy(), self.mothership_pos.copy())
+            # Add score popup for delivery
+            self._add_score_popup(f"+{delivered_amount:.1f}", self.agent_position.copy(), (0, 255, 0))
             if not hasattr(self, "last_delivery_info"):
                 self.last_delivery_info = {}
             energy_recharged = 150.0 - self.agent_energy
@@ -277,6 +302,9 @@ class SpaceMining(gym.Env):
             for axis in range(2):
                 if self.obstacle_positions[i][axis] < 0 or self.obstacle_positions[i][axis] > self.grid_size:
                     self.obstacle_velocities[i][axis] *= -1
+
+        # Update animations
+        self._update_animations()
 
         observation = self._get_observation()
 
@@ -452,5 +480,59 @@ class SpaceMining(gym.Env):
             "mining_guidance_reward": mining_guidance_reward,
             "delivery_guidance_reward": delivery_guidance_reward,
         }
+
+    def _update_animations(self) -> None:
+        """Update all animation states."""
+        # Update agent trail
+        self.agent_trail.append({"pos": self.agent_position.copy(), "alpha": 255})
+        # Fade existing trail points
+        for trail_point in self.agent_trail:
+            trail_point["alpha"] -= 15
+        # Remove faded trail points
+        self.agent_trail = [p for p in self.agent_trail if p["alpha"] > 0]
+
+        # Update delivery particles
+        for particle in self.delivery_particles:
+            particle["progress"] += 0.05
+            if particle["progress"] >= 1.0:
+                particle["progress"] = 1.0
+        # Remove completed particles
+        self.delivery_particles = [p for p in self.delivery_particles if p["progress"] < 1.0]
+
+        # Update score popups
+        for popup in self.score_popups:
+            popup["pos"][1] -= 0.3  # Move upward
+            popup["alpha"] -= 5
+        # Remove faded popups
+        self.score_popups = [p for p in self.score_popups if p["alpha"] > 0]
+
+        # Update collision effects
+        if self.collision_flash_timer > 0:
+            self.collision_flash_timer -= self.dt
+        if self.screen_shake_timer > 0:
+            self.screen_shake_timer -= self.dt
+
+        # Update mining beam animation
+        self.mining_beam_offset += 0.2
+
+    def _spawn_delivery_particles(self, start_pos: np.ndarray, target_pos: np.ndarray) -> None:
+        """Spawn glowing particles for resource delivery animation."""
+        for _ in range(10):
+            particle = {
+                "start_pos": start_pos.copy(),
+                "target_pos": target_pos.copy(),
+                "progress": 0.0
+            }
+            self.delivery_particles.append(particle)
+
+    def _add_score_popup(self, text: str, pos: np.ndarray, color: tuple) -> None:
+        """Add a floating score popup."""
+        popup = {
+            "text": text,
+            "pos": pos.copy(),
+            "alpha": 255,
+            "color": color
+        }
+        self.score_popups.append(popup)
 
 __all__ = ["SpaceMining"]
