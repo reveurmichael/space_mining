@@ -198,7 +198,7 @@ jobs:
       - name: Generate visualization GIF
         run: |
           set -euo pipefail
-          xvfb-run -a python space_mining/scripts/make_gif.py \
+          python space_mining/scripts/make_gif.py \
             --checkpoint ${{ steps.choose_model.outputs.path }} \
             --output output_gif/agent_long.gif \
             --steps 1200 \
