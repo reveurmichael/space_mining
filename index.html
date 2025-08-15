@@ -999,29 +999,16 @@ if __name__ == "__main__":
       </div>
 
       <div class="card">
-        <h3>🎬 Generate Demo Videos</h3>
-        <p class="muted">Create high-quality demonstration videos from trained models.</p>
-        <pre class="line-numbers"><code class="language-python">from space_mining.scripts.make_gif import generate_trajectory, save_gif
-from space_mining.agents import PPOAgent
+        <h3>🎬 Generate Demo GIFs</h3>
+        <p class="muted">Create demonstration GIFs from trained models for research analysis.</p>
+        <pre class="line-numbers"><code class="language-bash"># Train PPO Agent
+python -m space_mining.agents.train_ppo \
+  --total-timesteps 10000000 --output-dir runs/ppo --checkpoint-freq 100000 --eval-freq 200000
 
-def create_demo() -> None:
-    # Load pre-trained model
-    agent = PPOAgent.load_from_hf("LUNDECHEN/space-mining-ppo")
-    
-    # Generate demonstration
-    frames = generate_trajectory(
-        agent=agent,
-        num_steps=1200,
-        deterministic=True,
-        render_mode="rgb_array"
-    )
-    
-    # Save as high-quality GIF
-    save_gif(frames, "demos/expert_agent.gif", fps=30)
-    print("Demo created: demos/expert_agent.gif")
-
-if __name__ == "__main__":
-    create_demo()</code></pre>
+# Render a GIF
+python -m space_mining.scripts.make_gif \
+  --checkpoint runs/ppo/final_model.zip --output output_gif/agent.gif --steps 800 --fps 20</code></pre>
+        <p class="muted">These commands provide a straightforward workflow for training agents and generating visual demonstrations for research documentation.</p>
       </div>
 
       <div class="card">
