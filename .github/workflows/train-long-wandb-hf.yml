@@ -112,7 +112,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip setuptools wheel
           pip install -r requirements.txt
-          pip install git+https://github.com/reveurmichael/space_mining.git
+          pip install -e .
           pip install wandb huggingface_hub pillow tensorboard
           pip install psutil  # For monitoring system resources
 
