@@ -345,13 +345,10 @@ class Renderer:
         # Enhanced mothership glow effect
         for i in range(6):
             alpha = max(20, 150 - i * 25)
-            gfxdraw.aacircle(
-                self.window, 
-                mothership_pos_2d[0], 
-                mothership_pos_2d[1], 
-                20 + i * 4, 
-                (30, 120, 200, alpha)
-            )
+            if alpha > 0:
+                glow_surface = pygame.Surface((40 + i * 8 + 10, 40 + i * 8 + 10), pygame.SRCALPHA)
+                gfxdraw.filled_circle(glow_surface, 20 + i * 4 + 5, 20 + i * 4 + 5, 20 + i * 4, (30, 120, 200, alpha))
+                self.window.blit(glow_surface, (mothership_pos_2d[0] - 20 - i * 4 - 5, mothership_pos_2d[1] - 20 - i * 4 - 5), special_flags=pygame.BLEND_ADD)
 
         # Draw asteroids with fixed yellow color and size-based resource indication
         for i, pos in enumerate(self.env.asteroid_positions):
@@ -399,13 +396,11 @@ class Renderer:
                 pulse = math.sin(self.env.steps_count * 0.15) * 0.3 + 0.7
                 glow_alpha = int(60 * pulse)
                 for j in range(3):
-                    gfxdraw.aacircle(
-                        self.window,
-                        asteroid_pos_2d[0],
-                        asteroid_pos_2d[1],
-                        size + j * 2,
-                        (255, 255, 100, glow_alpha - j * 20)
-                    )
+                    alpha_val = max(0, glow_alpha - j * 20)
+                    if alpha_val > 0:
+                        glow_surface = pygame.Surface((size * 2 + j * 4 + 10, size * 2 + j * 4 + 10), pygame.SRCALPHA)
+                        gfxdraw.filled_circle(glow_surface, size + j * 2 + 5, size + j * 2 + 5, size + j * 2, (255, 255, 100, alpha_val))
+                        self.window.blit(glow_surface, (asteroid_pos_2d[0] - size - j * 2 - 5, asteroid_pos_2d[1] - size - j * 2 - 5), special_flags=pygame.BLEND_ADD)
 
             # Enhanced health bar
             health_ratio = resource_ratio
@@ -440,10 +435,11 @@ class Renderer:
             )
             # Enhanced danger glow
             for i in range(3):
-                gfxdraw.aacircle(
-                    self.window, obstacle_pos_2d[0], obstacle_pos_2d[1], 
-                    pulse + 2 + i * 2, (255, 100, 100, 100 - i * 30)
-                )
+                alpha_val = max(0, 100 - i * 30)
+                if alpha_val > 0:
+                    glow_surface = pygame.Surface((pulse * 2 + i * 4 + 20, pulse * 2 + i * 4 + 20), pygame.SRCALPHA)
+                    gfxdraw.filled_circle(glow_surface, pulse + i * 2 + 10, pulse + i * 2 + 10, pulse + 2 + i * 2, (255, 100, 100, alpha_val))
+                    self.window.blit(glow_surface, (obstacle_pos_2d[0] - pulse - i * 2 - 10, obstacle_pos_2d[1] - pulse - i * 2 - 10), special_flags=pygame.BLEND_ADD)
 
         # Draw agent with FIXED GREEN color
         agent_pos_2d = to_screen(self.env.agent_position)
@@ -456,13 +452,11 @@ class Renderer:
             warning_intensity = int(100 * (1 - self.env.agent_energy / 30.0))
             warning_pulse = math.sin(self.env.steps_count * 0.3) * 0.5 + 0.5
             for i in range(3):
-                gfxdraw.aacircle(
-                    self.window,
-                    agent_pos_2d[0],
-                    agent_pos_2d[1],
-                    14 + i * 3,
-                    (255, 0, 0, int(warning_intensity * warning_pulse) - i * 20)
-                )
+                alpha_val = max(0, int(warning_intensity * warning_pulse) - i * 20)
+                if alpha_val > 0:
+                    warning_surface = pygame.Surface((28 + i * 6 + 10, 28 + i * 6 + 10), pygame.SRCALPHA)
+                    gfxdraw.filled_circle(warning_surface, 14 + i * 3 + 5, 14 + i * 3 + 5, 14 + i * 3, (255, 0, 0, alpha_val))
+                    self.window.blit(warning_surface, (agent_pos_2d[0] - 14 - i * 3 - 5, agent_pos_2d[1] - 14 - i * 3 - 5), special_flags=pygame.BLEND_ADD)
 
         gfxdraw.filled_circle(
             self.window,
@@ -880,7 +874,7 @@ class Renderer:
         # Create main status panel
         status_bg = pygame.Surface((panel_width, panel_height), pygame.SRCALPHA)
         status_bg.fill((0, 0, 0, 220))
-        pygame.draw.rect(status_bg, (60, 60, 80, 150), (0, 0, panel_width, panel_height), 3)
+        pygame.draw.rect(status_bg, (60, 60, 80), (0, 0, panel_width, panel_height), 3)
 
         # Title with state
         title_font = pygame.font.SysFont("Arial", 16, bold=True)
@@ -1000,7 +994,7 @@ class Renderer:
         # Create legend background
         legend_bg = pygame.Surface((panel_width, panel_height), pygame.SRCALPHA)
         legend_bg.fill((0, 0, 0, 220))
-        pygame.draw.rect(legend_bg, (60, 60, 80, 150), (0, 0, panel_width, panel_height), 3)
+        pygame.draw.rect(legend_bg, (60, 60, 80), (0, 0, panel_width, panel_height), 3)
 
         # Title
         title_font = pygame.font.SysFont("Arial", 18, bold=True)
@@ -1073,8 +1067,12 @@ class Renderer:
         elif icon_type == "safe_zone":
             # Safe zone aura
             for i in range(3):
-                alpha = 100 - i * 30
-                gfxdraw.aacircle(surface, x+10, y+10, 8 + i * 2, (*color[:3], alpha))
+                alpha = max(0, 100 - i * 30)
+                if alpha > 0:
+                    # Create a temporary surface for the aura effect
+                    aura_surface = pygame.Surface((20 + i * 4, 20 + i * 4), pygame.SRCALPHA)
+                    gfxdraw.filled_circle(aura_surface, 10 + i * 2, 10 + i * 2, 8 + i * 2, (*color[:3], alpha))
+                    surface.blit(aura_surface, (x - i * 2, y - i * 2), special_flags=pygame.BLEND_ADD)
 
         elif icon_type == "energy_beam":
             # Mining beam
@@ -1230,7 +1228,7 @@ class Renderer:
         
         # Gradient background effect
         badge_surface.fill((80, 60, 0, alpha))
-        pygame.draw.rect(badge_surface, (255, 200, 0, alpha), (0, 0, badge_width, badge_height), 3)
+        pygame.draw.rect(badge_surface, (255, 200, 0), (0, 0, badge_width, badge_height), 3)
         
         # Add sparkle effects around badge
         for i in range(8):
