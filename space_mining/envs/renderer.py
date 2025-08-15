@@ -11,6 +11,234 @@ class Renderer:
         self.window: Optional[Any] = None
         self.clock: Optional[Any] = None
         self.font: Optional[Any] = None
+        
+        # Cosmic background system (managed by renderer)
+        self.starfield_layers = []
+        self.nebula_clouds = []
+        self.distant_galaxies = []
+        self.space_dust = []
+        self.cosmic_auroras = []
+        self.cosmic_time = 0.0
+        self.prev_agent_position = None
+        
+        # Initialize cosmic background
+        self._initialize_cosmic_background()
+
+    def _initialize_cosmic_background(self) -> None:
+        """Initialize the perfect cosmic universe for 1920x1080."""
+        import numpy as np
+        import math
+        
+        self.cosmic_time = 0.0
+        
+        # Create perfect starfield distribution
+        self.starfield_layers = []
+        
+        # Layer 1: Distant stars (cosmic depth)
+        layer1_stars = []
+        for _ in range(180):  # Optimal count for depth
+            star = {
+                "x": np.random.uniform(0, 1920),
+                "y": np.random.uniform(0, 1080),
+                "size": 1,
+                "brightness": np.random.randint(15, 50),
+                "speed": 0.01,  # Very slow for distance
+                "color_type": np.random.choice(["white", "blue", "yellow"], p=[0.85, 0.1, 0.05])
+            }
+            layer1_stars.append(star)
+        self.starfield_layers.append(layer1_stars)
+        
+        # Layer 2: Medium stars (atmospheric depth)
+        layer2_stars = []
+        for _ in range(90):  # Balanced count
+            star = {
+                "x": np.random.uniform(0, 1920),
+                "y": np.random.uniform(0, 1080),
+                "size": np.random.choice([1, 2], p=[0.8, 0.2]),
+                "brightness": np.random.randint(30, 80),
+                "speed": 0.06,
+                "color_type": np.random.choice(["white", "blue", "yellow"], p=[0.75, 0.2, 0.05])
+            }
+            layer2_stars.append(star)
+        self.starfield_layers.append(layer2_stars)
+        
+        # Layer 3: Bright stars (cosmic jewels)
+        layer3_stars = []
+        for _ in range(40):  # Select bright focal points
+            star = {
+                "x": np.random.uniform(0, 1920),
+                "y": np.random.uniform(0, 1080),
+                "size": np.random.choice([2, 3], p=[0.7, 0.3]),
+                "brightness": np.random.randint(50, 110),
+                "speed": 0.12,
+                "color_type": np.random.choice(["white", "blue", "yellow"], p=[0.6, 0.3, 0.1])
+            }
+            layer3_stars.append(star)
+        self.starfield_layers.append(layer3_stars)
+        
+        # Create elegant nebula formations
+        self.nebula_clouds = []
+        for _ in range(3):  # Perfect visual balance
+            nebula = {
+                "x": np.random.uniform(-300, 2220),
+                "y": np.random.uniform(-300, 1380),
+                "size": np.random.uniform(500, 900),  # Larger for impact
+                "inner_size": np.random.uniform(120, 280),
+                "color": [
+                    (50, 25, 100, 22),   # Deep cosmic purple
+                    (25, 50, 100, 20),   # Deep space blue  
+                    (100, 25, 70, 24),   # Cosmic magenta
+                ][np.random.randint(0, 3)],
+                "speed": np.random.uniform(0.003, 0.015),
+                "rotation": np.random.uniform(0, 2 * math.pi),
+                "rotation_speed": np.random.uniform(-0.00005, 0.00005)  # Very slow rotation
+            }
+            self.nebula_clouds.append(nebula)
+        
+        # Create distant galaxies for universe scale
+        self.distant_galaxies = []
+        for _ in range(2):  # Perfect cosmic scale
+            galaxy = {
+                "x": np.random.uniform(400, 1520),
+                "y": np.random.uniform(400, 680),
+                "size": np.random.uniform(200, 400),  # Larger for visibility
+                "arms": np.random.randint(3, 5),
+                "core_brightness": np.random.randint(35, 65),
+                "arm_brightness": np.random.randint(15, 40),
+                "rotation": np.random.uniform(0, 2 * math.pi),
+                "rotation_speed": np.random.uniform(-0.00006, 0.00006),
+                "speed": np.random.uniform(0.008, 0.02)
+            }
+            self.distant_galaxies.append(galaxy)
+        
+        # Create subtle atmospheric dust
+        self.space_dust = []
+        for _ in range(100):  # Clean atmospheric effect
+            dust = {
+                "x": np.random.uniform(0, 1920),
+                "y": np.random.uniform(0, 1080),
+                "size": np.random.uniform(0.5, 1.3),
+                "brightness": np.random.randint(8, 25),
+                "speed": np.random.uniform(0.04, 0.12),
+                "drift_x": np.random.uniform(-0.02, 0.02),
+                "drift_y": np.random.uniform(-0.02, 0.02)
+            }
+            self.space_dust.append(dust)
+        
+        # Create one elegant aurora for cosmic magic
+        self.cosmic_auroras = []
+        aurora = {
+            "x": np.random.uniform(-200, 2120),
+            "y": np.random.uniform(-200, 1280),
+            "width": np.random.uniform(400, 800),  # Larger for majesty
+            "height": np.random.uniform(600, 1000),
+            "intensity": np.random.uniform(0.08, 0.2),  # Very subtle
+            "color": [
+                (0, 120, 50, 10),    # Gentle green
+                (50, 90, 120, 8),    # Soft blue
+                (120, 50, 90, 12),   # Soft pink
+            ][np.random.randint(0, 3)],
+            "wave_offset": np.random.uniform(0, 2 * math.pi),
+            "wave_speed": np.random.uniform(0.003, 0.008)  # Very gentle
+        }
+        self.cosmic_auroras.append(aurora)
+
+    def _update_cosmic_background(self) -> None:
+        """Update cosmic background elements with optimized parallax for 1920x1080."""
+        import numpy as np
+        
+        self.cosmic_time += 0.016  # ~60fps time step
+        
+        # Calculate agent movement for parallax
+        movement = np.array([0.0, 0.0])
+        if self.prev_agent_position is not None:
+            movement = self.env.agent_position - self.prev_agent_position
+        self.prev_agent_position = self.env.agent_position.copy()
+        
+        # Update stars with optimized parallax
+        for layer_idx, layer in enumerate(self.starfield_layers):
+            for star in layer:
+                # Subtle parallax effect based on layer
+                parallax_factor = star["speed"] * self.env.zoom_level * (layer_idx + 1) * 0.5
+                star["x"] -= movement[0] * parallax_factor
+                star["y"] -= movement[1] * parallax_factor
+                
+                # Wrap around screen with proper bounds for 1920x1080
+                if star["x"] < -10: 
+                    star["x"] = 1930
+                elif star["x"] > 1930: 
+                    star["x"] = -10
+                if star["y"] < -10: 
+                    star["y"] = 1090
+                elif star["y"] > 1090: 
+                    star["y"] = -10
+        
+        # Update nebula clouds with gentle movement
+        for nebula in self.nebula_clouds:
+            nebula["x"] -= movement[0] * nebula["speed"] * self.env.zoom_level
+            nebula["y"] -= movement[1] * nebula["speed"] * self.env.zoom_level
+            nebula["rotation"] += nebula["rotation_speed"]
+            
+            # Wrap around screen
+            size = nebula["size"]
+            if nebula["x"] < -size:
+                nebula["x"] = 1920 + size
+            elif nebula["x"] > 1920 + size:
+                nebula["x"] = -size
+            if nebula["y"] < -size:
+                nebula["y"] = 1080 + size
+            elif nebula["y"] > 1080 + size:
+                nebula["y"] = -size
+        
+        # Update distant galaxies with slow drift
+        for galaxy in self.distant_galaxies:
+            galaxy["x"] -= movement[0] * galaxy["speed"] * self.env.zoom_level * 0.3
+            galaxy["y"] -= movement[1] * galaxy["speed"] * self.env.zoom_level * 0.3
+            galaxy["rotation"] += galaxy["rotation_speed"]
+            
+            # Wrap around screen
+            if galaxy["x"] < -galaxy["size"]:
+                galaxy["x"] = 1920 + galaxy["size"]
+            elif galaxy["x"] > 1920 + galaxy["size"]:
+                galaxy["x"] = -galaxy["size"]
+            if galaxy["y"] < -galaxy["size"]:
+                galaxy["y"] = 1080 + galaxy["size"]
+            elif galaxy["y"] > 1080 + galaxy["size"]:
+                galaxy["y"] = -galaxy["size"]
+        
+        # Update space dust with natural drift
+        for dust in self.space_dust:
+            dust["x"] -= movement[0] * dust["speed"] * self.env.zoom_level * 2
+            dust["y"] -= movement[1] * dust["speed"] * self.env.zoom_level * 2
+            dust["x"] += dust["drift_x"]
+            dust["y"] += dust["drift_y"]
+            
+            # Wrap around screen
+            if dust["x"] < 0: 
+                dust["x"] = 1920
+            elif dust["x"] > 1920: 
+                dust["x"] = 0
+            if dust["y"] < 0: 
+                dust["y"] = 1080
+            elif dust["y"] > 1080: 
+                dust["y"] = 0
+        
+        # Update cosmic auroras with gentle wave motion
+        for aurora in self.cosmic_auroras:
+            aurora["x"] -= movement[0] * 0.05 * self.env.zoom_level
+            aurora["y"] -= movement[1] * 0.05 * self.env.zoom_level
+            aurora["wave_offset"] += aurora["wave_speed"]
+            
+            # Wrap around screen
+            width, height = aurora["width"], aurora["height"]
+            if aurora["x"] < -width:
+                aurora["x"] = 1920 + width
+            elif aurora["x"] > 1920 + width:
+                aurora["x"] = -width
+            if aurora["y"] < -height:
+                aurora["y"] = 1080 + height
+            elif aurora["y"] > 1080 + height:
+                aurora["y"] = -height
 
     def render(self) -> Optional[np.ndarray]:
         """Render the current state of the environment."""
@@ -47,6 +275,9 @@ class Renderer:
             shake_intensity = min(8, int(self.env.screen_shake_timer * 30))
             shake_offset[0] = random.randint(-shake_intensity, shake_intensity)
             shake_offset[1] = random.randint(-shake_intensity, shake_intensity)
+
+        # Update cosmic background
+        self._update_cosmic_background()
 
         # Perfect cosmic void - maximum atmospheric depth
         self.window.fill((0, 0, 3))  # Pure deep space
@@ -402,7 +633,7 @@ class Renderer:
         except ImportError:
             return
             
-        for layer in self.env.starfield_layers:
+        for layer in self.starfield_layers:
             for star in layer:
                 if not (0 <= star["x"] <= 1920 and 0 <= star["y"] <= 1080):
                     continue
@@ -436,7 +667,7 @@ class Renderer:
         except ImportError:
             return
             
-        for nebula in self.env.nebula_clouds:
+        for nebula in self.nebula_clouds:
             if not (-500 <= nebula["x"] <= 2420 and -500 <= nebula["y"] <= 1580):
                 continue
                 
@@ -472,7 +703,7 @@ class Renderer:
         except ImportError:
             return
             
-        for galaxy in self.env.distant_galaxies:
+        for galaxy in self.distant_galaxies:
             if not (0 <= galaxy["x"] <= 1920 and 0 <= galaxy["y"] <= 1080):
                 continue
                 
@@ -510,7 +741,7 @@ class Renderer:
         except ImportError:
             return
             
-        for dust in self.env.space_dust:
+        for dust in self.space_dust:
             if not (0 <= dust["x"] <= 1920 and 0 <= dust["y"] <= 1080):
                 continue
                 
@@ -533,7 +764,7 @@ class Renderer:
         except ImportError:
             return
             
-        for aurora in self.env.cosmic_auroras:
+        for aurora in self.cosmic_auroras:
             if not (-600 <= aurora["x"] <= 2520 and -600 <= aurora["y"] <= 1680):
                 continue
                 
