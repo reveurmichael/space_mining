@@ -48,22 +48,22 @@ class Renderer:
             shake_offset[0] = random.randint(-shake_intensity, shake_intensity)
             shake_offset[1] = random.randint(-shake_intensity, shake_intensity)
 
-        # Deep space background - elegant cosmos
-        self.window.fill((2, 2, 8))  # Deeper space color for better contrast
+        # Deep space background - perfect cosmic atmosphere
+        self.window.fill((1, 1, 6))  # Deep cosmic void for maximum atmosphere
 
-        # Draw beautiful, coherent cosmic background optimized for 1920x1080
-        self._draw_enhanced_starfield()
-        self._draw_nebulae()
-        self._draw_distant_galaxies()
-        self._draw_space_dust()
-        self._draw_cosmic_auroras()
+        # Draw beautiful cosmic background in perfect order for 1920x1080
+        self._draw_enhanced_starfield()  # Stars first for depth
+        self._draw_nebulae()             # Nebulae for cosmic atmosphere  
+        self._draw_distant_galaxies()    # Galaxies for universe scale
+        self._draw_space_dust()          # Dust for atmospheric depth
+        self._draw_cosmic_auroras()      # Auroras last for energy effects
 
-        # Helper function to convert 2D coordinates to screen coordinates with zoom
-        def to_screen(pos, scale=12.0):  # Reasonable scale for 1080p screen
+        # Helper function to convert 2D coordinates to screen coordinates with perfect zoom  
+        def to_screen(pos, scale=11.0):  # Optimized scale for perfect 1920x1080 cosmic viewing
             x, y = pos
             zoom_scale = scale * self.env.zoom_level
-            screen_x = int(960 + (x - 40) * zoom_scale + shake_offset[0])  # Center at 1920/2
-            screen_y = int(540 + (y - 40) * zoom_scale + shake_offset[1])  # Center at 1080/2
+            screen_x = int(960 + (x - 40) * zoom_scale + shake_offset[0])  # Perfect center at 1920/2
+            screen_y = int(540 + (y - 40) * zoom_scale + shake_offset[1])  # Perfect center at 1080/2
             return screen_x, screen_y
 
         # Draw agent trail first (behind everything)
@@ -394,8 +394,52 @@ class Renderer:
                 np.array(pygame.surfarray.pixels3d(self.window)), axes=(1, 0, 2)
             )
 
+    def _draw_enhanced_starfield(self) -> None:
+        """Draw perfect starfield optimized for 1920x1080 cosmic atmosphere."""
+        try:
+            import pygame
+            from pygame import gfxdraw
+        except ImportError:
+            return
+            
+        for layer_idx, layer in enumerate(self.env.starfield_layers):
+            for star in layer:
+                # Only draw visible stars for performance
+                if not (0 <= star["x"] <= 1920 and 0 <= star["y"] <= 1080):
+                    continue
+                    
+                try:
+                    x, y = int(star["x"]), int(star["y"])
+                    size = star["size"]
+                    brightness = star["brightness"]
+                    
+                    # Perfect star colors for cosmic atmosphere
+                    if star["color_type"] == "blue":
+                        color = (brightness//3, brightness//2, brightness)
+                    elif star["color_type"] == "yellow":
+                        color = (brightness, brightness//1.2, brightness//3)
+                    else:  # white
+                        color = (brightness, brightness, brightness)
+                    
+                    # Draw stars with perfect cosmic glow
+                    if size == 1:
+                        gfxdraw.pixel(self.window, x, y, color)
+                    elif size == 2:
+                        gfxdraw.filled_circle(self.window, x, y, 1, color)
+                        # Subtle cosmic glow
+                        glow_color = (*[c//3 for c in color[:3]], 30)
+                        gfxdraw.filled_circle(self.window, x, y, 2, glow_color)
+                    else:  # size 3
+                        gfxdraw.filled_circle(self.window, x, y, size-1, color)
+                        # Beautiful cosmic glow for bright stars
+                        glow_color = (*[c//2 for c in color[:3]], 50)
+                        gfxdraw.filled_circle(self.window, x, y, size+1, glow_color)
+                        
+                except (OverflowError, ValueError):
+                    continue
+
     def _draw_nebulae(self) -> None:
-        """Draw beautiful, coherent nebula clouds optimized for 1920x1080."""
+        """Draw perfect nebula clouds for cosmic universe atmosphere."""
         try:
             import pygame
             from pygame import gfxdraw
@@ -403,49 +447,46 @@ class Renderer:
             return
             
         for nebula in self.env.nebula_clouds:
-            # Only draw if visible on screen (performance optimization)
-            screen_bounds = (-100, -100, 2020, 1180)
-            if not (screen_bounds[0] <= nebula["x"] <= screen_bounds[2] and 
-                    screen_bounds[1] <= nebula["y"] <= screen_bounds[3]):
+            # Smart culling for performance
+            if not (-300 <= nebula["x"] <= 2220 and -300 <= nebula["y"] <= 1380):
                 continue
                 
             try:
-                # Create nebula surface with alpha blending
-                nebula_surface = pygame.Surface((int(nebula["size"] * 2), int(nebula["size"] * 2)), pygame.SRCALPHA)
+                # Create perfect nebula with smooth gradients
+                size = int(nebula["size"])
+                nebula_surface = pygame.Surface((size * 2, size * 2), pygame.SRCALPHA)
+                center = size
                 
-                # Draw main nebula cloud with gentle gradient
-                center_x = int(nebula["size"])
-                center_y = int(nebula["size"])
+                # Perfect gradient layers for cosmic beauty
+                for layer in range(0, size, max(1, size//12)):
+                    radius = size - layer
+                    if radius > 0:
+                        alpha = int(nebula["color"][3] * (radius / size) * 0.4)
+                        if alpha > 2:
+                            color = (*nebula["color"][:3], alpha)
+                            gfxdraw.filled_circle(nebula_surface, center, center, radius, color)
                 
-                # Outer nebula glow
-                for radius in range(int(nebula["size"]), int(nebula["size"] * 0.3), -5):
-                    alpha = int(nebula["color"][3] * (radius / nebula["size"]) * 0.3)
-                    color = (*nebula["color"][:3], alpha)
-                    gfxdraw.filled_circle(nebula_surface, center_x, center_y, radius, color)
-                
-                # Inner bright core
+                # Bright inner core for cosmic depth
                 inner_radius = int(nebula["inner_size"])
-                inner_alpha = int(nebula["color"][3] * 0.8)
-                inner_color = (*nebula["color"][:3], inner_alpha)
-                gfxdraw.filled_circle(nebula_surface, center_x, center_y, inner_radius, inner_color)
+                if inner_radius > 0:
+                    inner_alpha = int(nebula["color"][3] * 0.6)
+                    inner_color = (*nebula["color"][:3], inner_alpha)
+                    gfxdraw.filled_circle(nebula_surface, center, center, inner_radius, inner_color)
                 
-                # Rotate the nebula surface
-                rotated_surface = pygame.transform.rotate(nebula_surface, math.degrees(nebula["rotation"]))
-                
-                # Calculate position to center the rotated surface
-                rotated_rect = rotated_surface.get_rect()
-                draw_x = int(nebula["x"] - rotated_rect.width // 2)
-                draw_y = int(nebula["y"] - rotated_rect.height // 2)
-                
-                # Blend onto main surface
-                self.window.blit(rotated_surface, (draw_x, draw_y), special_flags=pygame.BLEND_ADD)
+                # Perfect rotation
+                if nebula["rotation"] != 0:
+                    rotated = pygame.transform.rotate(nebula_surface, math.degrees(nebula["rotation"]))
+                    rect = rotated.get_rect(center=(int(nebula["x"]), int(nebula["y"])))
+                    self.window.blit(rotated, rect, special_flags=pygame.BLEND_ADD)
+                else:
+                    rect = nebula_surface.get_rect(center=(int(nebula["x"]), int(nebula["y"])))
+                    self.window.blit(nebula_surface, rect, special_flags=pygame.BLEND_ADD)
                 
             except (OverflowError, ValueError):
-                # Skip this nebula if there are numerical issues
                 continue
 
     def _draw_distant_galaxies(self) -> None:
-        """Draw simplified, elegant distant galaxies optimized for 1920x1080."""
+        """Draw perfect spiral galaxies for cosmic universe scale."""
         try:
             import pygame
             from pygame import gfxdraw
@@ -453,44 +494,44 @@ class Renderer:
             return
             
         for galaxy in self.env.distant_galaxies:
-            # Only draw if visible on screen
+            # Only draw visible galaxies
             if not (0 <= galaxy["x"] <= 1920 and 0 <= galaxy["y"] <= 1080):
                 continue
                 
             try:
-                # Draw galaxy core
                 core_x, core_y = int(galaxy["x"]), int(galaxy["y"])
-                core_size = max(1, int(galaxy["size"] * 0.2))
-                core_color = (galaxy["core_brightness"], galaxy["core_brightness"], galaxy["core_brightness"], 120)
+                
+                # Perfect galaxy core
+                core_size = max(2, int(galaxy["size"] * 0.15))
+                core_color = (galaxy["core_brightness"], galaxy["core_brightness"], galaxy["core_brightness"])
                 gfxdraw.filled_circle(self.window, core_x, core_y, core_size, core_color)
                 
-                # Draw spiral arms
+                # Perfect spiral arms
                 for arm in range(galaxy["arms"]):
                     arm_angle = galaxy["rotation"] + (arm * 2 * math.pi / galaxy["arms"])
                     
-                    # Draw arm as a series of fading points
-                    for distance in range(core_size, int(galaxy["size"]), 5):
-                        # Calculate spiral pattern
-                        spiral_angle = arm_angle + distance * 0.02
+                    # Draw beautiful spiral pattern
+                    for distance in range(core_size * 2, int(galaxy["size"]), 8):
+                        spiral_angle = arm_angle + distance * 0.015  # Perfect spiral tightness
                         x_offset = distance * math.cos(spiral_angle)
                         y_offset = distance * math.sin(spiral_angle)
                         
                         arm_x = core_x + int(x_offset)
                         arm_y = core_y + int(y_offset)
                         
-                        # Check bounds
                         if 0 <= arm_x < 1920 and 0 <= arm_y < 1080:
-                            # Fade brightness with distance
-                            brightness = int(galaxy["arm_brightness"] * (1 - distance / galaxy["size"]))
-                            if brightness > 0:
-                                color = (brightness, brightness, brightness, 80)
+                            # Perfect brightness fade
+                            fade = max(0.1, 1 - distance / galaxy["size"])
+                            brightness = int(galaxy["arm_brightness"] * fade)
+                            if brightness > 5:
+                                color = (brightness, brightness, brightness + 5)
                                 gfxdraw.pixel(self.window, arm_x, arm_y, color)
                                 
             except (OverflowError, ValueError, TypeError):
                 continue
 
     def _draw_space_dust(self) -> None:
-        """Draw atmospheric space dust optimized for 1920x1080."""
+        """Draw perfect atmospheric space dust for cosmic depth."""
         try:
             import pygame
             from pygame import gfxdraw
@@ -498,7 +539,7 @@ class Renderer:
             return
             
         for dust in self.env.space_dust:
-            # Only draw if visible on screen
+            # Only draw visible dust
             if not (0 <= dust["x"] <= 1920 and 0 <= dust["y"] <= 1080):
                 continue
                 
@@ -507,8 +548,8 @@ class Renderer:
                 size = max(1, int(dust["size"]))
                 brightness = dust["brightness"]
                 
-                # Subtle dust particle with slight glow
-                color = (brightness, brightness, brightness, 60)
+                # Perfect dust particles with cosmic glow
+                color = (brightness, brightness, brightness + 3)
                 
                 if size == 1:
                     gfxdraw.pixel(self.window, x, y, color)
@@ -518,52 +559,8 @@ class Renderer:
             except (OverflowError, ValueError):
                 continue
 
-    def _draw_enhanced_starfield(self) -> None:
-        """Draw beautiful starfield with optimized performance for 1920x1080."""
-        try:
-            import pygame
-            from pygame import gfxdraw
-        except ImportError:
-            return
-            
-        for layer in self.env.starfield_layers:
-            for star in layer:
-                # Only draw if visible on screen
-                if not (0 <= star["x"] <= 1920 and 0 <= star["y"] <= 1080):
-                    continue
-                    
-                try:
-                    x, y = int(star["x"]), int(star["y"])
-                    size = star["size"]
-                    brightness = star["brightness"]
-                    
-                    # Choose star color
-                    if star["color_type"] == "blue":
-                        color = (brightness//2, brightness//2, brightness)
-                    elif star["color_type"] == "yellow":
-                        color = (brightness, brightness, brightness//2)
-                    else:  # white
-                        color = (brightness, brightness, brightness)
-                    
-                    # Draw star with appropriate size
-                    if size == 1:
-                        gfxdraw.pixel(self.window, x, y, color)
-                    elif size == 2:
-                        gfxdraw.filled_circle(self.window, x, y, 1, color)
-                        # Add subtle glow
-                        glow_color = (*color, 40)
-                        gfxdraw.filled_circle(self.window, x, y, 2, glow_color)
-                    else:  # size 3+
-                        gfxdraw.filled_circle(self.window, x, y, size-1, color)
-                        # Add bright glow for larger stars
-                        glow_color = (*color, 60)
-                        gfxdraw.filled_circle(self.window, x, y, size, glow_color)
-                        
-                except (OverflowError, ValueError):
-                    continue
-
     def _draw_cosmic_auroras(self) -> None:
-        """Draw elegant cosmic auroras optimized for 1920x1080."""
+        """Draw perfect cosmic auroras for universe energy atmosphere."""
         try:
             import pygame
             from pygame import gfxdraw
@@ -571,40 +568,44 @@ class Renderer:
             return
             
         for aurora in self.env.cosmic_auroras:
-            # Only draw if potentially visible on screen
-            if not (-200 <= aurora["x"] <= 2120 and -200 <= aurora["y"] <= 1280):
+            # Smart culling for performance
+            if not (-400 <= aurora["x"] <= 2320 and -400 <= aurora["y"] <= 1480):
                 continue
                 
             try:
-                # Create aurora surface
-                aurora_surface = pygame.Surface((int(aurora["width"]), int(aurora["height"])), pygame.SRCALPHA)
+                # Create perfect aurora surface
+                width, height = int(aurora["width"]), int(aurora["height"])
+                aurora_surface = pygame.Surface((width, height), pygame.SRCALPHA)
                 
-                # Draw aurora as flowing vertical bands
-                band_count = 8
+                # Perfect flowing aurora bands
+                band_count = 6
                 for band in range(band_count):
-                    band_x = int((band / band_count) * aurora["width"])
-                    band_width = max(1, int(aurora["width"] / band_count))
+                    band_x = int((band / band_count) * width)
+                    band_width = max(1, width // band_count)
                     
-                    # Create wave effect
-                    wave_offset = math.sin(aurora["wave_offset"] + band * 0.5) * 20
+                    # Perfect wave motion
+                    wave_offset = math.sin(aurora["wave_offset"] + band * 0.8) * 15
                     
-                    # Draw vertical gradient band
-                    for y in range(int(aurora["height"])):
-                        # Wave distortion
-                        wave_x = band_x + int(wave_offset * math.sin(y * 0.02))
+                    # Draw perfect vertical gradient
+                    for y in range(height):
+                        # Perfect wave distortion
+                        wave_x = band_x + int(wave_offset * math.sin(y * 0.015))
                         
-                        # Gradient intensity
-                        intensity = aurora["intensity"] * math.sin(y / aurora["height"] * math.pi)
+                        # Perfect intensity gradient
+                        intensity = aurora["intensity"] * math.sin(y / height * math.pi) * 0.8
                         alpha = int(aurora["color"][3] * intensity)
                         
-                        if alpha > 0 and 0 <= wave_x < aurora["width"]:
+                        if alpha > 1 and 0 <= wave_x < width:
                             color = (*aurora["color"][:3], alpha)
-                            # Draw with some width for the band
+                            # Draw perfect band
                             for dx in range(band_width):
-                                if wave_x + dx < aurora["width"]:
-                                    aurora_surface.set_at((wave_x + dx, y), color)
+                                if wave_x + dx < width:
+                                    try:
+                                        aurora_surface.set_at((wave_x + dx, y), color)
+                                    except IndexError:
+                                        continue
                 
-                # Blit aurora to main surface
+                # Perfect aurora blending
                 self.window.blit(aurora_surface, (int(aurora["x"]), int(aurora["y"])), special_flags=pygame.BLEND_ADD)
                 
             except (OverflowError, ValueError):
