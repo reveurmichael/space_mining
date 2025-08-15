@@ -92,10 +92,14 @@ def _gather_env_config_dict(env: Any) -> Dict[str, Any]:
     """Extract environment configuration parameters.
     
     Args:
-        env: Environment instance.
+        env: Environment instance (may be wrapped).
         
     Returns:
         Dictionary of environment configuration.
+        
+    Note:
+        Uses env.unwrapped to access attributes directly from the base environment,
+        avoiding Gymnasium v1.0+ deprecation warnings when accessing wrapped envs.
     """
     cfg: Dict[str, Any] = {}
     config_keys = (
@@ -118,8 +122,9 @@ def _gather_env_config_dict(env: Any) -> Dict[str, Any]:
     )
     
     for key in config_keys:
-        if hasattr(env, key):
-            cfg[key] = getattr(env, key)
+        # Use env.unwrapped to avoid deprecation warnings in Gymnasium v1.0+
+        if hasattr(env.unwrapped, key):
+            cfg[key] = getattr(env.unwrapped, key)
     return cfg
 
 
