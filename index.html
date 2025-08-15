@@ -1426,12 +1426,18 @@ print(f"Environment initialized with {len(env.asteroid_positions)} asteroids")</
 
       // Initialize GIFs
       gifs.forEach(img => {
-        // Set up lazy loading
-        if (img.src) {
+        // Set up lazy loading - preserve existing data-src, don't remove src if it exists
+        if (img.src && !img.dataset.src) {
           img.dataset.src = img.src;
           img.removeAttribute('src');
         }
-        img.style.opacity = '0';
+        
+        // If data-src exists but no src, start with opacity 0 for lazy loading
+        if (img.dataset.src && !img.src) {
+          img.style.opacity = '0';
+        } else {
+          img.style.opacity = '1'; // If src already exists, show it
+        }
         img.style.transition = 'opacity 0.3s ease';
 
         gifObserver.observe(img);
