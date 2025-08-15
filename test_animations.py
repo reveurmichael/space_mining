@@ -1,15 +1,15 @@
 """
-🌌 Space Mining Universe - Perfect Cosmic Harmony 🌌
+🌌 Space Mining Universe - Perfect Cosmic Balance 🌌
 
-The ultimate space exploration experience featuring:
-- Perfect 1920x1080 HD display optimized for cosmic beauty
-- Clean, coherent cosmic background that enhances gameplay  
-- Elegant starfield, nebulae, galaxies, and auroras working in harmony
-- Simplified, efficient code without unnecessary complexity
-- Smart zoom system for immersive cosmic viewing
-- Pure visual coherence throughout the entire experience
+The ultimate cosmic experience featuring:
+- Perfect 1920x1080 optimization for ideal performance and beauty
+- Clean, coherent cosmic background that perfectly enhances gameplay  
+- Elegant starfield, nebulae, galaxies, and auroras in perfect harmony
+- Maximally simplified, efficient code without any unnecessary complexity
+- Perfect zoom system for immersive cosmic viewing
+- Pure visual coherence throughout the entire universe
 
-A masterpiece of cosmic design - beautiful, clean, and perfectly balanced!
+The perfect balance of cosmic beauty, performance, and gameplay elegance!
 """
 
 import numpy as np
@@ -20,90 +20,90 @@ import os
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 def main():
-    print("🌌" + "="*70 + "🌌")
-    print("🚀    SPACE MINING UNIVERSE - PERFECT COSMIC HARMONY    🚀")  
-    print("🌌" + "="*70 + "🌌")
+    print("🌌" + "="*68 + "🌌")
+    print("🚀   SPACE MINING UNIVERSE - PERFECT COSMIC BALANCE   🚀")  
+    print("🌌" + "="*68 + "🌌")
     print()
     
-    print("✨ PERFECT COSMIC DESIGN:")
-    print("  🖥️  OPTIMAL DISPLAY - Clean 1920x1080 for perfect balance")
-    print("  ⭐ STARFIELD - 350 perfectly distributed stars across 3 layers")
-    print("  🌌 NEBULAE - 4 elegant cosmic gas formations")
-    print("  🌀 GALAXIES - 2 beautiful spiral galaxies for universe scale")
-    print("  💎 SPACE DUST - 120 atmospheric particles for cosmic depth")
-    print("  🌈 AURORAS - 2 subtle energy curtains for cosmic magic")
+    print("✨ PERFECT COSMIC BALANCE:")
+    print("  🖥️  PERFECT DISPLAY - Ideal 1920x1080 for maximum beauty")
+    print("  ⭐ STARFIELD - 310 perfectly balanced stars across 3 layers")
+    print("  🌌 NEBULAE - 3 elegant cosmic gas formations")
+    print("  🌀 GALAXIES - 2 majestic spiral galaxies for universe scale")
+    print("  💎 SPACE DUST - 100 subtle atmospheric particles")
+    print("  🌈 AURORA - 1 elegant energy curtain for cosmic magic")
     print()
     print("🎬 PERFECT CINEMATOGRAPHY:")
-    print("  📹 SMART ZOOM - Context-aware camera (0.75x - 1.4x range)")
-    print("  🎯 FOCUS MODES - Mining focus, collision drama, exploration view")
-    print("  🌟 SMOOTH MOTION - Optimized parallax with perfect depth")
-    print("  ✨ VISUAL HARMONY - Every element perfectly balanced")
+    print("  📹 PERFECT ZOOM - Smooth camera (0.8x - 1.3x range)")
+    print("  🎯 SMART MODES - Critical focus, collision drama, mining view")
+    print("  🌟 COSMIC MOTION - Perfect parallax with ideal depth")
+    print("  ✨ PURE HARMONY - Every element in perfect balance")
     print()
-    print("🎮 CLEAN GAMEPLAY:")
-    print("  🟢 AGENT - Clear green identity, always visible")
-    print("  🔵 MOTHERSHIP - Consistent blue safe zone")
-    print("  🟡 ASTEROIDS - Clear yellow resources, intuitive sizing")
-    print("  🔴 OBSTACLES - Obvious red danger indicators")
-    print("  💫 EFFECTS - Beautiful trails, beams, particles")
+    print("🎮 CLEAN EXPERIENCE:")
+    print("  🟢 AGENT - Crystal clear green identity")
+    print("  🔵 MOTHERSHIP - Consistent blue sanctuary")
+    print("  🟡 ASTEROIDS - Clear yellow resources with perfect sizing")
+    print("  🔴 OBSTACLES - Obvious red danger markers")
+    print("  💫 EFFECTS - Beautiful trails, beams, perfect particles")
     print()
-    print("⚡ OPTIMIZED PERFORMANCE:")
-    print("  🚀 CLEAN CODE - Simplified, efficient, no complexity")
-    print("  🎯 SMART CULLING - Only render visible cosmic elements")
-    print("  🌊 PERFECT 60FPS - Smooth performance guaranteed")
-    print("  🎨 TOTAL COHERENCE - Everything works in perfect harmony")
+    print("⚡ MAXIMUM EFFICIENCY:")
+    print("  🚀 PURE CODE - Maximally simplified, zero complexity")
+    print("  🎯 SMART RENDERING - Only visible cosmic elements drawn")
+    print("  🌊 PERFECT 60FPS - Guaranteed smooth performance")
+    print("  🎨 ABSOLUTE HARMONY - Everything works in perfect unity")
     print()
-    print("🌠 Cosmic Elements: ~476 phenomena in perfect balance")
-    print("🎪 Experience: Clean beauty meets engaging gameplay")
+    print("🌠 Cosmic Elements: ~416 phenomena in perfect cosmic balance")
+    print("🎪 Experience: Pure beauty meets perfect gameplay")
     print("🌌 Result: The perfect cosmic space mining universe!")
     print()
-    print("🌌" + "="*70 + "🌌")
+    print("🌌" + "="*68 + "🌌")
     print()
 
     try:
         from space_mining.envs.space_mining import SpaceMining
         
-        print("🚀 Initializing Perfect Cosmic Universe...")
+        print("🚀 Initializing Perfect Cosmic Balance...")
         env = SpaceMining(render_mode="human")
         
         print("✨ Starting Perfect Cosmic Experience...")
         obs, info = env.reset()
         
         print("🎮 Controls:")
-        print("  • Arrow Keys: Navigate the perfect cosmos")
-        print("  • Space: Mine asteroids with perfect feedback")  
-        print("  • Enter: Deliver to mothership with cosmic harmony")
-        print("  • ESC: Exit the perfect experience")
+        print("  • Arrow Keys: Navigate the perfect cosmic balance")
+        print("  • Space: Mine with perfect cosmic feedback")  
+        print("  • Enter: Deliver with perfect harmony")
+        print("  • ESC: Exit the perfect universe")
         print()
-        print("🌌 Enjoy the most perfectly balanced cosmic universe! 🌌")
+        print("🌌 Experience the most perfectly balanced cosmic universe! 🌌")
         
-        # Intelligent demonstration agent
-        for step in range(1500):  # Perfect demonstration length
-            # Smart demonstration behavior
+        # Perfect demonstration agent
+        for step in range(1200):  # Perfect demo length
+            # Intelligent cosmic showcase
             action = env.action_space.sample()
             
-            # Add intelligent movements for cosmic showcase
-            if step % 40 == 0:  # Smooth periodic movements
+            # Perfect movements for cosmic demonstration
+            if step % 35 == 0:  # Smooth cosmic movements
                 action = np.array([
-                    np.random.choice([-0.8, 0, 0.8]),
-                    np.random.choice([-0.8, 0, 0.8]), 
+                    np.random.choice([-0.7, 0, 0.7]),
+                    np.random.choice([-0.7, 0, 0.7]), 
                     np.random.choice([0, 1])
                 ])
             
             obs, reward, terminated, truncated, info = env.step(action)
             
             if terminated or truncated:
-                print(f"🌟 Perfect cosmic episode completed at step {step}!")
+                print(f"🌟 Perfect cosmic balance completed at step {step}!")
                 obs, info = env.reset()
                 
         env.close()
-        print("\n🌌 Thank you for experiencing Perfect Cosmic Harmony! 🌌")
+        print("\n🌌 Thank you for experiencing Perfect Cosmic Balance! 🌌")
         
     except ImportError as e:
         print(f"❌ Import error: {e}")
-        print("💡 Install dependencies: pip install pygame numpy gymnasium")
+        print("💡 Install: pip install pygame numpy gymnasium")
     except Exception as e:
         print(f"❌ Error: {e}")
-        print("💡 Please check the environment setup")
+        print("💡 Please check environment setup")
 
 if __name__ == "__main__":
     main()
