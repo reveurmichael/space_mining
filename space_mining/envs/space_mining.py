@@ -62,35 +62,17 @@ class SpaceMining(gym.Env):
         self.screen_shake_timer = 0.0
         self.mining_beam_offset = 0.0
         
-        # Enhanced cosmic background system
+        # Simplified cosmic background system
         self.starfield_layers = []
         self.nebula_clouds = []
         self.distant_galaxies = []
         self.space_dust = []
-        self.shooting_stars = []  # Spectacular meteors
-        self.cosmic_auroras = []  # Energy curtains
-        self.pulsars = []  # Neutron stars
-        self.cosmic_storms = []  # NEW: Spectacular storm systems
-        self.wormholes = []  # NEW: Dimensional portals
-        self.cosmic_lightning = []  # NEW: Energy discharges
-        self.black_holes = []  # NEW: Massive gravitational monsters
-        self.quasars = []  # NEW: Ultra-bright galactic nuclei
-        self.cosmic_ribbons = []  # NEW: Flowing energy streams
-        self.supernovas = []  # NEW: Explosive stellar deaths
-        self.asteroid_belts = []  # NEW: Dense asteroid formations
-        self.cosmic_winds = []  # NEW: Flowing particle streams
-        self.plasma_fields = []  # NEW: Ionized gas regions
+        self.cosmic_auroras = []
         self.cosmic_time = 0.0
         
-        # MASSIVE screen size for ultimate cosmic immersion
-        self.window_width = 3440
-        self.window_height = 1440
-        
-        # Add spectacular new cosmic phenomena
-        self.supernovas = []  # NEW: Explosive stellar deaths
-        self.asteroid_belts = []  # NEW: Dense asteroid formations
-        self.cosmic_winds = []  # NEW: Flowing particle streams
-        self.plasma_fields = []  # NEW: Ionized gas regions
+        # Enhanced screen size for ultimate immersion
+        self.window_width = 3840  # 4K width
+        self.window_height = 2160  # 4K height
         
         self._initialize_cosmic_background()
         
