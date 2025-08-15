@@ -67,9 +67,12 @@ class SpaceMining(gym.Env):
         self.nebula_clouds = []
         self.distant_galaxies = []
         self.space_dust = []
-        self.shooting_stars = []  # New spectacular feature
-        self.cosmic_auroras = []  # New cosmic auroras
-        self.pulsars = []  # New pulsing neutron stars
+        self.shooting_stars = []  # Spectacular meteors
+        self.cosmic_auroras = []  # Energy curtains
+        self.pulsars = []  # Neutron stars
+        self.cosmic_storms = []  # NEW: Spectacular storm systems
+        self.wormholes = []  # NEW: Dimensional portals
+        self.cosmic_lightning = []  # NEW: Energy discharges
         self.cosmic_time = 0.0
         self._initialize_cosmic_background()
         
@@ -617,15 +620,15 @@ class SpaceMining(gym.Env):
         # Reset cosmic time
         self.cosmic_time = 0.0
         
-        # Create enhanced starfield layers for larger screen
+        # Create enhanced starfield layers for ultra-wide screen
         self.starfield_layers = []
         
         # Layer 1: Distant background stars (very slow, subtle)
         layer1_stars = []
-        for _ in range(200):  # More stars for larger screen
+        for _ in range(300):  # More stars for ultra-wide screen
             star = {
-                "x": np.random.uniform(0, 1440),
-                "y": np.random.uniform(0, 1080),
+                "x": np.random.uniform(0, 1920),
+                "y": np.random.uniform(0, 1200),
                 "size": 1,
                 "brightness": np.random.randint(30, 80),
                 "speed": 0.1,
@@ -638,10 +641,10 @@ class SpaceMining(gym.Env):
         
         # Layer 2: Medium distance stars
         layer2_stars = []
-        for _ in range(120):
+        for _ in range(180):
             star = {
-                "x": np.random.uniform(0, 1440),
-                "y": np.random.uniform(0, 1080),
+                "x": np.random.uniform(0, 1920),
+                "y": np.random.uniform(0, 1200),
                 "size": 2,
                 "brightness": np.random.randint(60, 150),
                 "speed": 0.3,
@@ -654,10 +657,10 @@ class SpaceMining(gym.Env):
         
         # Layer 3: Bright foreground stars
         layer3_stars = []
-        for _ in range(60):
+        for _ in range(90):
             star = {
-                "x": np.random.uniform(0, 1440),
-                "y": np.random.uniform(0, 1080),
+                "x": np.random.uniform(0, 1920),
+                "y": np.random.uniform(0, 1200),
                 "size": np.random.randint(3, 5),
                 "brightness": np.random.randint(100, 255),
                 "speed": 0.6,
@@ -670,10 +673,10 @@ class SpaceMining(gym.Env):
         
         # Create spectacular nebula clouds
         self.nebula_clouds = []
-        for _ in range(12):  # More nebulae for larger screen
+        for _ in range(16):  # More nebulae for ultra-wide screen
             nebula = {
-                "x": np.random.uniform(-300, 1740),
-                "y": np.random.uniform(-300, 1380),
+                "x": np.random.uniform(-400, 2320),
+                "y": np.random.uniform(-400, 1600),
                 "size": np.random.uniform(400, 1200),
                 "inner_size": np.random.uniform(0.3, 0.7),  # For layered effect
                 "color": np.random.choice([
@@ -696,10 +699,10 @@ class SpaceMining(gym.Env):
         
         # Create distant galaxies with enhanced detail
         self.distant_galaxies = []
-        for _ in range(8):  # More galaxies for epic feel
+        for _ in range(12):  # More galaxies for epic ultra-wide feel
             galaxy = {
-                "x": np.random.uniform(0, 1440),
-                "y": np.random.uniform(0, 1080),
+                "x": np.random.uniform(0, 1920),
+                "y": np.random.uniform(0, 1200),
                 "size": np.random.uniform(100, 300),
                 "brightness": np.random.randint(12, 35),
                 "speed": np.random.uniform(0.01, 0.06),
@@ -715,10 +718,10 @@ class SpaceMining(gym.Env):
         self.space_dust = []
         
         # Fine cosmic dust
-        for _ in range(300):
+        for _ in range(450):
             dust = {
-                "x": np.random.uniform(0, 1440),
-                "y": np.random.uniform(0, 1080),
+                "x": np.random.uniform(0, 1920),
+                "y": np.random.uniform(0, 1200),
                 "size": np.random.uniform(0.3, 1.0),
                 "brightness": np.random.randint(8, 25),
                 "speed": np.random.uniform(0.5, 2.0),
@@ -729,10 +732,10 @@ class SpaceMining(gym.Env):
             self.space_dust.append(dust)
         
         # Larger dust particles
-        for _ in range(80):
+        for _ in range(120):
             dust = {
-                "x": np.random.uniform(0, 1440),
-                "y": np.random.uniform(0, 1080),
+                "x": np.random.uniform(0, 1920),
+                "y": np.random.uniform(0, 1200),
                 "size": np.random.uniform(1.0, 2.5),
                 "brightness": np.random.randint(15, 40),
                 "speed": np.random.uniform(0.8, 1.5),
@@ -749,10 +752,10 @@ class SpaceMining(gym.Env):
         
         # Create cosmic auroras (energy fields)
         self.cosmic_auroras = []
-        for _ in range(6):  # Ethereal energy curtains
+        for _ in range(8):  # More ethereal energy curtains for ultra-wide
             aurora = {
-                "x": np.random.uniform(-200, 1640),
-                "y": np.random.uniform(-200, 1280),
+                "x": np.random.uniform(-300, 2220),
+                "y": np.random.uniform(-300, 1500),
                 "width": np.random.uniform(150, 400),
                 "height": np.random.uniform(300, 800),
                 "intensity": np.random.uniform(0.3, 0.8),
@@ -771,10 +774,10 @@ class SpaceMining(gym.Env):
         
         # Create pulsars (neutron stars)
         self.pulsars = []
-        for _ in range(4):  # Rare, spectacular pulsing stars
+        for _ in range(6):  # More spectacular pulsing stars for ultra-wide
             pulsar = {
-                "x": np.random.uniform(0, 1440),
-                "y": np.random.uniform(0, 1080),
+                "x": np.random.uniform(0, 1920),
+                "y": np.random.uniform(0, 1200),
                 "pulse_period": np.random.uniform(0.5, 2.0),
                 "pulse_offset": np.random.uniform(0, 2 * math.pi),
                 "brightness": np.random.randint(150, 255),
@@ -787,7 +790,44 @@ class SpaceMining(gym.Env):
                     (255, 200, 255)   # Pink pulsar
                 ])
             }
-                         self.pulsars.append(pulsar)
+                                                   self.pulsars.append(pulsar)
+        
+        # Create spectacular cosmic storms
+        self.cosmic_storms = []
+        for _ in range(3):  # Rare, massive storm systems
+            storm = {
+                "x": np.random.uniform(0, 1920),
+                "y": np.random.uniform(0, 1200),
+                "size": np.random.uniform(300, 600),
+                "intensity": np.random.uniform(0.4, 0.9),
+                "rotation": np.random.uniform(0, 2 * math.pi),
+                "rotation_speed": np.random.uniform(0.01, 0.03),
+                "lightning_timer": 0.0,
+                "color": np.random.choice([
+                    (255, 100, 0, 40),   # Orange storm
+                    (255, 0, 100, 35),   # Red storm
+                    (100, 0, 255, 40),   # Blue storm
+                    (255, 255, 0, 35)    # Yellow storm
+                ])
+            }
+            self.cosmic_storms.append(storm)
+        
+        # Create mystical wormholes
+        self.wormholes = []
+        for _ in range(2):  # Rare dimensional portals
+            wormhole = {
+                "x": np.random.uniform(200, 1720),
+                "y": np.random.uniform(200, 1000),
+                "size": np.random.uniform(80, 150),
+                "rotation": np.random.uniform(0, 2 * math.pi),
+                "rotation_speed": np.random.uniform(0.02, 0.05),
+                "pulse_offset": np.random.uniform(0, 2 * math.pi),
+                "distortion_rings": 8
+            }
+            self.wormholes.append(wormhole)
+        
+        # Initialize cosmic lightning system
+        self.cosmic_lightning = []
 
     def _spawn_shooting_star(self) -> None:
         """Spawn a spectacular shooting star."""
@@ -795,24 +835,24 @@ class SpaceMining(gym.Env):
         side = np.random.choice(['top', 'left', 'right', 'bottom'])
         
         if side == 'top':
-            start_x = np.random.uniform(0, 1440)
+            start_x = np.random.uniform(0, 1920)
             start_y = -50
-            end_x = np.random.uniform(0, 1440)
-            end_y = 1130
+            end_x = np.random.uniform(0, 1920)
+            end_y = 1250
         elif side == 'left':
             start_x = -50
-            start_y = np.random.uniform(0, 1080)
-            end_x = 1490
-            end_y = np.random.uniform(0, 1080)
+            start_y = np.random.uniform(0, 1200)
+            end_x = 1970
+            end_y = np.random.uniform(0, 1200)
         elif side == 'right':
-            start_x = 1490
-            start_y = np.random.uniform(0, 1080)
+            start_x = 1970
+            start_y = np.random.uniform(0, 1200)
             end_x = -50
-            end_y = np.random.uniform(0, 1080)
+            end_y = np.random.uniform(0, 1200)
         else:  # bottom
-            start_x = np.random.uniform(0, 1440)
-            start_y = 1130
-            end_x = np.random.uniform(0, 1440)
+            start_x = np.random.uniform(0, 1920)
+            start_y = 1250
+            end_x = np.random.uniform(0, 1920)
             end_y = -50
         
         shooting_star = {
@@ -833,6 +873,44 @@ class SpaceMining(gym.Env):
             "age": 0.0
         }
         self.shooting_stars.append(shooting_star)
+
+    def _spawn_cosmic_lightning(self, storm) -> None:
+        """Spawn spectacular cosmic lightning from storm systems."""
+        # Create branching lightning bolt
+        for _ in range(np.random.randint(1, 4)):  # 1-3 bolts per discharge
+            lightning = {
+                "start_x": storm["x"] + np.random.uniform(-storm["size"]/3, storm["size"]/3),
+                "start_y": storm["y"] + np.random.uniform(-storm["size"]/3, storm["size"]/3),
+                "end_x": storm["x"] + np.random.uniform(-storm["size"], storm["size"]),
+                "end_y": storm["y"] + np.random.uniform(-storm["size"], storm["size"]),
+                "intensity": np.random.uniform(0.7, 1.0),
+                "color": np.random.choice([
+                    (255, 255, 255),  # White lightning
+                    (150, 150, 255),  # Blue lightning  
+                    (255, 255, 150),  # Yellow lightning
+                    (255, 150, 255)   # Purple lightning
+                ]),
+                "thickness": np.random.randint(2, 5),
+                "lifetime": np.random.uniform(0.1, 0.3),
+                "age": 0.0,
+                "branches": []
+            }
+            
+            # Add lightning branches
+            for _ in range(np.random.randint(0, 3)):
+                mid_x = (lightning["start_x"] + lightning["end_x"]) / 2 + np.random.uniform(-50, 50)
+                mid_y = (lightning["start_y"] + lightning["end_y"]) / 2 + np.random.uniform(-50, 50)
+                branch_end_x = mid_x + np.random.uniform(-100, 100)
+                branch_end_y = mid_y + np.random.uniform(-100, 100)
+                
+                lightning["branches"].append({
+                    "start_x": mid_x,
+                    "start_y": mid_y,
+                    "end_x": branch_end_x,
+                    "end_y": branch_end_y
+                })
+            
+            self.cosmic_lightning.append(lightning)
 
     def _update_cosmic_background(self) -> None:
         """Update cosmic background elements with parallax and animations."""
@@ -858,15 +936,15 @@ class SpaceMining(gym.Env):
                 star["x"] += star.get("drift_x", 0) * 0.3
                 star["y"] += star.get("drift_y", 0) * 0.3
                 
-                # Wrap around with buffer zone for larger screen
-                if star["x"] < -60:
-                    star["x"] = 1500
-                elif star["x"] > 1500:
-                    star["x"] = -60
-                if star["y"] < -60:
-                    star["y"] = 1140
-                elif star["y"] > 1140:
-                    star["y"] = -60
+                # Wrap around with buffer zone for ultra-wide screen
+                if star["x"] < -80:
+                    star["x"] = 2000
+                elif star["x"] > 2000:
+                    star["x"] = -80
+                if star["y"] < -80:
+                    star["y"] = 1280
+                elif star["y"] > 1280:
+                    star["y"] = -80
         
         # Update nebula clouds
         for nebula in self.nebula_clouds:
@@ -877,14 +955,14 @@ class SpaceMining(gym.Env):
             # Slow rotation
             nebula["rotation"] += nebula["rotation_speed"]
             
-            # Wrap around for larger screen
+            # Wrap around for ultra-wide screen
             if nebula["x"] < -nebula["size"]:
-                nebula["x"] = 1440 + nebula["size"]
-            elif nebula["x"] > 1440 + nebula["size"]:
+                nebula["x"] = 1920 + nebula["size"]
+            elif nebula["x"] > 1920 + nebula["size"]:
                 nebula["x"] = -nebula["size"]
             if nebula["y"] < -nebula["size"]:
-                nebula["y"] = 1080 + nebula["size"]
-            elif nebula["y"] > 1080 + nebula["size"]:
+                nebula["y"] = 1200 + nebula["size"]
+            elif nebula["y"] > 1200 + nebula["size"]:
                 nebula["y"] = -nebula["size"]
         
         # Update distant galaxies
@@ -896,14 +974,14 @@ class SpaceMining(gym.Env):
             # Rotation
             galaxy["rotation"] += galaxy["rotation_speed"]
             
-            # Wrap around for larger screen
+            # Wrap around for ultra-wide screen
             if galaxy["x"] < -galaxy["size"]:
-                galaxy["x"] = 1440 + galaxy["size"]
-            elif galaxy["x"] > 1440 + galaxy["size"]:
+                galaxy["x"] = 1920 + galaxy["size"]
+            elif galaxy["x"] > 1920 + galaxy["size"]:
                 galaxy["x"] = -galaxy["size"]
             if galaxy["y"] < -galaxy["size"]:
-                galaxy["y"] = 1080 + galaxy["size"]
-            elif galaxy["y"] > 1080 + galaxy["size"]:
+                galaxy["y"] = 1200 + galaxy["size"]
+            elif galaxy["y"] > 1200 + galaxy["size"]:
                 galaxy["y"] = -galaxy["size"]
         
         # Update space dust
@@ -916,15 +994,15 @@ class SpaceMining(gym.Env):
             dust["x"] += dust["drift_x"]
             dust["y"] += dust["drift_y"]
             
-            # Wrap around for larger screen
-            if dust["x"] < -15:
-                dust["x"] = 1455
-            elif dust["x"] > 1455:
-                dust["x"] = -15
-            if dust["y"] < -15:
-                dust["y"] = 1095
-            elif dust["y"] > 1095:
-                dust["y"] = -15
+            # Wrap around for ultra-wide screen
+            if dust["x"] < -20:
+                dust["x"] = 1940
+            elif dust["x"] > 1940:
+                dust["x"] = -20
+            if dust["y"] < -20:
+                dust["y"] = 1220
+            elif dust["y"] > 1220:
+                dust["y"] = -20
         
         # Update spectacular shooting stars
         for shooting_star in self.shooting_stars[:]:  # Use slice to allow removal
@@ -957,15 +1035,15 @@ class SpaceMining(gym.Env):
             # Update wave animation
             aurora["wave_offset"] += aurora["wave_speed"]
             
-            # Wrap around
-            if aurora["x"] < -aurora["width"] - 200:
-                aurora["x"] = 1440 + 200
-            elif aurora["x"] > 1440 + 200:
-                aurora["x"] = -aurora["width"] - 200
-            if aurora["y"] < -aurora["height"] - 200:
-                aurora["y"] = 1080 + 200
-            elif aurora["y"] > 1080 + 200:
-                aurora["y"] = -aurora["height"] - 200
+            # Wrap around for ultra-wide screen
+            if aurora["x"] < -aurora["width"] - 300:
+                aurora["x"] = 1920 + 300
+            elif aurora["x"] > 1920 + 300:
+                aurora["x"] = -aurora["width"] - 300
+            if aurora["y"] < -aurora["height"] - 300:
+                aurora["y"] = 1200 + 300
+            elif aurora["y"] > 1200 + 300:
+                aurora["y"] = -aurora["height"] - 300
         
         # Update pulsars
         for pulsar in self.pulsars:
@@ -976,15 +1054,68 @@ class SpaceMining(gym.Env):
             # Rotate beam
             pulsar["beam_angle"] += pulsar["rotation_speed"]
             
+            # Wrap around for ultra-wide screen
+            if pulsar["x"] < -100:
+                pulsar["x"] = 2020
+            elif pulsar["x"] > 2020:
+                pulsar["x"] = -100
+            if pulsar["y"] < -100:
+                pulsar["y"] = 1300
+            elif pulsar["y"] > 1300:
+                pulsar["y"] = -100
+        
+        # Update spectacular cosmic storms
+        for storm in self.cosmic_storms:
+            # Slow drift
+            storm["x"] -= movement[0] * 0.005 * self.zoom_level
+            storm["y"] -= movement[1] * 0.005 * self.zoom_level
+            
+            # Rotation
+            storm["rotation"] += storm["rotation_speed"]
+            
+            # Lightning generation
+            storm["lightning_timer"] += 0.016
+            if storm["lightning_timer"] > np.random.uniform(0.5, 2.0):
+                storm["lightning_timer"] = 0.0
+                # Spawn lightning from storm
+                self._spawn_cosmic_lightning(storm)
+            
             # Wrap around
-            if pulsar["x"] < -50:
-                pulsar["x"] = 1490
-            elif pulsar["x"] > 1490:
-                pulsar["x"] = -50
-            if pulsar["y"] < -50:
-                pulsar["y"] = 1130
-            elif pulsar["y"] > 1130:
-                pulsar["y"] = -50
+            if storm["x"] < -storm["size"]:
+                storm["x"] = 1920 + storm["size"]
+            elif storm["x"] > 1920 + storm["size"]:
+                storm["x"] = -storm["size"]
+            if storm["y"] < -storm["size"]:
+                storm["y"] = 1200 + storm["size"]
+            elif storm["y"] > 1200 + storm["size"]:
+                storm["y"] = -storm["size"]
+        
+        # Update mystical wormholes
+        for wormhole in self.wormholes:
+            # Minimal drift
+            wormhole["x"] -= movement[0] * 0.002 * self.zoom_level
+            wormhole["y"] -= movement[1] * 0.002 * self.zoom_level
+            
+            # Rotation
+            wormhole["rotation"] += wormhole["rotation_speed"]
+            
+            # Wrap around
+            if wormhole["x"] < -wormhole["size"]:
+                wormhole["x"] = 1920 + wormhole["size"]
+            elif wormhole["x"] > 1920 + wormhole["size"]:
+                wormhole["x"] = -wormhole["size"]
+            if wormhole["y"] < -wormhole["size"]:
+                wormhole["y"] = 1200 + wormhole["size"]
+            elif wormhole["y"] > 1200 + wormhole["size"]:
+                wormhole["y"] = -wormhole["size"]
+        
+        # Update cosmic lightning
+        for lightning in self.cosmic_lightning[:]:
+            lightning["age"] += 0.016
+            lightning["intensity"] *= 0.95  # Fade quickly
+            
+            if lightning["age"] > lightning["lifetime"] or lightning["intensity"] < 0.1:
+                self.cosmic_lightning.remove(lightning)
 
     def _update_zoom(self) -> None:
         """Update dynamic zoom system."""

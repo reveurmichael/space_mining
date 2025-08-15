@@ -30,11 +30,11 @@ class Renderer:
             # For headless rendering, avoid creating a window
             if self.env.render_mode == "human":
                 pygame.display.init()
-                self.window = pygame.display.set_mode((1440, 1080))  # 4:3 HD ratio for cinematic feel
-                pygame.display.set_caption("🚀 Space Mining Universe - Cosmic Explorer")
+                self.window = pygame.display.set_mode((1920, 1200))  # Ultra-wide for maximum cosmic immersion
+                pygame.display.set_caption("🌌 SPACE MINING UNIVERSE - ULTIMATE COSMIC EXPLORER 🌌")
             else:
                 # Off-screen surface for rgb_array mode
-                self.window = pygame.Surface((1440, 1080))
+                self.window = pygame.Surface((1920, 1200))
             if self.clock is None:
                 self.clock = pygame.time.Clock()
             if self.font is None:
@@ -55,11 +55,11 @@ class Renderer:
         self._draw_cosmic_background()
 
         # Helper function to convert 2D coordinates to screen coordinates with zoom
-        def to_screen(pos, scale=12.0):  # Increased scale for larger screen
+        def to_screen(pos, scale=14.0):  # Enhanced scale for ultra-wide screen
             x, y = pos
             zoom_scale = scale * self.env.zoom_level
-            screen_x = int(720 + (x - 40) * zoom_scale + shake_offset[0])  # Center at 1440/2
-            screen_y = int(540 + (y - 40) * zoom_scale + shake_offset[1])  # Center at 1080/2
+            screen_x = int(960 + (x - 40) * zoom_scale + shake_offset[0])  # Center at 1920/2
+            screen_y = int(600 + (y - 40) * zoom_scale + shake_offset[1])  # Center at 1200/2
             return screen_x, screen_y
 
         # Draw agent trail first (behind everything)
@@ -301,8 +301,8 @@ class Renderer:
         pygame.draw.rect(self.window, energy_color, (bar_x, bar_y, energy_width, 8))
 
         # Draw observation and mining ranges (affected by zoom)
-        obs_radius_px = int(self.env.observation_radius * 12.0 * self.env.zoom_level)
-        mining_radius_px = int(self.env.mining_range * 12.0 * self.env.zoom_level)
+        obs_radius_px = int(self.env.observation_radius * 14.0 * self.env.zoom_level)
+        mining_radius_px = int(self.env.mining_range * 14.0 * self.env.zoom_level)
         
         gfxdraw.aacircle(
             self.window,
@@ -352,8 +352,8 @@ class Renderer:
                 self.window.blit(text_surface, (popup_pos_2d[0] - 20, popup_pos_2d[1] - 10))
 
         # OBSERVATION RANGE DIMMING EFFECT
-        overlay = pygame.Surface((1440, 1080), pygame.SRCALPHA)
-        overlay.fill((0, 0, 0, 100))  # Slightly less dimming for better cosmic view
+        overlay = pygame.Surface((1920, 1200), pygame.SRCALPHA)
+        overlay.fill((0, 0, 0, 80))  # Even less dimming for spectacular cosmic view
         
         # Create a "visible" hole for observation range
         pygame.draw.circle(overlay, (0, 0, 0, 0), agent_pos_2d, obs_radius_px)
@@ -363,8 +363,8 @@ class Renderer:
 
         # Draw collision flash overlay (after dimming so it's always visible)
         if self.env.collision_flash_timer > 0:
-            flash_alpha = int(180 * (self.env.collision_flash_timer / 0.3))  # Slightly less intense
-            flash_surface = pygame.Surface((1440, 1080), pygame.SRCALPHA)
+            flash_alpha = int(160 * (self.env.collision_flash_timer / 0.3))  # Less intense for ultra-wide
+            flash_surface = pygame.Surface((1920, 1200), pygame.SRCALPHA)
             flash_surface.fill((255, 0, 0, flash_alpha))
             self.window.blit(flash_surface, (0, 0))
 
@@ -410,10 +410,13 @@ class Renderer:
         # Draw enhanced starfield with colors and twinkling
         self._draw_enhanced_starfield()
         
-        # Draw spectacular new cosmic phenomena
+        # Draw spectacular cosmic phenomena
+        self._draw_cosmic_storms()
+        self._draw_wormholes()
         self._draw_cosmic_auroras()
         self._draw_pulsars()
         self._draw_shooting_stars()
+        self._draw_cosmic_lightning()
 
     def _draw_nebulae(self) -> None:
         """Draw colorful nebula clouds."""
@@ -428,7 +431,7 @@ class Renderer:
             size = int(nebula["size"] * self.env.zoom_level)
             
             # Skip if completely off screen
-            if x < -size or x > 1440 + size or y < -size or y > 1080 + size:
+            if x < -size or x > 1920 + size or y < -size or y > 1200 + size:
                 continue
             
             # Create enhanced nebula effect with pulsing
@@ -481,7 +484,7 @@ class Renderer:
             size = int(galaxy["size"] * self.env.zoom_level)
             
             # Skip if off screen
-            if x < -size or x > 1440 + size or y < -size or y > 1080 + size:
+            if x < -size or x > 1920 + size or y < -size or y > 1200 + size:
                 continue
             
             brightness = galaxy["brightness"]
@@ -512,7 +515,7 @@ class Renderer:
                     arm_x = x + int(r * math.cos(spiral_angle))
                     arm_y = y + int(r * math.sin(spiral_angle))
                     
-                    if 0 <= arm_x <= 1440 and 0 <= arm_y <= 1080:
+                                         if 0 <= arm_x <= 1920 and 0 <= arm_y <= 1200:
                         # Enhanced fade with distance
                         fade_factor = (1.0 - (r / size)) ** 1.5
                         arm_brightness = int(brightness * fade_factor)
@@ -544,7 +547,7 @@ class Renderer:
         for dust in self.env.space_dust:
             x, y = int(dust["x"]), int(dust["y"])
             
-            if 0 <= x <= 1440 and 0 <= y <= 1080:
+            if 0 <= x <= 1920 and 0 <= y <= 1200:
                 brightness = dust["brightness"]
                 dust_type = dust.get("type", "fine")
                 
@@ -584,7 +587,7 @@ class Renderer:
             for star in layer:
                 x, y = int(star["x"]), int(star["y"])
                 
-                if 0 <= x <= 1440 and 0 <= y <= 1080:
+                if 0 <= x <= 1920 and 0 <= y <= 1200:
                     size = max(1, int(star["size"] * self.env.zoom_level))
                     base_brightness = star["brightness"]
                     
@@ -630,7 +633,7 @@ class Renderer:
             height = int(aurora["height"] * self.env.zoom_level)
             
             # Skip if off screen
-            if x < -width or x > 1440 + width or y < -height or y > 1080 + height:
+            if x < -width or x > 1920 + width or y < -height or y > 1200 + height:
                 continue
             
             r, g, b, base_alpha = aurora["color"]
@@ -673,7 +676,7 @@ class Renderer:
         for pulsar in self.env.pulsars:
             x, y = int(pulsar["x"]), int(pulsar["y"])
             
-            if 0 <= x <= 1440 and 0 <= y <= 1080:
+            if 0 <= x <= 1920 and 0 <= y <= 1200:
                 # Pulse calculation
                 pulse_phase = math.sin(self.env.cosmic_time / pulsar["pulse_period"] + pulsar["pulse_offset"])
                 pulse_intensity = (pulse_phase + 1) / 2  # 0 to 1
@@ -699,7 +702,7 @@ class Renderer:
                         beam_x = x + int(r * math.cos(beam_angle))
                         beam_y = y + int(r * math.sin(beam_angle))
                         
-                        if 0 <= beam_x <= 1440 and 0 <= beam_y <= 1080:
+                        if 0 <= beam_x <= 1920 and 0 <= beam_y <= 1200:
                             beam_fade = 1.0 - (r / beam_length)
                             beam_alpha = int(brightness * beam_fade * 0.8)
                             if beam_alpha > 10:
@@ -721,7 +724,7 @@ class Renderer:
         for star in self.env.shooting_stars:
             x, y = int(star["x"]), int(star["y"])
             
-            if 0 <= x <= 1440 and 0 <= y <= 1080:
+            if 0 <= x <= 1920 and 0 <= y <= 1200:
                 r, g, b = star["color"]
                 brightness = star["brightness"]
                 tail_length = star["tail_length"]
@@ -739,7 +742,7 @@ class Renderer:
                         tail_x = int(x + tail_dx * i / 2)
                         tail_y = int(y + tail_dy * i / 2)
                         
-                        if 0 <= tail_x <= 1440 and 0 <= tail_y <= 1080:
+                        if 0 <= tail_x <= 1920 and 0 <= tail_y <= 1200:
                             fade = 1.0 - (i / tail_length)
                             tail_brightness = int(brightness * fade)
                             if tail_brightness > 5:
@@ -763,6 +766,180 @@ class Renderer:
                 # Add bright glow
                 glow_color = (r//2, g//2, b//2)
                 gfxdraw.aacircle(self.window, x, y, star_size + 2, glow_color)
+
+    def _draw_cosmic_storms(self) -> None:
+        """Draw spectacular rotating cosmic storms with lightning."""
+        try:
+            import pygame
+            from pygame import gfxdraw
+        except ImportError:
+            return
+
+        for storm in self.env.cosmic_storms:
+            x, y = int(storm["x"]), int(storm["y"])
+            size = int(storm["size"] * self.env.zoom_level)
+            
+            if x < -size or x > 1920 + size or y < -size or y > 1200 + size:
+                continue
+            
+            r, g, b, base_alpha = storm["color"]
+            intensity = storm["intensity"]
+            rotation = storm["rotation"]
+            
+            # Create swirling storm effect
+            storm_surface = pygame.Surface((size * 2, size * 2), pygame.SRCALPHA)
+            center = size
+            
+            # Draw storm layers with rotation
+            for layer in range(8):
+                layer_radius = int(size * (1.0 - layer * 0.12))
+                if layer_radius > 5:
+                    alpha = int(base_alpha * intensity * (1.0 - layer * 0.1))
+                    
+                    # Spiral arms of the storm
+                    for arm in range(4):
+                        arm_angle = rotation + (arm * math.pi / 2)
+                        
+                        for r in range(10, layer_radius, 8):
+                            spiral_angle = arm_angle + r * 0.1
+                            
+                            storm_x = center + int(r * math.cos(spiral_angle))
+                            storm_y = center + int(r * math.sin(spiral_angle))
+                            
+                            if 0 <= storm_x < size * 2 and 0 <= storm_y < size * 2:
+                                fade = 1.0 - (r / layer_radius)
+                                storm_alpha = int(alpha * fade)
+                                
+                                if storm_alpha > 5:
+                                    storm_color = (
+                                        min(255, int(r * intensity)),
+                                        min(255, int(g * intensity)),
+                                        min(255, int(b * intensity)),
+                                        storm_alpha
+                                    )
+                                    
+                                    # Draw storm particles
+                                    particle_size = max(1, int(3 * fade))
+                                    if particle_size > 1:
+                                        gfxdraw.filled_circle(storm_surface, storm_x, storm_y, particle_size, storm_color)
+                                    else:
+                                        storm_surface.set_at((storm_x, storm_y), storm_color)
+            
+            # Blit storm to main surface
+            storm_rect = storm_surface.get_rect(center=(x, y))
+            self.window.blit(storm_surface, storm_rect)
+
+    def _draw_wormholes(self) -> None:
+        """Draw mystical dimensional wormholes."""
+        try:
+            import pygame
+            from pygame import gfxdraw
+        except ImportError:
+            return
+
+        for wormhole in self.env.wormholes:
+            x, y = int(wormhole["x"]), int(wormhole["y"])
+            size = int(wormhole["size"] * self.env.zoom_level)
+            
+            if x < -size or x > 1920 + size or y < -size or y > 1200 + size:
+                continue
+            
+            rotation = wormhole["rotation"]
+            rings = wormhole["distortion_rings"]
+            
+            # Pulsing effect
+            pulse = math.sin(self.env.cosmic_time * 2 + wormhole["pulse_offset"]) * 0.3 + 0.7
+            
+            # Draw concentric distortion rings
+            for ring in range(rings):
+                ring_radius = int(size * (1.0 - ring * 0.12) * pulse)
+                if ring_radius > 2:
+                    # Alternating colors for mystical effect
+                    if ring % 2 == 0:
+                        ring_color = (100, 0, 200, 150 - ring * 15)  # Purple
+                    else:
+                        ring_color = (0, 150, 255, 120 - ring * 12)  # Blue
+                    
+                    # Create ring with rotation distortion
+                    ring_surface = pygame.Surface((ring_radius * 2 + 10, ring_radius * 2 + 10), pygame.SRCALPHA)
+                    ring_center = ring_radius + 5
+                    
+                    # Draw distorted ring
+                    for angle_deg in range(0, 360, 6):
+                        angle_rad = math.radians(angle_deg + rotation * 180 / math.pi)
+                        
+                        # Distortion effect
+                        distort = math.sin(angle_rad * 4 + self.env.cosmic_time) * 0.2 + 1.0
+                        actual_radius = int(ring_radius * distort)
+                        
+                        ring_x = ring_center + int(actual_radius * math.cos(angle_rad))
+                        ring_y = ring_center + int(actual_radius * math.sin(angle_rad))
+                        
+                        if 0 <= ring_x < ring_radius * 2 + 10 and 0 <= ring_y < ring_radius * 2 + 10:
+                            gfxdraw.filled_circle(ring_surface, ring_x, ring_y, 2, ring_color)
+                    
+                    # Blit ring to main surface
+                    ring_rect = ring_surface.get_rect(center=(x, y))
+                    self.window.blit(ring_surface, ring_rect)
+            
+            # Draw bright center
+            center_size = max(3, int(8 * pulse * self.env.zoom_level))
+            center_color = (255, 255, 255, 200)
+            gfxdraw.filled_circle(self.window, x, y, center_size, center_color)
+
+    def _draw_cosmic_lightning(self) -> None:
+        """Draw spectacular branching cosmic lightning."""
+        try:
+            import pygame
+        except ImportError:
+            return
+
+        for lightning in self.env.cosmic_lightning:
+            if lightning["intensity"] < 0.1:
+                continue
+            
+            r, g, b = lightning["color"]
+            intensity = lightning["intensity"]
+            thickness = max(1, int(lightning["thickness"] * intensity))
+            
+            # Main lightning bolt
+            start_pos = (int(lightning["start_x"]), int(lightning["start_y"]))
+            end_pos = (int(lightning["end_x"]), int(lightning["end_y"]))
+            
+            if (0 <= start_pos[0] <= 1920 and 0 <= start_pos[1] <= 1200 and
+                0 <= end_pos[0] <= 1920 and 0 <= end_pos[1] <= 1200):
+                
+                lightning_color = (
+                    min(255, int(r * intensity)),
+                    min(255, int(g * intensity)),
+                    min(255, int(b * intensity))
+                )
+                
+                # Draw main bolt with multiple lines for thickness
+                for i in range(thickness):
+                    offset_x = np.random.randint(-1, 2)
+                    offset_y = np.random.randint(-1, 2)
+                    
+                    adjusted_start = (start_pos[0] + offset_x, start_pos[1] + offset_y)
+                    adjusted_end = (end_pos[0] + offset_x, end_pos[1] + offset_y)
+                    
+                    pygame.draw.line(self.window, lightning_color, adjusted_start, adjusted_end, 1)
+                
+                # Draw branches
+                for branch in lightning["branches"]:
+                    branch_start = (int(branch["start_x"]), int(branch["start_y"]))
+                    branch_end = (int(branch["end_x"]), int(branch["end_y"]))
+                    
+                    if (0 <= branch_start[0] <= 1920 and 0 <= branch_start[1] <= 1200 and
+                        0 <= branch_end[0] <= 1920 and 0 <= branch_end[1] <= 1200):
+                        
+                        branch_color = (
+                            min(255, int(r * intensity * 0.7)),
+                            min(255, int(g * intensity * 0.7)),
+                            min(255, int(b * intensity * 0.7))
+                        )
+                        
+                        pygame.draw.line(self.window, branch_color, branch_start, branch_end, max(1, thickness // 2))
 
     def _draw_game_ui(self, agent_pos_2d) -> None:
         """Draw the main game UI elements with adaptive layout and icons."""
@@ -949,12 +1126,12 @@ class Renderer:
             {"icon": "dim_area", "text": "Dim Area", "color": (50, 50, 50)}
         ]
 
-        # Calculate adaptive layout (5 columns for larger screen)
-        cols = 5
-        item_width = 160
-        item_height = 32
-        panel_width = cols * item_width + 50
-        panel_height = len(legend_items) // cols * item_height + 100
+        # Calculate adaptive layout (6 columns for ultra-wide screen)
+        cols = 6
+        item_width = 180
+        item_height = 36
+        panel_width = cols * item_width + 60
+        panel_height = len(legend_items) // cols * item_height + 120
         if len(legend_items) % cols != 0:
             panel_height += item_height
 
@@ -984,9 +1161,9 @@ class Renderer:
             text_surface = text_font.render(item["text"], True, (220, 220, 220))
             legend_bg.blit(text_surface, (x + 35, y + 7))
 
-        # Position legend for larger screen
-        legend_x = 1440 - panel_width - 20
-        legend_y = 1080 - panel_height - 20
+        # Position legend for ultra-wide screen
+        legend_x = 1920 - panel_width - 25
+        legend_y = 1200 - panel_height - 25
         self.window.blit(legend_bg, (legend_x, legend_y))
 
     def _draw_legend_icon(self, surface, icon_type, x, y, color) -> None:
@@ -1067,12 +1244,12 @@ class Renderer:
         if not self.env.event_timeline:
             return
 
-        # Timeline positioning for larger screen
-        timeline_y = 20
-        card_width = 180
-        card_height = 40
-        card_spacing = 15
-        start_x = (1440 - (len(self.env.event_timeline) * (card_width + card_spacing) - card_spacing)) // 2
+        # Timeline positioning for ultra-wide screen
+        timeline_y = 25
+        card_width = 200
+        card_height = 45
+        card_spacing = 18
+        start_x = (1920 - (len(self.env.event_timeline) * (card_width + card_spacing) - card_spacing)) // 2
 
         for i, event in enumerate(self.env.event_timeline):
             x = start_x + i * (card_width + card_spacing)
@@ -1171,16 +1348,16 @@ class Renderer:
         if self.env.combo_state["display_timer"] <= 0 or self.env.combo_state["chain_count"] < 2:
             return
 
-        # Position combo display for larger screen
-        combo_x = 720  # Center of larger screen
-        combo_y = 140
+        # Position combo display for ultra-wide screen
+        combo_x = 960  # Center of ultra-wide screen
+        combo_y = 160
 
         # Create pulsing combo badge
         alpha = self.env.combo_state["combo_alpha"]
         combo_text = f"x{self.env.combo_state['chain_count']} COMBO!"
         
         # Large, bold font for combo
-        combo_font = pygame.font.SysFont("Arial", 36, bold=True)
+        combo_font = pygame.font.SysFont("Arial", 40, bold=True)
         text_surface = combo_font.render(combo_text, True, (255, 200, 0))
         text_rect = text_surface.get_rect()
         
@@ -1232,8 +1409,8 @@ class Renderer:
 
         fade_alpha = min(255, self.env.game_over_state["fade_alpha"])
         
-        # Create fade overlay for larger screen
-        fade_surface = pygame.Surface((1440, 1080), pygame.SRCALPHA)
+        # Create fade overlay for ultra-wide screen
+        fade_surface = pygame.Surface((1920, 1200), pygame.SRCALPHA)
         fade_surface.fill((0, 0, 0, fade_alpha))
         self.window.blit(fade_surface, (0, 0))
 
@@ -1242,16 +1419,16 @@ class Renderer:
             stats = self.env.game_over_state["final_stats"]
             success = self.env.game_over_state["success"]
             
-            # Title for larger screen
-            title_font = pygame.font.SysFont("Arial", 64, bold=True)
+            # Title for ultra-wide screen
+            title_font = pygame.font.SysFont("Arial", 72, bold=True)
             title_text = "🎉 MISSION SUCCESS! 🎉" if success else "💥 MISSION FAILED 💥"
             title_color = (0, 255, 0) if success else (255, 100, 100)
             title_surface = title_font.render(title_text, True, title_color)
-            title_rect = title_surface.get_rect(center=(720, 220))
+            title_rect = title_surface.get_rect(center=(960, 260))
             self.window.blit(title_surface, title_rect)
 
             # Final statistics
-            stats_font = pygame.font.SysFont("Arial", 24)
+            stats_font = pygame.font.SysFont("Arial", 26)
             stats_text = [
                 "",
                 f"📊 FINAL STATISTICS",
@@ -1268,10 +1445,10 @@ class Renderer:
                 "Press R to restart or ESC to quit"
             ]
 
-            y_offset = 340
+            y_offset = 400
             for line in stats_text:
                 if line == "":
-                    y_offset += 22
+                    y_offset += 26
                     continue
                     
                 color = (255, 255, 100) if "STATISTICS" in line else (255, 255, 255)
@@ -1279,9 +1456,9 @@ class Renderer:
                     color = (200, 200, 255)
                 
                 text_surface = stats_font.render(line, True, color)
-                text_rect = text_surface.get_rect(center=(720, y_offset))
+                text_rect = text_surface.get_rect(center=(960, y_offset))
                 self.window.blit(text_surface, text_rect)
-                y_offset += 40
+                y_offset += 45
 
     def close(self) -> None:
         """Close the rendering window."""
