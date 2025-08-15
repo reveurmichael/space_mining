@@ -1,6 +1,7 @@
 from typing import Any, Optional
 
 import numpy as np
+import math
 
 
 class Renderer:
