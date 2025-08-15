@@ -65,7 +65,11 @@ def generate_trajectory(
     frames: List[Union[np.ndarray, Image.Image]] = [env.render()]
 
     for _ in range(num_steps):
-        action, _ = agent.predict(obs, deterministic=deterministic)
+        prediction = agent.predict(obs, deterministic=deterministic)
+        # The Stable-Baselines3 API may return either a tuple (action, state, ...)
+        # or a single ndarray depending on version and kwargs.  Extract the first
+        # element if a sequence is returned so we remain version-agnostic.
+        action = prediction[0] if isinstance(prediction, (tuple, list)) else prediction
         obs, _, terminated, truncated, _ = env.step(action)
         frames.append(env.render())
         if terminated or truncated:

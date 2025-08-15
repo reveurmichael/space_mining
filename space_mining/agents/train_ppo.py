@@ -250,7 +250,8 @@ def evaluate_trained_ppo(
             total_reward = 0.0
             
             while not (done or truncated):
-                action, _ = agent.predict(obs, deterministic=True)
+                prediction = agent.predict(obs, deterministic=True)
+                action = prediction[0] if isinstance(prediction, (tuple, list)) else prediction
                 obs, reward, done, truncated, _info = env.step(action)
                 total_reward += float(reward)
                 
