@@ -70,9 +70,9 @@ class SpaceMining(gym.Env):
         self.cosmic_auroras = []
         self.cosmic_time = 0.0
         
-        # Enhanced screen size for ultimate immersion
-        self.window_width = 3840  # 4K width
-        self.window_height = 2160  # 4K height
+        # Enhanced screen size for optimal performance and visual quality
+        self.window_width = 1920   # Standard 1080p width
+        self.window_height = 1080  # Standard 1080p height
         
         self._initialize_cosmic_background()
         
@@ -616,476 +616,123 @@ class SpaceMining(gym.Env):
         self.score_popups.append(popup)
 
     def _initialize_cosmic_background(self) -> None:
-        """Initialize ULTIMATE cosmic background with MASSIVE scale for 3440x1440 ultrawide screen."""
+        """Initialize clean, beautiful cosmic background for 1920x1080 screen."""
         # Reset cosmic time
         self.cosmic_time = 0.0
         
-        # Create MASSIVE starfield layers for ultimate 21:9 ultrawide screen
+        # Create simplified starfield layers
         self.starfield_layers = []
         
-        # Layer 1: Distant background stars (very slow, subtle)
+        # Layer 1: Distant background stars
         layer1_stars = []
-        for _ in range(800):  # MASSIVE star count for 3440x1440 screen
+        for _ in range(200):  # Reasonable number for 1080p
             star = {
-                "x": np.random.uniform(0, 3440),
-                "y": np.random.uniform(0, 1440),
+                "x": np.random.uniform(0, 1920),
+                "y": np.random.uniform(0, 1080),
                 "size": 1,
-                "brightness": np.random.randint(30, 80),
+                "brightness": np.random.randint(40, 100),
                 "speed": 0.1,
-                "twinkle_offset": np.random.uniform(0, 2 * math.pi),
-                "twinkle_speed": np.random.uniform(0.5, 1.5),
-                "color_type": np.random.choice(["white", "blue", "yellow", "red"], p=[0.5, 0.2, 0.2, 0.1])
+                "color_type": np.random.choice(["white", "blue", "yellow"], p=[0.7, 0.2, 0.1])
             }
             layer1_stars.append(star)
         self.starfield_layers.append(layer1_stars)
         
         # Layer 2: Medium distance stars
         layer2_stars = []
-        for _ in range(500):  # More medium stars for MASSIVE ultrawide
+        for _ in range(100):
             star = {
-                "x": np.random.uniform(0, 3440),
-                "y": np.random.uniform(0, 1440),
+                "x": np.random.uniform(0, 1920),
+                "y": np.random.uniform(0, 1080),
                 "size": 2,
-                "brightness": np.random.randint(60, 150),
+                "brightness": np.random.randint(80, 180),
                 "speed": 0.3,
-                "twinkle_offset": np.random.uniform(0, 2 * math.pi),
-                "twinkle_speed": np.random.uniform(0.8, 2.0),
-                "color_type": np.random.choice(["white", "blue", "yellow"], p=[0.6, 0.25, 0.15])
+                "color_type": np.random.choice(["white", "blue", "yellow"], p=[0.6, 0.3, 0.1])
             }
             layer2_stars.append(star)
         self.starfield_layers.append(layer2_stars)
         
         # Layer 3: Bright foreground stars
         layer3_stars = []
-        for _ in range(250):  # More bright stars for epic ultrawide scale
+        for _ in range(50):
             star = {
-                "x": np.random.uniform(0, 3440),
-                "y": np.random.uniform(0, 1440),
-                "size": np.random.randint(3, 5),
-                "brightness": np.random.randint(100, 255),
+                "x": np.random.uniform(0, 1920),
+                "y": np.random.uniform(0, 1080),
+                "size": np.random.randint(3, 4),
+                "brightness": np.random.randint(150, 255),
                 "speed": 0.6,
-                "twinkle_offset": np.random.uniform(0, 2 * math.pi),
-                "twinkle_speed": np.random.uniform(1.0, 2.5),
                 "color_type": np.random.choice(["white", "blue", "yellow"], p=[0.5, 0.3, 0.2])
             }
             layer3_stars.append(star)
         self.starfield_layers.append(layer3_stars)
         
-        # Create SPECTACULAR nebula clouds for MASSIVE ultrawide screen
+        # Create beautiful nebula clouds (simplified)
         self.nebula_clouds = []
-        for _ in range(32):  # More nebulae for ultimate ultrawide experience
+        for _ in range(8):  # Reasonable number for visual impact
             nebula = {
-                "x": np.random.uniform(-600, 4040),
-                "y": np.random.uniform(-300, 1740),
-                "size": np.random.uniform(800, 2000),  # Larger nebulae for ultrawide screen
-                "inner_size": np.random.uniform(0.3, 0.7),
+                "x": np.random.uniform(-200, 2120),
+                "y": np.random.uniform(-200, 1280),
+                "size": np.random.uniform(300, 800),
                 "color": np.random.choice([
-                    (80, 20, 150, 35),    # Deep purple
-                    (20, 80, 180, 30),    # Deep blue
-                    (150, 30, 100, 35),   # Magenta
-                    (60, 20, 120, 25),    # Dark purple
-                    (20, 120, 80, 30),    # Cyan
-                    (120, 60, 20, 35),    # Orange
-                    (100, 20, 150, 30),   # Violet
-                    (20, 150, 120, 25)    # Teal
+                    (60, 20, 120, 25),    # Purple
+                    (20, 60, 140, 20),    # Blue
+                    (100, 30, 80, 25),    # Magenta
+                    (20, 100, 60, 20),    # Cyan
                 ]),
-                "speed": np.random.uniform(0.03, 0.12),
+                "speed": np.random.uniform(0.02, 0.08),
                 "rotation": np.random.uniform(0, 2 * math.pi),
-                "rotation_speed": np.random.uniform(-0.001, 0.001),
-                "pulse_offset": np.random.uniform(0, 2 * math.pi),
-                "pulse_speed": np.random.uniform(0.01, 0.03)
+                "rotation_speed": np.random.uniform(-0.0005, 0.0005)
             }
             self.nebula_clouds.append(nebula)
         
-        # Create EVEN MORE distant galaxies for epic ultrawide cosmic scale
+        # Create distant galaxies (simplified)
         self.distant_galaxies = []
-        for _ in range(25):  # More galaxies for ultimate ultrawide immersion
+        for _ in range(6):  # Just a few for atmosphere
             galaxy = {
-                "x": np.random.uniform(0, 3440),
-                "y": np.random.uniform(0, 1440),
-                "size": np.random.uniform(150, 500),  # Larger galaxies for ultrawide screen
-                "brightness": np.random.randint(12, 35),
-                "speed": np.random.uniform(0.01, 0.06),
-                "spiral_arms": np.random.randint(2, 6),
-                "arm_thickness": np.random.uniform(0.5, 2.0),
+                "x": np.random.uniform(0, 1920),
+                "y": np.random.uniform(0, 1080),
+                "size": np.random.uniform(80, 200),
+                "brightness": np.random.randint(15, 30),
+                "speed": np.random.uniform(0.01, 0.03),
                 "rotation": np.random.uniform(0, 2 * math.pi),
-                "rotation_speed": np.random.uniform(-0.0008, 0.0008),
-                "core_brightness": np.random.randint(25, 50)
+                "rotation_speed": np.random.uniform(-0.0005, 0.0005)
             }
             self.distant_galaxies.append(galaxy)
         
-        # Create MASSIVE enhanced space dust system for ultrawide
+        # Create space dust (simplified)
         self.space_dust = []
-        
-        # Fine cosmic dust
-        for _ in range(1200):  # Much more dust for MASSIVE ultrawide screen
+        for _ in range(300):  # Reasonable amount
             dust = {
-                "x": np.random.uniform(0, 3440),
-                "y": np.random.uniform(0, 1440),
-                "size": np.random.uniform(0.3, 1.0),
-                "brightness": np.random.randint(8, 25),
-                "speed": np.random.uniform(0.5, 2.0),
-                "drift_x": np.random.uniform(-0.05, 0.05),
-                "drift_y": np.random.uniform(-0.05, 0.05),
-                "type": "fine"
-            }
-            self.space_dust.append(dust)
-        
-        # Larger dust particles
-        for _ in range(350):  # More large dust for epic ultrawide scale
-            dust = {
-                "x": np.random.uniform(0, 3440),
-                "y": np.random.uniform(0, 1440),
-                "size": np.random.uniform(1.0, 2.5),
-                "brightness": np.random.randint(15, 40),
+                "x": np.random.uniform(0, 1920),
+                "y": np.random.uniform(0, 1080),
+                "size": np.random.uniform(0.5, 1.5),
+                "brightness": np.random.randint(10, 30),
                 "speed": np.random.uniform(0.8, 1.5),
-                "drift_x": np.random.uniform(-0.1, 0.1),
-                "drift_y": np.random.uniform(-0.1, 0.1),
-                "type": "coarse"
+                "drift_x": np.random.uniform(-0.02, 0.02),
+                "drift_y": np.random.uniform(-0.02, 0.02)
             }
             self.space_dust.append(dust)
         
-        # Create spectacular shooting stars
-        self.shooting_stars = []
-        for _ in range(6):  # More shooting stars for MASSIVE ultrawide screen
-            self._spawn_shooting_star()
-        
-        # Create MORE cosmic auroras for ultimate ultrawide experience
+        # Create subtle cosmic auroras
         self.cosmic_auroras = []
-        for _ in range(16):  # More ethereal energy curtains for MASSIVE ultrawide
+        for _ in range(4):  # Just a few for atmosphere
             aurora = {
-                "x": np.random.uniform(-500, 3940),
-                "y": np.random.uniform(-300, 1740),
-                "width": np.random.uniform(250, 800),  # Larger auroras for ultrawide
-                "height": np.random.uniform(500, 1200),
-                "intensity": np.random.uniform(0.3, 0.8),
+                "x": np.random.uniform(-100, 2020),
+                "y": np.random.uniform(-100, 1180),
+                "width": np.random.uniform(100, 300),
+                "height": np.random.uniform(200, 500),
+                "intensity": np.random.uniform(0.3, 0.6),
                 "color": np.random.choice([
-                    (0, 255, 150, 25),    # Green aurora
-                    (150, 100, 255, 20),  # Purple aurora
-                    (255, 150, 100, 25),  # Orange aurora
-                    (100, 200, 255, 20),  # Blue aurora
-                    (255, 100, 200, 25)   # Pink aurora
+                    (0, 200, 100, 20),    # Green aurora
+                    (100, 150, 200, 15),  # Blue aurora
+                    (200, 100, 150, 20),  # Pink aurora
                 ]),
                 "wave_offset": np.random.uniform(0, 2 * math.pi),
-                "wave_speed": np.random.uniform(0.02, 0.05),
-                "drift_speed": np.random.uniform(0.01, 0.03)
+                "wave_speed": np.random.uniform(0.02, 0.04)
             }
             self.cosmic_auroras.append(aurora)
-        
-        # Create MORE pulsars for cosmic grandeur on ultrawide
-        self.pulsars = []
-        for _ in range(12):  # More spectacular pulsing stars for MASSIVE ultrawide
-            pulsar = {
-                "x": np.random.uniform(0, 3440),
-                "y": np.random.uniform(0, 1440),
-                "pulse_period": np.random.uniform(0.5, 2.0),
-                "pulse_offset": np.random.uniform(0, 2 * math.pi),
-                "brightness": np.random.randint(150, 255),
-                "beam_length": np.random.uniform(300, 700),  # Longer beams for ultrawide
-                "beam_angle": np.random.uniform(0, 2 * math.pi),
-                "rotation_speed": np.random.uniform(0.005, 0.02),
-                "color": np.random.choice([
-                    (255, 255, 255),  # White pulsar
-                    (200, 255, 255),  # Blue-white
-                    (255, 200, 255)   # Pink pulsar
-                ])
-            }
-            self.pulsars.append(pulsar)
-        
-        # Create MASSIVE spectacular cosmic storms for ultimate scale
-        self.cosmic_storms = []
-        for _ in range(4):  # More massive storm systems for 2560x1600
-            storm = {
-                "x": np.random.uniform(0, 2560),
-                "y": np.random.uniform(0, 1600),
-                "size": np.random.uniform(400, 800),  # Larger storms for massive screen
-                "intensity": np.random.uniform(0.4, 0.9),
-                "rotation": np.random.uniform(0, 2 * math.pi),
-                "rotation_speed": np.random.uniform(0.01, 0.03),
-                "lightning_timer": 0.0,
-                "color": np.random.choice([
-                    (255, 100, 0, 40),   # Orange storm
-                    (255, 0, 100, 35),   # Red storm
-                    (100, 0, 255, 40),   # Blue storm
-                    (255, 255, 0, 35)    # Yellow storm
-                ])
-            }
-            self.cosmic_storms.append(storm)
-        
-        # Create MORE mystical wormholes for massive screen
-        self.wormholes = []
-        for _ in range(3):  # More dimensional portals for epic scale
-            wormhole = {
-                "x": np.random.uniform(300, 2260),
-                "y": np.random.uniform(300, 1300),
-                "size": np.random.uniform(100, 200),  # Larger wormholes
-                "rotation": np.random.uniform(0, 2 * math.pi),
-                "rotation_speed": np.random.uniform(0.02, 0.05),
-                "pulse_offset": np.random.uniform(0, 2 * math.pi),
-                "distortion_rings": 10  # More rings for epic effect
-            }
-            self.wormholes.append(wormhole)
-        
-        # Create SPECTACULAR black holes - the ultimate cosmic monsters
-        self.black_holes = []
-        for _ in range(2):  # Rare, massive gravitational beasts
-            black_hole = {
-                "x": np.random.uniform(400, 2160),
-                "y": np.random.uniform(400, 1200),
-                "size": np.random.uniform(60, 120),  # Event horizon size
-                "accretion_disk_size": np.random.uniform(200, 400),  # Swirling matter disk
-                "rotation": np.random.uniform(0, 2 * math.pi),
-                "rotation_speed": np.random.uniform(0.03, 0.08),
-                "gravity_rings": 12,  # Gravitational lensing effect
-                "intensity": np.random.uniform(0.6, 1.0),
-                "jet_length": np.random.uniform(300, 600),  # Polar jets
-                "jet_angle": np.random.uniform(0, 2 * math.pi)
-            }
-            self.black_holes.append(black_hole)
-        
-        # Create ULTRA-BRIGHT quasars - galactic powerhouses
-        self.quasars = []
-        for _ in range(3):  # Extremely bright galactic nuclei
-            quasar = {
-                "x": np.random.uniform(0, 2560),
-                "y": np.random.uniform(0, 1600),
-                "brightness": np.random.uniform(0.8, 1.0),
-                "size": np.random.uniform(40, 80),
-                "beam_length": np.random.uniform(400, 800),
-                "beam_width": np.random.uniform(20, 50),
-                "beam_angle": np.random.uniform(0, 2 * math.pi),
-                "rotation_speed": np.random.uniform(0.01, 0.03),
-                "pulse_period": np.random.uniform(1.0, 3.0),
-                "pulse_offset": np.random.uniform(0, 2 * math.pi),
-                "color": np.random.choice([
-                    (255, 255, 255),  # Pure white
-                    (200, 255, 255),  # Blue-white
-                    (255, 255, 200),  # Yellow-white
-                    (255, 200, 255)   # Purple-white
-                ])
-            }
-            self.quasars.append(quasar)
-        
-        # Create FLOWING cosmic ribbons - energy streams across space
-        self.cosmic_ribbons = []
-        for _ in range(6):  # More flowing energy streams for ultrawide
-            ribbon = {
-                "points": [],  # List of control points for the ribbon
-                "width": np.random.uniform(15, 35),
-                "length": np.random.uniform(800, 1600),  # Longer for ultrawide
-                "flow_speed": np.random.uniform(2.0, 5.0),
-                "wave_frequency": np.random.uniform(0.01, 0.03),
-                "wave_amplitude": np.random.uniform(50, 150),
-                "color": np.random.choice([
-                    (100, 255, 200, 60),  # Cyan ribbon
-                    (255, 150, 100, 55),  # Orange ribbon
-                    (200, 100, 255, 60),  # Purple ribbon
-                    (255, 255, 100, 55)   # Yellow ribbon
-                ]),
-                "flow_offset": 0.0
-            }
-            # Generate ribbon control points for ultrawide screen
-            start_x = np.random.uniform(0, 3440)
-            start_y = np.random.uniform(0, 1440)
-            for i in range(8):  # 8 control points for smooth curves
-                point_x = start_x + (i * ribbon["length"] / 7) + np.random.uniform(-100, 100)
-                point_y = start_y + np.random.uniform(-200, 200)
-                ribbon["points"].append([point_x, point_y])
-            self.cosmic_ribbons.append(ribbon)
-        
-        # Create SPECTACULAR SUPERNOVAS - explosive stellar deaths
-        self.supernovas = []
-        for _ in range(3):  # Rare, massive stellar explosions
-            supernova = {
-                "x": np.random.uniform(500, 2940),
-                "y": np.random.uniform(200, 1240),
-                "explosion_radius": np.random.uniform(100, 300),
-                "max_radius": np.random.uniform(400, 800),
-                "intensity": np.random.uniform(0.8, 1.0),
-                "expansion_speed": np.random.uniform(2.0, 5.0),
-                "age": np.random.uniform(0, 100),  # Different explosion stages
-                "brightness": np.random.uniform(0.7, 1.0),
-                "color_core": np.random.choice([
-                    (255, 255, 255),  # White core
-                    (255, 200, 100),  # Orange core
-                    (200, 255, 255),  # Blue core
-                ]),
-                "color_outer": np.random.choice([
-                    (255, 100, 100),  # Red outer
-                    (255, 150, 100),  # Orange outer
-                    (200, 100, 255),  # Purple outer
-                ])
-            }
-            self.supernovas.append(supernova)
-        
-        # Create DENSE ASTEROID BELTS - massive rock formations
-        self.asteroid_belts = []
-        for _ in range(4):  # Spectacular asteroid formations
-            belt = {
-                "center_x": np.random.uniform(600, 2840),
-                "center_y": np.random.uniform(300, 1140),
-                "radius": np.random.uniform(200, 500),
-                "thickness": np.random.uniform(50, 150),
-                "asteroid_count": np.random.randint(30, 80),
-                "rotation_speed": np.random.uniform(0.002, 0.008),
-                "rotation_angle": np.random.uniform(0, 2 * math.pi),
-                "asteroids": []
-            }
-            # Generate asteroids in the belt
-            for _ in range(belt["asteroid_count"]):
-                angle = np.random.uniform(0, 2 * math.pi)
-                distance = np.random.uniform(belt["radius"] - belt["thickness"]/2, 
-                                           belt["radius"] + belt["thickness"]/2)
-                asteroid = {
-                    "angle": angle,
-                    "distance": distance,
-                    "size": np.random.uniform(2, 8),
-                    "rotation": np.random.uniform(0, 2 * math.pi),
-                    "rotation_speed": np.random.uniform(-0.05, 0.05)
-                }
-                belt["asteroids"].append(asteroid)
-            self.asteroid_belts.append(belt)
-        
-        # Create FLOWING COSMIC WINDS - particle streams
-        self.cosmic_winds = []
-        for _ in range(8):  # Flowing particle streams across ultrawide space
-            wind = {
-                "start_x": np.random.uniform(-200, 3640),
-                "start_y": np.random.uniform(-100, 1540),
-                "direction": np.random.uniform(0, 2 * math.pi),
-                "speed": np.random.uniform(3.0, 8.0),
-                "width": np.random.uniform(30, 80),
-                "length": np.random.uniform(400, 1000),
-                "particle_count": np.random.randint(20, 50),
-                "color": np.random.choice([
-                    (100, 200, 255, 40),  # Blue wind
-                    (255, 200, 100, 35),  # Orange wind
-                    (200, 255, 150, 40),  # Green wind
-                    (255, 150, 200, 35),  # Pink wind
-                ]),
-                "particles": []
-            }
-            # Generate particles in the wind
-            for i in range(wind["particle_count"]):
-                particle = {
-                    "offset": i * (wind["length"] / wind["particle_count"]),
-                    "cross_offset": np.random.uniform(-wind["width"]/2, wind["width"]/2),
-                    "size": np.random.uniform(1, 3),
-                    "brightness": np.random.uniform(0.3, 1.0)
-                }
-                wind["particles"].append(particle)
-            self.cosmic_winds.append(wind)
-        
-        # Create IONIZED PLASMA FIELDS - glowing gas regions
-        self.plasma_fields = []
-        for _ in range(5):  # Spectacular ionized gas regions
-            plasma = {
-                "x": np.random.uniform(300, 3140),
-                "y": np.random.uniform(200, 1240),
-                "width": np.random.uniform(200, 600),
-                "height": np.random.uniform(150, 400),
-                "intensity": np.random.uniform(0.4, 0.8),
-                "pulse_frequency": np.random.uniform(0.01, 0.04),
-                "pulse_offset": np.random.uniform(0, 2 * math.pi),
-                "drift_speed": np.random.uniform(0.5, 2.0),
-                "drift_direction": np.random.uniform(0, 2 * math.pi),
-                "color": np.random.choice([
-                    (100, 255, 255, 30),  # Cyan plasma
-                    (255, 100, 255, 25),  # Magenta plasma
-                    (255, 255, 100, 30),  # Yellow plasma
-                    (100, 255, 150, 25),  # Green plasma
-                ])
-            }
-            self.plasma_fields.append(plasma)
-        
-        # Initialize cosmic lightning system
-        self.cosmic_lightning = []
-
-    def _spawn_shooting_star(self) -> None:
-        """Spawn a spectacular shooting star for MASSIVE 3440x1440 ultrawide screen."""
-        # Random entry point from screen edge
-        side = np.random.choice(['top', 'left', 'right', 'bottom'])
-        
-        if side == 'top':
-            start_x = np.random.uniform(0, 3440)
-            start_y = -50
-            end_x = np.random.uniform(0, 3440)
-            end_y = 1490
-        elif side == 'left':
-            start_x = -50
-            start_y = np.random.uniform(0, 1440)
-            end_x = 3490
-            end_y = np.random.uniform(0, 1440)
-        elif side == 'right':
-            start_x = 3490
-            start_y = np.random.uniform(0, 1440)
-            end_x = -50
-            end_y = np.random.uniform(0, 1440)
-        else:  # bottom
-            start_x = np.random.uniform(0, 3440)
-            start_y = 1490
-            end_x = np.random.uniform(0, 3440)
-            end_y = -50
-        
-        shooting_star = {
-            "x": start_x,
-            "y": start_y,
-            "target_x": end_x,
-            "target_y": end_y,
-            "speed": np.random.uniform(8.0, 15.0),
-            "brightness": np.random.randint(200, 255),
-            "tail_length": np.random.randint(8, 20),
-            "color": np.random.choice([
-                (255, 255, 255),  # White
-                (255, 255, 200),  # Yellow-white
-                (200, 255, 255),  # Blue-white
-                (255, 200, 150)   # Orange-white
-            ]),
-            "lifetime": np.random.uniform(3.0, 6.0),
-            "age": 0.0
-        }
-        self.shooting_stars.append(shooting_star)
-
-    def _spawn_cosmic_lightning(self, storm) -> None:
-        """Spawn spectacular cosmic lightning from storm systems."""
-        # Create branching lightning bolt
-        for _ in range(np.random.randint(1, 4)):  # 1-3 bolts per discharge
-            lightning = {
-                "start_x": storm["x"] + np.random.uniform(-storm["size"]/3, storm["size"]/3),
-                "start_y": storm["y"] + np.random.uniform(-storm["size"]/3, storm["size"]/3),
-                "end_x": storm["x"] + np.random.uniform(-storm["size"], storm["size"]),
-                "end_y": storm["y"] + np.random.uniform(-storm["size"], storm["size"]),
-                "intensity": np.random.uniform(0.7, 1.0),
-                "color": np.random.choice([
-                    (255, 255, 255),  # White lightning
-                    (150, 150, 255),  # Blue lightning  
-                    (255, 255, 150),  # Yellow lightning
-                    (255, 150, 255)   # Purple lightning
-                ]),
-                "thickness": np.random.randint(2, 5),
-                "lifetime": np.random.uniform(0.1, 0.3),
-                "age": 0.0,
-                "branches": []
-            }
-            
-            # Add lightning branches
-            for _ in range(np.random.randint(0, 3)):
-                mid_x = (lightning["start_x"] + lightning["end_x"]) / 2 + np.random.uniform(-50, 50)
-                mid_y = (lightning["start_y"] + lightning["end_y"]) / 2 + np.random.uniform(-50, 50)
-                branch_end_x = mid_x + np.random.uniform(-100, 100)
-                branch_end_y = mid_y + np.random.uniform(-100, 100)
-                
-                lightning["branches"].append({
-                    "start_x": mid_x,
-                    "start_y": mid_y,
-                    "end_x": branch_end_x,
-                    "end_y": branch_end_y
-                })
-            
-            self.cosmic_lightning.append(lightning)
 
     def _update_cosmic_background(self) -> None:
-        """Update cosmic background elements with parallax and animations."""
+        """Update cosmic background elements with simple parallax for 1920x1080."""
         self.cosmic_time += 0.016  # ~60fps time step
         
         if not hasattr(self, "prev_agent_position"):
@@ -1096,27 +743,23 @@ class SpaceMining(gym.Env):
         movement = self.agent_position - self.prev_agent_position
         self.prev_agent_position = self.agent_position.copy()
         
-        # Update stars with enhanced parallax
+        # Update stars with simple parallax
         for layer in self.starfield_layers:
             for star in layer:
-                # Move with parallax and zoom effect
+                # Move with parallax effect
                 parallax_factor = star["speed"] * self.zoom_level
-                star["x"] -= movement[0] * parallax_factor * 12
-                star["y"] -= movement[1] * parallax_factor * 12
+                star["x"] -= movement[0] * parallax_factor * 8
+                star["y"] -= movement[1] * parallax_factor * 8
                 
-                # Add subtle natural drift
-                star["x"] += star.get("drift_x", 0) * 0.3
-                star["y"] += star.get("drift_y", 0) * 0.3
-                
-                # Wrap around with buffer zone for ultra-wide screen
-                if star["x"] < -80:
-                    star["x"] = 2000
-                elif star["x"] > 2000:
-                    star["x"] = -80
-                if star["y"] < -80:
-                    star["y"] = 1280
-                elif star["y"] > 1280:
-                    star["y"] = -80
+                # Wrap around screen
+                if star["x"] < -50:
+                    star["x"] = 1970
+                elif star["x"] > 1970:
+                    star["x"] = -50
+                if star["y"] < -50:
+                    star["y"] = 1130
+                elif star["y"] > 1130:
+                    star["y"] = -50
         
         # Update nebula clouds
         for nebula in self.nebula_clouds:
@@ -1127,14 +770,14 @@ class SpaceMining(gym.Env):
             # Slow rotation
             nebula["rotation"] += nebula["rotation_speed"]
             
-            # Wrap around for ultra-wide screen
+            # Wrap around screen
             if nebula["x"] < -nebula["size"]:
                 nebula["x"] = 1920 + nebula["size"]
             elif nebula["x"] > 1920 + nebula["size"]:
                 nebula["x"] = -nebula["size"]
             if nebula["y"] < -nebula["size"]:
-                nebula["y"] = 1200 + nebula["size"]
-            elif nebula["y"] > 1200 + nebula["size"]:
+                nebula["y"] = 1080 + nebula["size"]
+            elif nebula["y"] > 1080 + nebula["size"]:
                 nebula["y"] = -nebula["size"]
         
         # Update distant galaxies
@@ -1146,364 +789,78 @@ class SpaceMining(gym.Env):
             # Rotation
             galaxy["rotation"] += galaxy["rotation_speed"]
             
-            # Wrap around for ultra-wide screen
+            # Wrap around screen
             if galaxy["x"] < -galaxy["size"]:
                 galaxy["x"] = 1920 + galaxy["size"]
             elif galaxy["x"] > 1920 + galaxy["size"]:
                 galaxy["x"] = -galaxy["size"]
             if galaxy["y"] < -galaxy["size"]:
-                galaxy["y"] = 1200 + galaxy["size"]
-            elif galaxy["y"] > 1200 + galaxy["size"]:
+                galaxy["y"] = 1080 + galaxy["size"]
+            elif galaxy["y"] > 1080 + galaxy["size"]:
                 galaxy["y"] = -galaxy["size"]
         
         # Update space dust
         for dust in self.space_dust:
             # Fast parallax movement
-            dust["x"] -= movement[0] * dust["speed"] * self.zoom_level * 8
-            dust["y"] -= movement[1] * dust["speed"] * self.zoom_level * 8
+            dust["x"] -= movement[0] * dust["speed"] * self.zoom_level * 6
+            dust["y"] -= movement[1] * dust["speed"] * self.zoom_level * 6
             
             # Natural cosmic drift
             dust["x"] += dust["drift_x"]
             dust["y"] += dust["drift_y"]
             
-            # Wrap around for ultra-wide screen
+            # Wrap around screen
             if dust["x"] < -20:
                 dust["x"] = 1940
             elif dust["x"] > 1940:
                 dust["x"] = -20
             if dust["y"] < -20:
-                dust["y"] = 1220
-            elif dust["y"] > 1220:
+                dust["y"] = 1100
+            elif dust["y"] > 1100:
                 dust["y"] = -20
-        
-        # Update spectacular shooting stars
-        for shooting_star in self.shooting_stars[:]:  # Use slice to allow removal
-            shooting_star["age"] += 0.016
-            
-            # Move towards target
-            dx = shooting_star["target_x"] - shooting_star["x"]
-            dy = shooting_star["target_y"] - shooting_star["y"]
-            distance = math.sqrt(dx*dx + dy*dy)
-            
-            if distance > 0:
-                shooting_star["x"] += (dx / distance) * shooting_star["speed"]
-                shooting_star["y"] += (dy / distance) * shooting_star["speed"]
-            
-            # Remove if lifetime exceeded or reached target
-            if shooting_star["age"] > shooting_star["lifetime"] or distance < 20:
-                self.shooting_stars.remove(shooting_star)
-        
-        # Occasionally spawn new shooting stars
-        if np.random.random() < 0.002:  # Very rare
-            if len(self.shooting_stars) < 5:  # Limit number
-                self._spawn_shooting_star()
         
         # Update cosmic auroras
         for aurora in self.cosmic_auroras:
             # Slow parallax movement
-            aurora["x"] -= movement[0] * aurora["drift_speed"] * self.zoom_level * 0.5
-            aurora["y"] -= movement[1] * aurora["drift_speed"] * self.zoom_level * 0.5
+            aurora["x"] -= movement[0] * 0.5 * self.zoom_level
+            aurora["y"] -= movement[1] * 0.5 * self.zoom_level
             
             # Update wave animation
             aurora["wave_offset"] += aurora["wave_speed"]
             
-            # Wrap around for ultra-wide screen
-            if aurora["x"] < -aurora["width"] - 300:
-                aurora["x"] = 1920 + 300
-            elif aurora["x"] > 1920 + 300:
-                aurora["x"] = -aurora["width"] - 300
-            if aurora["y"] < -aurora["height"] - 300:
-                aurora["y"] = 1200 + 300
-            elif aurora["y"] > 1200 + 300:
-                aurora["y"] = -aurora["height"] - 300
-        
-        # Update pulsars
-        for pulsar in self.pulsars:
-            # Very slow parallax
-            pulsar["x"] -= movement[0] * 0.01 * self.zoom_level
-            pulsar["y"] -= movement[1] * 0.01 * self.zoom_level
-            
-            # Rotate beam
-            pulsar["beam_angle"] += pulsar["rotation_speed"]
-            
-            # Wrap around for ultra-wide screen
-            if pulsar["x"] < -100:
-                pulsar["x"] = 2020
-            elif pulsar["x"] > 2020:
-                pulsar["x"] = -100
-            if pulsar["y"] < -100:
-                pulsar["y"] = 1300
-            elif pulsar["y"] > 1300:
-                pulsar["y"] = -100
-        
-        # Update spectacular cosmic storms
-        for storm in self.cosmic_storms:
-            # Slow drift
-            storm["x"] -= movement[0] * 0.005 * self.zoom_level
-            storm["y"] -= movement[1] * 0.005 * self.zoom_level
-            
-            # Rotation
-            storm["rotation"] += storm["rotation_speed"]
-            
-            # Lightning generation
-            storm["lightning_timer"] += 0.016
-            if storm["lightning_timer"] > np.random.uniform(0.5, 2.0):
-                storm["lightning_timer"] = 0.0
-                # Spawn lightning from storm
-                self._spawn_cosmic_lightning(storm)
-            
-            # Wrap around for MASSIVE 2560x1600 screen
-            if storm["x"] < -storm["size"]:
-                storm["x"] = 2560 + storm["size"]
-            elif storm["x"] > 2560 + storm["size"]:
-                storm["x"] = -storm["size"]
-            if storm["y"] < -storm["size"]:
-                storm["y"] = 1600 + storm["size"]
-            elif storm["y"] > 1600 + storm["size"]:
-                storm["y"] = -storm["size"]
-        
-        # Update mystical wormholes
-        for wormhole in self.wormholes:
-            # Minimal drift
-            wormhole["x"] -= movement[0] * 0.002 * self.zoom_level
-            wormhole["y"] -= movement[1] * 0.002 * self.zoom_level
-            
-            # Rotation
-            wormhole["rotation"] += wormhole["rotation_speed"]
-            
-            # Wrap around for MASSIVE 2560x1600 screen
-            if wormhole["x"] < -wormhole["size"]:
-                wormhole["x"] = 2560 + wormhole["size"]
-            elif wormhole["x"] > 2560 + wormhole["size"]:
-                wormhole["x"] = -wormhole["size"]
-            if wormhole["y"] < -wormhole["size"]:
-                wormhole["y"] = 1600 + wormhole["size"]
-            elif wormhole["y"] > 1600 + wormhole["size"]:
-                wormhole["y"] = -wormhole["size"]
-        
-        # Update black holes
-        for black_hole in self.black_holes:
-            # Minimal drift
-            black_hole["x"] -= movement[0] * 0.001 * self.zoom_level
-            black_hole["y"] -= movement[1] * 0.001 * self.zoom_level
-            
-            # Rotation
-            black_hole["rotation"] += black_hole["rotation_speed"]
-            
-            # Wrap around for MASSIVE 2560x1600 screen
-            if black_hole["x"] < -black_hole["size"]:
-                black_hole["x"] = 2560 + black_hole["size"]
-            elif black_hole["x"] > 2560 + black_hole["size"]:
-                black_hole["x"] = -black_hole["size"]
-            if black_hole["y"] < -black_hole["size"]:
-                black_hole["y"] = 1600 + black_hole["size"]
-            elif black_hole["y"] > 1600 + black_hole["size"]:
-                black_hole["y"] = -black_hole["size"]
-        
-        # Update quasars
-        for quasar in self.quasars:
-            # Very slow parallax
-            quasar["x"] -= movement[0] * 0.005 * self.zoom_level
-            quasar["y"] -= movement[1] * 0.005 * self.zoom_level
-            
-            # Rotate beam
-            quasar["beam_angle"] += quasar["rotation_speed"]
-            
-            # Wrap around for MASSIVE 2560x1600 screen
-            if quasar["x"] < -quasar["size"]:
-                quasar["x"] = 2660
-            elif quasar["x"] > 2660:
-                quasar["x"] = -quasar["size"]
-            if quasar["y"] < -quasar["size"]:
-                quasar["y"] = 1700
-            elif quasar["y"] > 1700:
-                quasar["y"] = -quasar["size"]
-        
-        # Update cosmic ribbons
-        for ribbon in self.cosmic_ribbons:
-            # Update wave animation
-            ribbon["flow_offset"] += ribbon["wave_frequency"]
-            
-            # Move ribbon control points with parallax
-            for point in ribbon["points"]:
-                point[0] -= movement[0] * ribbon["flow_speed"] * self.zoom_level * 0.3
-                point[1] -= movement[1] * ribbon["flow_speed"] * self.zoom_level * 0.3
-                
-                # Wrap points around screen
-                if point[0] < -300:
-                    point[0] = 2860
-                elif point[0] > 2860:
-                    point[0] = -300
-                if point[1] < -300:
-                    point[1] = 1900
-                elif point[1] > 1900:
-                    point[1] = -300
-        
-        # Update supernovae
-        for supernova in self.supernovas:
-            supernova["age"] += 0.016
-            supernova["x"] += supernova["expansion_speed"] * math.cos(supernova["rotation_angle"])
-            supernova["y"] += supernova["expansion_speed"] * math.sin(supernova["rotation_angle"])
-
-            # Update explosion radius
-            supernova["explosion_radius"] += supernova["expansion_speed"] * 0.5
-            if supernova["explosion_radius"] > supernova["max_radius"]:
-                supernova["explosion_radius"] = supernova["max_radius"]
-                supernova["intensity"] = 0.0 # Fade out after max radius
-            
-            # Remove if intensity is zero
-            if supernova["intensity"] <= 0:
-                self.supernovas.remove(supernova)
-        
-        # Update asteroid belts
-        for belt in self.asteroid_belts:
-            belt["rotation_angle"] += belt["rotation_speed"]
-            belt["center_x"] += belt["rotation_speed"] * 10 # Slight drift
-            belt["center_y"] += belt["rotation_speed"] * 10 # Slight drift
-
-            # Wrap around for ultra-wide screen
-            if belt["center_x"] < -belt["radius"]:
-                belt["center_x"] = 1920 + belt["radius"]
-            elif belt["center_x"] > 1920 + belt["radius"]:
-                belt["center_x"] = -belt["radius"]
-            if belt["center_y"] < -belt["radius"]:
-                belt["center_y"] = 1200 + belt["radius"]
-            elif belt["center_y"] > 1200 + belt["radius"]:
-                belt["center_y"] = -belt["radius"]
-
-            # Rotate asteroids within the belt
-            for asteroid in belt["asteroids"]:
-                asteroid["angle"] += asteroid["rotation_speed"]
-                asteroid["distance"] = belt["radius"] + belt["thickness"]/2 * math.sin(asteroid["angle"])
-                asteroid["x"] = belt["center_x"] + asteroid["distance"] * math.cos(asteroid["angle"])
-                asteroid["y"] = belt["center_y"] + asteroid["distance"] * math.sin(asteroid["angle"])
-
-                # Wrap around for ultra-wide screen
-                if asteroid["x"] < -belt["radius"]:
-                    asteroid["x"] = 1920 + belt["radius"]
-                elif asteroid["x"] > 1920 + belt["radius"]:
-                    asteroid["x"] = -belt["radius"]
-                if asteroid["y"] < -belt["radius"]:
-                    asteroid["y"] = 1200 + belt["radius"]
-                elif asteroid["y"] > 1200 + belt["radius"]:
-                    asteroid["y"] = -belt["radius"]
-        
-        # Update cosmic winds
-        for wind in self.cosmic_winds:
-            wind["start_x"] += wind["speed"] * math.cos(wind["direction"]) * 0.5
-            wind["start_y"] += wind["speed"] * math.sin(wind["direction"]) * 0.5
-
-            # Wrap around for ultra-wide screen
-            if wind["start_x"] < -200:
-                wind["start_x"] = 3640
-            elif wind["start_x"] > 3640:
-                wind["start_x"] = -200
-            if wind["start_y"] < -100:
-                wind["start_y"] = 1540
-            elif wind["start_y"] > 1540:
-                wind["start_y"] = -100
-
-            # Move particles within the wind
-            for particle in wind["particles"]:
-                particle["offset"] += wind["speed"] * 0.016
-                particle["cross_offset"] += wind["speed"] * math.sin(wind["direction"]) * 0.016
-                particle["x"] = wind["start_x"] + particle["offset"] * math.cos(wind["direction"]) + particle["cross_offset"] * math.sin(wind["direction"])
-                particle["y"] = wind["start_y"] + particle["offset"] * math.sin(wind["direction"]) - particle["cross_offset"] * math.cos(wind["direction"])
-
-                # Wrap particles around screen
-                if particle["x"] < -200:
-                    particle["x"] = 3640
-                elif particle["x"] > 3640:
-                    particle["x"] = -200
-                if particle["y"] < -100:
-                    particle["y"] = 1540
-                elif particle["y"] > 1540:
-                    particle["y"] = -100
-        
-        # Update plasma fields
-        for plasma in self.plasma_fields:
-            plasma["x"] += plasma["drift_speed"] * math.cos(plasma["drift_direction"]) * 0.5
-            plasma["y"] += plasma["drift_speed"] * math.sin(plasma["drift_direction"]) * 0.5
-
-            # Wrap around for ultra-wide screen
-            if plasma["x"] < 300:
-                plasma["x"] = 3140
-            elif plasma["x"] > 3140:
-                plasma["x"] = 300
-            if plasma["y"] < 200:
-                plasma["y"] = 1240
-            elif plasma["y"] > 1240:
-                plasma["y"] = 200
-
-            # Pulse effect
-            plasma["intensity"] += plasma["pulse_frequency"] * 0.016
-            if plasma["intensity"] > plasma["pulse_offset"] + 0.5:
-                plasma["intensity"] = plasma["pulse_offset"] - 0.5
-        
-        # Update cosmic lightning
-        for lightning in self.cosmic_lightning[:]:
-            lightning["age"] += 0.016
-            lightning["intensity"] *= 0.95  # Fade quickly
-            
-            if lightning["age"] > lightning["lifetime"] or lightning["intensity"] < 0.1:
-                self.cosmic_lightning.remove(lightning)
+            # Wrap around screen
+            if aurora["x"] < -aurora["width"] - 100:
+                aurora["x"] = 1920 + 100
+            elif aurora["x"] > 1920 + 100:
+                aurora["x"] = -aurora["width"] - 100
+            if aurora["y"] < -aurora["height"] - 100:
+                aurora["y"] = 1080 + 100
+            elif aurora["y"] > 1080 + 100:
+                aurora["y"] = -aurora["height"] - 100
 
     def _update_zoom(self) -> None:
-        """Update ENHANCED dynamic zoom system for spectacular cinematography."""
-        # Smooth zoom interpolation with enhanced responsiveness
+        """Update simplified dynamic zoom system for better gameplay."""
+        # Smooth zoom interpolation
         zoom_diff = self.target_zoom - self.zoom_level
-        self.zoom_speed = 0.03  # Slightly faster for more dynamic feel
+        self.zoom_speed = 0.05  # Faster response
         self.zoom_level += zoom_diff * self.zoom_speed
         
-        # ENHANCED dynamic zoom based on multiple game factors
-        zoom_factors = []
-        
-        # Energy-based zoom (tension when low energy)
-        if hasattr(self, 'agent_energy'):
-            if self.agent_energy < 20:
-                zoom_factors.append(1.6)  # Much closer for extreme tension
-            elif self.agent_energy < 50:
-                zoom_factors.append(1.3)  # Close for tension
-            else:
-                zoom_factors.append(1.0)  # Normal
-        
-        # Asteroid-based zoom (wider view when few remaining)
-        remaining_asteroids = len([a for a in self.asteroid_resources if a > 0.1])
-        if remaining_asteroids <= 1:
-            zoom_factors.append(0.6)  # Very wide for final asteroid hunt
-        elif remaining_asteroids <= 3:
-            zoom_factors.append(0.75)  # Wide for endgame
+        # Simple dynamic zoom based on key game states
+        if hasattr(self, 'agent_energy') and self.agent_energy < 20:
+            # Zoom in when energy is critically low
+            self.target_zoom = 1.4
+        elif hasattr(self, 'collision_flash_timer') and self.collision_flash_timer > 0:
+            # Zoom out during collision for impact
+            self.target_zoom = 0.7
+        elif len([a for a in self.asteroid_resources if a > 0.1]) <= 2:
+            # Zoom out when few asteroids remain
+            self.target_zoom = 0.8
         else:
-            zoom_factors.append(1.0)  # Normal
-        
-        # Collision-based zoom (dramatic zoom out)
-        if hasattr(self, 'collision_flash_timer') and self.collision_flash_timer > 0:
-            zoom_factors.append(0.5)  # Extreme wide angle for impact
-        
-        # Speed-based zoom (zoom out when moving fast)
-        if hasattr(self, 'agent_velocity'):
-            speed = np.linalg.norm(self.agent_velocity)
-            if speed > 8:
-                zoom_factors.append(0.8)  # Pull back for high speed
-            elif speed > 5:
-                zoom_factors.append(0.9)  # Slightly back for medium speed
-        
-        # Mining-based zoom (zoom in slightly when mining)
-        if hasattr(self, 'mining_asteroid_id') and self.mining_asteroid_id is not None:
-            zoom_factors.append(1.15)  # Closer focus during mining
-        
-        # Inventory-based zoom (zoom out when carrying lots)
-        if hasattr(self, 'agent_inventory') and self.agent_inventory > 30:
-            zoom_factors.append(0.85)  # Pull back when heavily loaded
-        
-        # Calculate final target zoom (take minimum for most dramatic effect)
-        if zoom_factors:
-            self.target_zoom = min(zoom_factors)
-        else:
+            # Normal zoom
             self.target_zoom = 1.0
         
-        # Enhanced zoom range for more dramatic cinematography
-        self.zoom_level = max(0.4, min(2.5, self.zoom_level))
+        # Reasonable zoom range
+        self.zoom_level = max(0.5, min(2.0, self.zoom_level))
 
     def _add_timeline_event(self, event_type: str, text: str, color: tuple) -> None:
         """Add an event to the floating timeline."""

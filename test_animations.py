@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
 """
-🌌 ULTIMATE COSMIC SPACE MINING UNIVERSE - THE MOST SPECTACULAR EXPERIENCE EVER CREATED 🌌
+🌌 Space Mining Universe - Beautiful Cosmic Explorer 🌌
 
-THE DEFINITIVE COSMIC SPACE EXPLORATION SIMULATION:
-- MASSIVE 3440x1440 21:9 ultrawide display for ULTIMATE cosmic immersion
-- 2000+ cosmic elements creating the most living, breathing universe ever conceived
-- Spectacular phenomena: supernovas, asteroid belts, cosmic winds, plasma fields, storms, wormholes, lightning
-- Perfect visual coherence and elegant design throughout
-- Enhanced dynamic cinematography with smooth focus shifts
-- The most beautiful and immersive space simulation ever created
+A clean, elegant space exploration simulation:
+- Standard 1920x1080 HD display for optimal performance
+- Beautiful cosmic background with stars, nebulae, galaxies, and auroras
+- Smooth animations and visual effects without overwhelming complexity
+- Clean, coherent visual design throughout
+- Responsive dynamic zoom system
+- The perfect balance of beauty and performance
 
-THIS IS THE ULTIMATE COSMIC EXPERIENCE - NOTHING COMES CLOSE!
+A refined cosmic experience that focuses on visual quality and gameplay!
 """
 
 import time
@@ -18,53 +18,39 @@ import numpy as np
 from space_mining.envs.space_mining import SpaceMining
 
 def main():
-    """Experience the ultimate cosmic space mining universe."""
-    print("🌌" + "="*130 + "🌌")
-    print("🚀              ULTIMATE COSMIC SPACE MINING UNIVERSE - THE MOST SPECTACULAR EXPERIENCE EVER CREATED              🚀")
-    print("🌌" + "="*130 + "🌌")
+    """Experience the beautiful space mining universe."""
+    print("🌌" + "="*100 + "🌌")
+    print("🚀           Space Mining Universe - Beautiful Cosmic Explorer           🚀")
+    print("🌌" + "="*100 + "🌌")
     print()
-    print("✨ ULTIMATE COSMIC TRANSFORMATION - BEYOND IMAGINATION:")
-    print("  🖥️ MASSIVE ULTRAWIDE DISPLAY - 3440x1440 21:9 for ULTIMATE cosmic immersion")
-    print("  💥 SPECTACULAR SUPERNOVAS - 3 explosive stellar deaths with expanding shockwaves")
-    print("  🪨 DENSE ASTEROID BELTS - 4 massive formations with 200+ individual asteroids")
-    print("  🌪️ FLOWING COSMIC WINDS - 8 particle streams flowing across ultrawide space")
-    print("  ⚡ IONIZED PLASMA FIELDS - 5 pulsing regions of ionized gas")
-    print("  🌀 COSMIC STORMS - 4 massive rotating storm systems with branching lightning")
-    print("  🌌 MYSTICAL WORMHOLES - 3 dimensional portals with distortion rings")
-    print("  ⚡ COSMIC LIGHTNING - Spectacular branching energy discharges")
-    print("  🌈 ENHANCED AURORAS - 16 ethereal energy curtains dancing across ultrawide space") 
-    print("  🌌 SPECTACULAR NEBULAE - 32 multi-layered pulsing gas clouds")
-    print("  🌀 DISTANT GALAXIES - 25 spiral formations with detailed rotating arms")
-    print("  ⚡ ENHANCED PULSARS - 12 neutron stars with rotating energy beams")
-    print("  ⭐ MASSIVE STARFIELD - 1550 colored, twinkling stars across 3 layers")
-    print("  💎 ENHANCED DUST - 1550 cosmic particles (1200 fine + 350 coarse)")
-    print("  💫 DYNAMIC SHOOTING STARS - 6 meteors with spectacular glowing trails")
-    print("  🕳️ BLACK HOLES - 2 gravitational monsters with accretion disks")
-    print("  💫 ULTRA-BRIGHT QUASARS - 3 galactic powerhouses with intense beams")
-    print("  🎀 FLOWING COSMIC RIBBONS - 6 energy streams across ultrawide space")
+    print("✨ CLEAN COSMIC DESIGN:")
+    print("  🖥️ HD DISPLAY - 1920x1080 for optimal performance")
+    print("  ⭐ STARFIELD - 350 stars across 3 layers with realistic colors")
+    print("  🌌 NEBULA CLOUDS - 8 beautiful multi-colored gas clouds")
+    print("  🌀 DISTANT GALAXIES - 6 spiral formations with subtle rotation")
+    print("  💎 SPACE DUST - 300 particles creating atmospheric depth")
+    print("  🌈 COSMIC AURORAS - 4 ethereal energy curtains")
     print()
-    print("🎬 ULTIMATE CINEMATOGRAPHY - HOLLYWOOD-LEVEL QUALITY:")
-    print("  🔍 ENHANCED ZOOM SYSTEM - Dramatic multi-factor camera work")
-    print("  📺 PERFECT SCALING - All 2000+ elements scale beautifully")
-    print("  🎯 SMOOTH TRANSITIONS - Professional cinematic interpolation")
-    print("  ⚡ DYNAMIC EFFECTS - Lightning, explosions, and cosmic phenomena")
-    print("  🎥 CONTEXT-SENSITIVE FOCUS - Camera responds to game state")
+    print("🎬 SMOOTH CINEMATOGRAPHY:")
+    print("  🔍 RESPONSIVE ZOOM - Clean dynamic camera work")
+    print("  📺 PERFECT SCALING - All elements scale beautifully")
+    print("  🎯 SMOOTH MOVEMENT - Professional parallax scrolling")
+    print("  ⚡ VISUAL EFFECTS - Elegant particle systems and animations")
     print()
-    print("🎨 PERFECT VISUAL DESIGN - UNMATCHED COHERENCE:")
-    print("  📺 21:9 Ultrawide Ratio - Optimized for maximum cosmic viewing")
-    print("  🎯 Adaptive UI Layout - Perfect organization for ultrawide display")
-    print("  🌟 Enhanced Typography - Crystal clear, readable fonts")
-    print("  💫 Optimized Dimming - Maximum cosmic beauty visibility")
-    print("  🧹 Perfect Coherence - Every element works in perfect harmony")
-    print("  ✨ Professional Polish - Museum-quality visual experience")
+    print("🎨 ELEGANT VISUAL DESIGN:")
+    print("  📺 HD Ratio - Optimized for 1920x1080 displays")
+    print("  🎯 Clean UI - Well-organized interface elements")
+    print("  🌟 Clear Typography - Readable fonts and layouts")
+    print("  💫 Balanced Effects - Beautiful without being overwhelming")
+    print("  🧹 Perfect Coherence - Every element works in harmony")
     print()
-    print("🌠 TOTAL COSMIC ELEMENTS: 2000+ individual phenomena!")
-    print("🌌 ULTIMATE SCALE: Every pixel optimized for cosmic grandeur!")
-    print("⚡ REAL-TIME PHYSICS: All elements interact with parallax and zoom!")
+    print("🌠 Total Elements: ~670 cosmic phenomena")
+    print("🌌 Performance: Optimized for smooth 60fps gameplay")
+    print("⚡ Visual Quality: Professional, clean, and beautiful")
     print()
-    print("Starting the most spectacular cosmic experience ever created...")
-    print("Prepare to witness the ultimate fusion of science and art!")
-    time.sleep(3)
+    print("Starting the beautiful cosmic experience...")
+    print("Enjoy the perfect balance of beauty and performance!")
+    time.sleep(2)
 
     # Create environment with human rendering
     env = SpaceMining(render_mode="human")
