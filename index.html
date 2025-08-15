@@ -1093,51 +1093,73 @@ print(f"Environment initialized with {len(env.asteroid_positions)} asteroids")</
     </section>
 
     <section id="demo" class="reveal">
-      <h2>Interactive Demo Gallery</h2>
-      <p class="text-center muted">Click on any demonstration to view in full size. These examples showcase different agent behaviors and learning stages.</p>
+      <h2>Demo: Agent Behaviors</h2>
+      <p class="text-center muted">The GIF demonstrations showcase different agent behaviors and training outcomes, from successful resource collection to various failure modes and learning phases.</p>
       
       <div class="gif-gallery">
-        <div class="gif-card" role="button" tabindex="0" aria-label="View successful mining operation demonstration">
+        <div class="gif-card" role="button" tabindex="0" aria-label="View early exploration demonstration">
           <div class="gif-container">
-            <img data-src="assets/gifs/success_episode.gif" alt="Successful mining operation with optimal resource collection and delivery" loading="lazy" />
+            <img data-src="assets/gifs/early_exploration.gif" alt="Early exploration phase at 25,000 timesteps showing initial learning behavior" loading="lazy" />
           </div>
           <div class="card-content">
-            <h4>🏆 Expert Performance</h4>
-            <p class="description">Trained agent demonstrating optimal mining strategy with efficient pathfinding and resource management.</p>
-            <span class="status success">Success</span>
-          </div>
-        </div>
-
-        <div class="gif-card" role="button" tabindex="0" aria-label="View learning phase demonstration">
-          <div class="gif-container">
-            <img data-src="assets/gifs/learning_episode.gif" alt="Agent in learning phase showing exploration and suboptimal decisions" loading="lazy" />
-          </div>
-          <div class="card-content">
-            <h4>🎓 Learning Phase</h4>
-            <p class="description">Agent during training showing exploration behavior and gradual improvement in decision making.</p>
+            <h4>🔍 Early Exploration</h4>
+            <p class="description">Early Exploration · Eval num_timesteps=25000<br>Initial learning phase</p>
             <span class="status learning">Learning</span>
           </div>
         </div>
 
-        <div class="gif-card" role="button" tabindex="0" aria-label="View energy management demonstration">
+        <div class="gif-card" role="button" tabindex="0" aria-label="View continued early exploration demonstration">
           <div class="gif-container">
-            <img data-src="assets/gifs/energy_management.gif" alt="Demonstration of strategic energy management and recharging" loading="lazy" />
+            <img data-src="assets/gifs/early_exploration_later.gif" alt="Early exploration phase at 500,000 timesteps showing continued learning" loading="lazy" />
           </div>
           <div class="card-content">
-            <h4>⚡ Energy Strategy</h4>
-            <p class="description">Showcasing sophisticated energy management with strategic recharging at the mothership.</p>
-            <span class="status success">Optimized</span>
+            <h4>🔍 Early Exploration (Later)</h4>
+            <p class="description">Early Exploration · Eval num_timesteps=500000<br>Continued learning</p>
+            <span class="status learning">Learning</span>
           </div>
         </div>
 
-        <div class="gif-card" role="button" tabindex="0" aria-label="View obstacle avoidance demonstration">
+        <div class="gif-card" role="button" tabindex="0" aria-label="View successful mining demonstration">
           <div class="gif-container">
-            <img data-src="assets/gifs/obstacle_avoidance.gif" alt="Agent successfully navigating through moving obstacles" loading="lazy" />
+            <img data-src="assets/gifs/successful_mining.gif" alt="Successful mining operation with strategic resource collection" loading="lazy" />
           </div>
           <div class="card-content">
-            <h4>🛡️ Obstacle Navigation</h4>
-            <p class="description">Advanced obstacle avoidance capabilities with predictive movement and safe pathfinding.</p>
-            <span class="status success">Expert</span>
+            <h4>⛏️ Successful Mining</h4>
+            <p class="description">Successful Mining<br>Strategic resource collection</p>
+            <span class="status success">Success</span>
+          </div>
+        </div>
+
+        <div class="gif-card" role="button" tabindex="0" aria-label="View complete episode demonstration">
+          <div class="gif-container">
+            <img data-src="assets/gifs/complete_episode.gif" alt="Complete episode demonstration running full 1200 steps with optimal resource collection" loading="lazy" />
+          </div>
+          <div class="card-content">
+            <h4>🏆 Complete Episode</h4>
+            <p class="description">Complete Episode (1200 steps)<br>Optimal resource collection</p>
+            <span class="status success">Success</span>
+          </div>
+        </div>
+
+        <div class="gif-card" role="button" tabindex="0" aria-label="View energy depletion failure demonstration">
+          <div class="gif-container">
+            <img data-src="assets/gifs/energy_depletion.gif" alt="Energy depletion failure showing agent failing to recharge at mothership" loading="lazy" />
+          </div>
+          <div class="card-content">
+            <h4>🔋 Energy Depletion</h4>
+            <p class="description">Energy Depletion<br>Failed to recharge at mothership</p>
+            <span class="status failure">Failure</span>
+          </div>
+        </div>
+
+        <div class="gif-card" role="button" tabindex="0" aria-label="View poor obstacle avoidance demonstration">
+          <div class="gif-container">
+            <img data-src="assets/gifs/poor_obstacle_avoidance.gif" alt="Poor obstacle avoidance showing multiple collisions with moving obstacles" loading="lazy" />
+          </div>
+          <div class="card-content">
+            <h4>💥 Poor Obstacle Avoidance</h4>
+            <p class="description">Poor Obstacle Avoidance<br>Multiple collisions</p>
+            <span class="status failure">Failure</span>
           </div>
         </div>
       </div>
