@@ -48,14 +48,14 @@ class Renderer:
             shake_offset[0] = random.randint(-shake_intensity, shake_intensity)
             shake_offset[1] = random.randint(-shake_intensity, shake_intensity)
 
-        # Deep space background
-        self.window.fill((5, 5, 15))
+        # Deep space background - elegant cosmos
+        self.window.fill((2, 2, 8))  # Deeper space color for better contrast
 
-        # Draw simplified cosmic background
+        # Draw beautiful, coherent cosmic background optimized for 1920x1080
+        self._draw_enhanced_starfield()
         self._draw_nebulae()
         self._draw_distant_galaxies()
         self._draw_space_dust()
-        self._draw_enhanced_starfield()
         self._draw_cosmic_auroras()
 
         # Helper function to convert 2D coordinates to screen coordinates with zoom
@@ -395,527 +395,224 @@ class Renderer:
             )
 
     def _draw_nebulae(self) -> None:
-        """Draw colorful nebula clouds."""
+        """Draw beautiful, coherent nebula clouds optimized for 1920x1080."""
         try:
             import pygame
             from pygame import gfxdraw
         except ImportError:
             return
-
+            
         for nebula in self.env.nebula_clouds:
-            x, y = int(nebula["x"]), int(nebula["y"])
-            size = int(nebula["size"] * self.env.zoom_level)
-            
-            # Skip if completely off screen
-            if x < -size or x > 1920 + size or y < -size or y > 1080 + size:
+            # Only draw if visible on screen (performance optimization)
+            screen_bounds = (-100, -100, 2020, 1180)
+            if not (screen_bounds[0] <= nebula["x"] <= screen_bounds[2] and 
+                    screen_bounds[1] <= nebula["y"] <= screen_bounds[3]):
                 continue
-            
-            # Create enhanced nebula effect with pulsing
-            r, g, b, base_alpha = nebula["color"]
-            
-            # Add pulsing effect
-            pulse = math.sin(self.env.cosmic_time * nebula.get("pulse_speed", 0.02) + nebula.get("pulse_offset", 0)) * 0.4 + 0.6
-            
-            # Enhanced multi-layered nebula
-            for i in range(7):  # More layers for better effect
-                layer_size = int(size * (1.0 - i * 0.12))
-                if layer_size > 5:
-                    alpha = int((base_alpha * pulse - i * 4) * (1.0 - i * 0.1))
-                    alpha = max(3, min(alpha, 50))
-                    
-                    # Enhanced gradient with inner glow
-                    color_variation = 1.0 - (i * 0.1)
-                    inner_glow = 1.0 + (0.3 if i < 3 else 0)  # Brighter inner core
-                    
-                    final_color = (
-                        int(min(255, r * color_variation * inner_glow)),
-                        int(min(255, g * color_variation * inner_glow)), 
-                        int(min(255, b * color_variation * inner_glow)),
-                        alpha
-                    )
-                    
-                    # Create nebula surface with transparency
-                    nebula_surface = pygame.Surface((layer_size * 2, layer_size * 2), pygame.SRCALPHA)
-                    gfxdraw.filled_circle(nebula_surface, layer_size, layer_size, layer_size, final_color)
-                    
-                    # Apply rotation if needed
-                    if nebula["rotation"] != 0:
-                        nebula_surface = pygame.transform.rotate(nebula_surface, math.degrees(nebula["rotation"]))
-                    
-                    # Blit to main surface
-                    blit_x = x - nebula_surface.get_width() // 2
-                    blit_y = y - nebula_surface.get_height() // 2
-                    self.window.blit(nebula_surface, (blit_x, blit_y))
+                
+            try:
+                # Create nebula surface with alpha blending
+                nebula_surface = pygame.Surface((int(nebula["size"] * 2), int(nebula["size"] * 2)), pygame.SRCALPHA)
+                
+                # Draw main nebula cloud with gentle gradient
+                center_x = int(nebula["size"])
+                center_y = int(nebula["size"])
+                
+                # Outer nebula glow
+                for radius in range(int(nebula["size"]), int(nebula["size"] * 0.3), -5):
+                    alpha = int(nebula["color"][3] * (radius / nebula["size"]) * 0.3)
+                    color = (*nebula["color"][:3], alpha)
+                    gfxdraw.filled_circle(nebula_surface, center_x, center_y, radius, color)
+                
+                # Inner bright core
+                inner_radius = int(nebula["inner_size"])
+                inner_alpha = int(nebula["color"][3] * 0.8)
+                inner_color = (*nebula["color"][:3], inner_alpha)
+                gfxdraw.filled_circle(nebula_surface, center_x, center_y, inner_radius, inner_color)
+                
+                # Rotate the nebula surface
+                rotated_surface = pygame.transform.rotate(nebula_surface, math.degrees(nebula["rotation"]))
+                
+                # Calculate position to center the rotated surface
+                rotated_rect = rotated_surface.get_rect()
+                draw_x = int(nebula["x"] - rotated_rect.width // 2)
+                draw_y = int(nebula["y"] - rotated_rect.height // 2)
+                
+                # Blend onto main surface
+                self.window.blit(rotated_surface, (draw_x, draw_y), special_flags=pygame.BLEND_ADD)
+                
+            except (OverflowError, ValueError):
+                # Skip this nebula if there are numerical issues
+                continue
 
     def _draw_distant_galaxies(self) -> None:
-        """Draw distant spiral galaxies."""
+        """Draw simplified, elegant distant galaxies optimized for 1920x1080."""
         try:
             import pygame
             from pygame import gfxdraw
         except ImportError:
             return
-
+            
         for galaxy in self.env.distant_galaxies:
-            x, y = int(galaxy["x"]), int(galaxy["y"])
-            size = int(galaxy["size"] * self.env.zoom_level)
-            
-            # Skip if off screen
-            if x < -size or x > 1920 + size or y < -size or y > 1200 + size:
+            # Only draw if visible on screen
+            if not (0 <= galaxy["x"] <= 1920 and 0 <= galaxy["y"] <= 1080):
                 continue
-            
-            brightness = galaxy["brightness"]
-            core_brightness = galaxy.get("core_brightness", brightness + 20)
-            arm_thickness = galaxy.get("arm_thickness", 1.0)
-            
-            # Enhanced galaxy core with glow
-            core_color = (core_brightness + 15, core_brightness + 10, core_brightness + 20)
-            core_size = max(2, size // 6)
-            gfxdraw.filled_circle(self.window, x, y, core_size, core_color)
-            
-            # Core glow
-            if core_size > 2:
-                glow_color = (core_brightness // 2, core_brightness // 2, core_brightness // 2 + 5)
-                gfxdraw.aacircle(self.window, x, y, core_size + 1, glow_color)
-            
-            # Enhanced spiral arms
-            arm_count = galaxy["spiral_arms"]
-            rotation = galaxy["rotation"]
-            
-            for arm in range(arm_count):
-                arm_angle = rotation + (arm * 2 * math.pi / arm_count)
                 
-                # Draw enhanced spiral arm
-                for r in range(size // 8, size, max(1, size // 25)):
-                    spiral_angle = arm_angle + r * 0.25  # Tighter spiral
+            try:
+                # Draw galaxy core
+                core_x, core_y = int(galaxy["x"]), int(galaxy["y"])
+                core_size = max(1, int(galaxy["size"] * 0.2))
+                core_color = (galaxy["core_brightness"], galaxy["core_brightness"], galaxy["core_brightness"], 120)
+                gfxdraw.filled_circle(self.window, core_x, core_y, core_size, core_color)
+                
+                # Draw spiral arms
+                for arm in range(galaxy["arms"]):
+                    arm_angle = galaxy["rotation"] + (arm * 2 * math.pi / galaxy["arms"])
                     
-                    arm_x = x + int(r * math.cos(spiral_angle))
-                    arm_y = y + int(r * math.sin(spiral_angle))
-                    
-                                         if 0 <= arm_x <= 1920 and 0 <= arm_y <= 1200:
-                        # Enhanced fade with distance
-                        fade_factor = (1.0 - (r / size)) ** 1.5
-                        arm_brightness = int(brightness * fade_factor)
+                    # Draw arm as a series of fading points
+                    for distance in range(core_size, int(galaxy["size"]), 5):
+                        # Calculate spiral pattern
+                        spiral_angle = arm_angle + distance * 0.02
+                        x_offset = distance * math.cos(spiral_angle)
+                        y_offset = distance * math.sin(spiral_angle)
                         
-                        if arm_brightness > 3:
-                            arm_color = (
-                                arm_brightness, 
-                                arm_brightness, 
-                                min(255, arm_brightness + 8)
-                            )
-                            
-                            # Variable thickness based on distance
-                            if r < size // 2:
-                                dot_size = max(1, int(2 * arm_thickness))
-                                if dot_size > 1:
-                                    gfxdraw.filled_circle(self.window, arm_x, arm_y, dot_size, arm_color)
-                                else:
-                                    self.window.set_at((arm_x, arm_y), arm_color)
-                            else:
-                                self.window.set_at((arm_x, arm_y), arm_color)
+                        arm_x = core_x + int(x_offset)
+                        arm_y = core_y + int(y_offset)
+                        
+                        # Check bounds
+                        if 0 <= arm_x < 1920 and 0 <= arm_y < 1080:
+                            # Fade brightness with distance
+                            brightness = int(galaxy["arm_brightness"] * (1 - distance / galaxy["size"]))
+                            if brightness > 0:
+                                color = (brightness, brightness, brightness, 80)
+                                gfxdraw.pixel(self.window, arm_x, arm_y, color)
+                                
+            except (OverflowError, ValueError, TypeError):
+                continue
 
     def _draw_space_dust(self) -> None:
-        """Draw fine cosmic dust particles."""
-        try:
-            import pygame
-        except ImportError:
-            return
-
-        for dust in self.env.space_dust:
-            x, y = int(dust["x"]), int(dust["y"])
-            
-            if 0 <= x <= 2560 and 0 <= y <= 1600:
-                brightness = dust["brightness"]
-                dust_type = dust.get("type", "fine")
-                
-                # Different rendering for different dust types
-                if dust_type == "coarse":
-                    # Larger, more visible dust
-                    dust_color = (brightness + 5, brightness + 3, brightness + 8)
-                    size = max(1, int(dust["size"] * self.env.zoom_level))
-                    
-                    if size > 1:
-                        gfxdraw.filled_circle(self.window, x, y, size, dust_color)
-                        # Add subtle glow for larger particles
-                        if size > 2:
-                            glow_color = (brightness // 2, brightness // 2, brightness // 2)
-                            gfxdraw.aacircle(self.window, x, y, size + 1, glow_color)
-                    else:
-                        self.window.set_at((x, y), dust_color)
-                else:
-                    # Fine cosmic dust
-                    dust_color = (brightness, brightness, brightness + 2)
-                    size = max(1, int(dust["size"] * self.env.zoom_level))
-                    
-                    if size == 1:
-                        self.window.set_at((x, y), dust_color)
-                    else:
-                        gfxdraw.filled_circle(self.window, x, y, size, dust_color)
-
-    def _draw_enhanced_starfield(self) -> None:
-        """Draw enhanced starfield with colors and twinkling."""
+        """Draw atmospheric space dust optimized for 1920x1080."""
         try:
             import pygame
             from pygame import gfxdraw
         except ImportError:
             return
+            
+        for dust in self.env.space_dust:
+            # Only draw if visible on screen
+            if not (0 <= dust["x"] <= 1920 and 0 <= dust["y"] <= 1080):
+                continue
+                
+            try:
+                x, y = int(dust["x"]), int(dust["y"])
+                size = max(1, int(dust["size"]))
+                brightness = dust["brightness"]
+                
+                # Subtle dust particle with slight glow
+                color = (brightness, brightness, brightness, 60)
+                
+                if size == 1:
+                    gfxdraw.pixel(self.window, x, y, color)
+                else:
+                    gfxdraw.filled_circle(self.window, x, y, size, color)
+                    
+            except (OverflowError, ValueError):
+                continue
 
+    def _draw_enhanced_starfield(self) -> None:
+        """Draw beautiful starfield with optimized performance for 1920x1080."""
+        try:
+            import pygame
+            from pygame import gfxdraw
+        except ImportError:
+            return
+            
         for layer in self.env.starfield_layers:
             for star in layer:
-                x, y = int(star["x"]), int(star["y"])
-                
-                if 0 <= x <= 2560 and 0 <= y <= 1600:
-                    size = max(1, int(star["size"] * self.env.zoom_level))
-                    base_brightness = star["brightness"]
+                # Only draw if visible on screen
+                if not (0 <= star["x"] <= 1920 and 0 <= star["y"] <= 1080):
+                    continue
                     
-                    # Enhanced twinkling effect with variable speed
-                    twinkle_speed = star.get("twinkle_speed", 1.0)
-                    twinkle = math.sin(self.env.cosmic_time * twinkle_speed + star["twinkle_offset"]) * 0.4 + 0.6
-                    brightness = int(base_brightness * twinkle)
-                    brightness = max(15, min(255, brightness))
+                try:
+                    x, y = int(star["x"]), int(star["y"])
+                    size = star["size"]
+                    brightness = star["brightness"]
                     
-                    # Color based on star type
-                    color_type = star["color_type"]
-                    if color_type == "blue":
-                        color = (brightness // 2, brightness // 2, brightness)
-                    elif color_type == "yellow":
-                        color = (brightness, brightness, brightness // 2)
-                    elif color_type == "red":
-                        color = (brightness, brightness // 2, brightness // 2)
+                    # Choose star color
+                    if star["color_type"] == "blue":
+                        color = (brightness//2, brightness//2, brightness)
+                    elif star["color_type"] == "yellow":
+                        color = (brightness, brightness, brightness//2)
                     else:  # white
                         color = (brightness, brightness, brightness)
                     
+                    # Draw star with appropriate size
                     if size == 1:
-                        self.window.set_at((x, y), color)
-                    else:
-                        gfxdraw.filled_circle(self.window, x, y, size, color)
+                        gfxdraw.pixel(self.window, x, y, color)
+                    elif size == 2:
+                        gfxdraw.filled_circle(self.window, x, y, 1, color)
+                        # Add subtle glow
+                        glow_color = (*color, 40)
+                        gfxdraw.filled_circle(self.window, x, y, 2, glow_color)
+                    else:  # size 3+
+                        gfxdraw.filled_circle(self.window, x, y, size-1, color)
+                        # Add bright glow for larger stars
+                        glow_color = (*color, 60)
+                        gfxdraw.filled_circle(self.window, x, y, size, glow_color)
                         
-                        # Add glow for larger stars
-                        if size > 2:
-                            glow_brightness = brightness // 3
-                                                         glow_color = (glow_brightness, glow_brightness, glow_brightness)
-                             gfxdraw.aacircle(self.window, x, y, size + 1, glow_color)
+                except (OverflowError, ValueError):
+                    continue
 
     def _draw_cosmic_auroras(self) -> None:
-        """Draw ethereal cosmic auroras."""
+        """Draw elegant cosmic auroras optimized for 1920x1080."""
         try:
             import pygame
             from pygame import gfxdraw
         except ImportError:
             return
-
+            
         for aurora in self.env.cosmic_auroras:
-            x, y = int(aurora["x"]), int(aurora["y"])
-            width = int(aurora["width"] * self.env.zoom_level)
-            height = int(aurora["height"] * self.env.zoom_level)
-            
-            # Skip if off screen
-            if x < -width or x > 1920 + width or y < -height or y > 1200 + height:
+            # Only draw if potentially visible on screen
+            if not (-200 <= aurora["x"] <= 2120 and -200 <= aurora["y"] <= 1280):
                 continue
-            
-            r, g, b, base_alpha = aurora["color"]
-            intensity = aurora["intensity"]
-            wave_offset = aurora["wave_offset"]
-            
-            # Create wavy aurora effect
-            aurora_surface = pygame.Surface((width, height), pygame.SRCALPHA)
-            
-            # Draw vertical aurora strips with wave motion
-            for strip_x in range(0, width, 8):
-                wave_y = int(math.sin(wave_offset + strip_x * 0.05) * 30)
-                strip_height = height + wave_y
                 
-                # Gradient from top to bottom
-                for strip_y in range(max(0, -wave_y), min(height, strip_height)):
-                    if 0 <= strip_y < height:
-                        # Fade towards edges
-                        edge_fade = 1.0 - abs(strip_x - width//2) / (width//2)
-                        edge_fade *= 1.0 - abs(strip_y - height//2) / (height//2)
-                        
-                        alpha = int(base_alpha * intensity * edge_fade)
-                        if alpha > 3:
-                            color = (r, g, b, alpha)
-                            for dx in range(8):
-                                if strip_x + dx < width:
-                                    aurora_surface.set_at((strip_x + dx, strip_y), color)
-            
-            # Blit aurora to main surface
-            self.window.blit(aurora_surface, (x, y))
-
-    def _draw_pulsars(self) -> None:
-        """Draw spectacular pulsing neutron stars."""
-        try:
-            import pygame
-            from pygame import gfxdraw
-        except ImportError:
-            return
-
-        for pulsar in self.env.pulsars:
-            x, y = int(pulsar["x"]), int(pulsar["y"])
-            
-            if 0 <= x <= 2560 and 0 <= y <= 1600:
-                # Pulse calculation
-                pulse_phase = math.sin(self.env.cosmic_time / pulsar["pulse_period"] + pulsar["pulse_offset"])
-                pulse_intensity = (pulse_phase + 1) / 2  # 0 to 1
+            try:
+                # Create aurora surface
+                aurora_surface = pygame.Surface((int(aurora["width"]), int(aurora["height"])), pygame.SRCALPHA)
                 
-                brightness = int(pulsar["brightness"] * pulse_intensity)
-                r, g, b = pulsar["color"]
-                
-                # Draw pulsing core
-                core_size = max(2, int(6 * pulse_intensity * self.env.zoom_level))
-                core_color = (min(255, int(r * pulse_intensity)), 
-                             min(255, int(g * pulse_intensity)), 
-                             min(255, int(b * pulse_intensity)))
-                
-                gfxdraw.filled_circle(self.window, x, y, core_size, core_color)
-                
-                # Draw rotating beam when pulsing
-                if pulse_intensity > 0.7:  # Only when bright
-                    beam_length = int(pulsar["beam_length"] * self.env.zoom_level)
-                    beam_angle = pulsar["beam_angle"]
+                # Draw aurora as flowing vertical bands
+                band_count = 8
+                for band in range(band_count):
+                    band_x = int((band / band_count) * aurora["width"])
+                    band_width = max(1, int(aurora["width"] / band_count))
                     
-                    # Draw beam as series of fading dots
-                    for r in range(10, beam_length, 15):
-                        beam_x = x + int(r * math.cos(beam_angle))
-                        beam_y = y + int(r * math.sin(beam_angle))
-                        
-                        if 0 <= beam_x <= 2560 and 0 <= beam_y <= 1600:
-                            beam_fade = 1.0 - (r / beam_length)
-                            beam_alpha = int(brightness * beam_fade * 0.8)
-                            if beam_alpha > 10:
-                                beam_color = (beam_alpha, beam_alpha, beam_alpha + 20)
-                                beam_size = max(1, int(3 * beam_fade))
-                                if beam_size > 1:
-                                    gfxdraw.filled_circle(self.window, beam_x, beam_y, beam_size, beam_color)
-                                else:
-                                    self.window.set_at((beam_x, beam_y), beam_color)
-
-    def _draw_shooting_stars(self) -> None:
-        """Draw spectacular shooting stars with trails."""
-        try:
-            import pygame
-            from pygame import gfxdraw
-        except ImportError:
-            return
-
-        for star in self.env.shooting_stars:
-            x, y = int(star["x"]), int(star["y"])
-            
-            if 0 <= x <= 2560 and 0 <= y <= 1600:
-                r, g, b = star["color"]
-                brightness = star["brightness"]
-                tail_length = star["tail_length"]
-                
-                # Calculate direction for tail
-                dx = star["target_x"] - star["x"]
-                dy = star["target_y"] - star["y"]
-                if dx != 0 or dy != 0:
-                    distance = math.sqrt(dx*dx + dy*dy)
-                    tail_dx = -(dx / distance) * 15  # Opposite direction
-                    tail_dy = -(dy / distance) * 15
+                    # Create wave effect
+                    wave_offset = math.sin(aurora["wave_offset"] + band * 0.5) * 20
                     
-                    # Draw fading tail
-                    for i in range(tail_length):
-                        tail_x = int(x + tail_dx * i / 2)
-                        tail_y = int(y + tail_dy * i / 2)
+                    # Draw vertical gradient band
+                    for y in range(int(aurora["height"])):
+                        # Wave distortion
+                        wave_x = band_x + int(wave_offset * math.sin(y * 0.02))
                         
-                        if 0 <= tail_x <= 2560 and 0 <= tail_y <= 1600:
-                            fade = 1.0 - (i / tail_length)
-                            tail_brightness = int(brightness * fade)
-                            if tail_brightness > 5:
-                                tail_color = (
-                                    min(255, int(r * fade)),
-                                    min(255, int(g * fade)),
-                                    min(255, int(b * fade))
-                                )
-                                
-                                tail_size = max(1, int(3 * fade))
-                                if tail_size > 1:
-                                    gfxdraw.filled_circle(self.window, tail_x, tail_y, tail_size, tail_color)
-                                else:
-                                    self.window.set_at((tail_x, tail_y), tail_color)
+                        # Gradient intensity
+                        intensity = aurora["intensity"] * math.sin(y / aurora["height"] * math.pi)
+                        alpha = int(aurora["color"][3] * intensity)
+                        
+                        if alpha > 0 and 0 <= wave_x < aurora["width"]:
+                            color = (*aurora["color"][:3], alpha)
+                            # Draw with some width for the band
+                            for dx in range(band_width):
+                                if wave_x + dx < aurora["width"]:
+                                    aurora_surface.set_at((wave_x + dx, y), color)
                 
-                # Draw bright star head
-                star_color = (r, g, b)
-                star_size = max(3, int(5 * self.env.zoom_level))
-                gfxdraw.filled_circle(self.window, x, y, star_size, star_color)
+                # Blit aurora to main surface
+                self.window.blit(aurora_surface, (int(aurora["x"]), int(aurora["y"])), special_flags=pygame.BLEND_ADD)
                 
-                # Add bright glow
-                glow_color = (r//2, g//2, b//2)
-                gfxdraw.aacircle(self.window, x, y, star_size + 2, glow_color)
-
-    def _draw_cosmic_storms(self) -> None:
-        """Draw spectacular rotating cosmic storms with lightning."""
-        try:
-            import pygame
-            from pygame import gfxdraw
-        except ImportError:
-            return
-
-        for storm in self.env.cosmic_storms:
-            x, y = int(storm["x"]), int(storm["y"])
-            size = int(storm["size"] * self.env.zoom_level)
-            
-            if x < -size or x > 1920 + size or y < -size or y > 1200 + size:
+            except (OverflowError, ValueError):
                 continue
-            
-            r, g, b, base_alpha = storm["color"]
-            intensity = storm["intensity"]
-            rotation = storm["rotation"]
-            
-            # Create swirling storm effect
-            storm_surface = pygame.Surface((size * 2, size * 2), pygame.SRCALPHA)
-            center = size
-            
-            # Draw storm layers with rotation
-            for layer in range(8):
-                layer_radius = int(size * (1.0 - layer * 0.12))
-                if layer_radius > 5:
-                    alpha = int(base_alpha * intensity * (1.0 - layer * 0.1))
-                    
-                    # Spiral arms of the storm
-                    for arm in range(4):
-                        arm_angle = rotation + (arm * math.pi / 2)
-                        
-                        for r in range(10, layer_radius, 8):
-                            spiral_angle = arm_angle + r * 0.1
-                            
-                            storm_x = center + int(r * math.cos(spiral_angle))
-                            storm_y = center + int(r * math.sin(spiral_angle))
-                            
-                            if 0 <= storm_x < size * 2 and 0 <= storm_y < size * 2:
-                                fade = 1.0 - (r / layer_radius)
-                                storm_alpha = int(alpha * fade)
-                                
-                                if storm_alpha > 5:
-                                    storm_color = (
-                                        min(255, int(r * intensity)),
-                                        min(255, int(g * intensity)),
-                                        min(255, int(b * intensity)),
-                                        storm_alpha
-                                    )
-                                    
-                                    # Draw storm particles
-                                    particle_size = max(1, int(3 * fade))
-                                    if particle_size > 1:
-                                        gfxdraw.filled_circle(storm_surface, storm_x, storm_y, particle_size, storm_color)
-                                    else:
-                                        storm_surface.set_at((storm_x, storm_y), storm_color)
-            
-            # Blit storm to main surface
-            storm_rect = storm_surface.get_rect(center=(x, y))
-            self.window.blit(storm_surface, storm_rect)
 
-    def _draw_wormholes(self) -> None:
-        """Draw mystical dimensional wormholes."""
-        try:
-            import pygame
-            from pygame import gfxdraw
-        except ImportError:
-            return
 
-        for wormhole in self.env.wormholes:
-            x, y = int(wormhole["x"]), int(wormhole["y"])
-            size = int(wormhole["size"] * self.env.zoom_level)
-            
-            if x < -size or x > 1920 + size or y < -size or y > 1200 + size:
-                continue
-            
-            rotation = wormhole["rotation"]
-            rings = wormhole["distortion_rings"]
-            
-            # Pulsing effect
-            pulse = math.sin(self.env.cosmic_time * 2 + wormhole["pulse_offset"]) * 0.3 + 0.7
-            
-            # Draw concentric distortion rings
-            for ring in range(rings):
-                ring_radius = int(size * (1.0 - ring * 0.12) * pulse)
-                if ring_radius > 2:
-                    # Alternating colors for mystical effect
-                    if ring % 2 == 0:
-                        ring_color = (100, 0, 200, 150 - ring * 15)  # Purple
-                    else:
-                        ring_color = (0, 150, 255, 120 - ring * 12)  # Blue
-                    
-                    # Create ring with rotation distortion
-                    ring_surface = pygame.Surface((ring_radius * 2 + 10, ring_radius * 2 + 10), pygame.SRCALPHA)
-                    ring_center = ring_radius + 5
-                    
-                    # Draw distorted ring
-                    for angle_deg in range(0, 360, 6):
-                        angle_rad = math.radians(angle_deg + rotation * 180 / math.pi)
-                        
-                        # Distortion effect
-                        distort = math.sin(angle_rad * 4 + self.env.cosmic_time) * 0.2 + 1.0
-                        actual_radius = int(ring_radius * distort)
-                        
-                        ring_x = ring_center + int(actual_radius * math.cos(angle_rad))
-                        ring_y = ring_center + int(actual_radius * math.sin(angle_rad))
-                        
-                        if 0 <= ring_x < ring_radius * 2 + 10 and 0 <= ring_y < ring_radius * 2 + 10:
-                            gfxdraw.filled_circle(ring_surface, ring_x, ring_y, 2, ring_color)
-                    
-                    # Blit ring to main surface
-                    ring_rect = ring_surface.get_rect(center=(x, y))
-                    self.window.blit(ring_surface, ring_rect)
-            
-            # Draw bright center
-            center_size = max(3, int(8 * pulse * self.env.zoom_level))
-            center_color = (255, 255, 255, 200)
-            gfxdraw.filled_circle(self.window, x, y, center_size, center_color)
 
-    def _draw_cosmic_lightning(self) -> None:
-        """Draw spectacular branching cosmic lightning."""
-        try:
-            import pygame
-        except ImportError:
-            return
 
-        for lightning in self.env.cosmic_lightning:
-            if lightning["intensity"] < 0.1:
-                continue
-            
-            r, g, b = lightning["color"]
-            intensity = lightning["intensity"]
-            thickness = max(1, int(lightning["thickness"] * intensity))
-            
-            # Main lightning bolt
-            start_pos = (int(lightning["start_x"]), int(lightning["start_y"]))
-            end_pos = (int(lightning["end_x"]), int(lightning["end_y"]))
-            
-            if (0 <= start_pos[0] <= 1920 and 0 <= start_pos[1] <= 1200 and
-                0 <= end_pos[0] <= 1920 and 0 <= end_pos[1] <= 1200):
-                
-                lightning_color = (
-                    min(255, int(r * intensity)),
-                    min(255, int(g * intensity)),
-                    min(255, int(b * intensity))
-                )
-                
-                # Draw main bolt with multiple lines for thickness
-                for i in range(thickness):
-                    offset_x = np.random.randint(-1, 2)
-                    offset_y = np.random.randint(-1, 2)
-                    
-                    adjusted_start = (start_pos[0] + offset_x, start_pos[1] + offset_y)
-                    adjusted_end = (end_pos[0] + offset_x, end_pos[1] + offset_y)
-                    
-                    pygame.draw.line(self.window, lightning_color, adjusted_start, adjusted_end, 1)
-                
-                # Draw branches
-                for branch in lightning["branches"]:
-                    branch_start = (int(branch["start_x"]), int(branch["start_y"]))
-                    branch_end = (int(branch["end_x"]), int(branch["end_y"]))
-                    
-                    if (0 <= branch_start[0] <= 1920 and 0 <= branch_start[1] <= 1200 and
-                        0 <= branch_end[0] <= 1920 and 0 <= branch_end[1] <= 1200):
-                        
-                        branch_color = (
-                            min(255, int(r * intensity * 0.7)),
-                            min(255, int(g * intensity * 0.7)),
-                            min(255, int(b * intensity * 0.7))
-                        )
-                        
-                        pygame.draw.line(self.window, branch_color, branch_start, branch_end, max(1, thickness // 2))
 
     def _draw_game_ui(self, agent_pos_2d) -> None:
         """Draw the main game UI elements with adaptive layout and icons."""
