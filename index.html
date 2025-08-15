@@ -1042,49 +1042,49 @@ print(f"Environment initialized with {len(env.asteroid_positions)} asteroids")</
           <h3>📊 Action Space</h3>
           <p><strong>Type:</strong> Box(3) - Continuous control</p>
           <ul>
-            <li><code>thrust_x</code>: Horizontal thrust [-1, 1]</li>
-            <li><code>thrust_y</code>: Vertical thrust [-1, 1]</li>
-            <li><code>mine_action</code>: Mining trigger [0, 1]</li>
+            <li><code>thrust_x</code>: Horizontal force [-1.0, 1.0]</li>
+            <li><code>thrust_y</code>: Vertical force [-1.0, 1.0]</li>
+            <li><code>mine_action</code>: Binary mining activation [0.0, 1.0]</li>
           </ul>
         </div>
         <div class="card">
-          <h3>👁️ Observation Space</h3>
+          <h3>👁️ State Space</h3>
           <p><strong>Type:</strong> Box(53) - Structured observations</p>
           <ul>
-            <li><strong>Agent state</strong>: Position, velocity, energy, inventory (6)</li>
-            <li><strong>Asteroids</strong>: Relative positions + resources (45)</li>
-            <li><strong>Mothership</strong>: Relative position (2)</li>
+            <li><strong>Agent State (6)</strong>: Position (x, y), velocity (vx, vy), energy level, inventory</li>
+            <li><strong>Asteroid Information (45)</strong>: Relative positions and resource amounts for visible asteroids</li>
+            <li><strong>Mothership Position (2)</strong>: Relative position to mothership</li>
           </ul>
         </div>
         <div class="card">
-          <h3>🌍 Environment Setup</h3>
+          <h3>🌍 Environment Parameters</h3>
           <ul>
-            <li><strong>Grid size</strong>: 100x100 (configurable)</li>
-            <li><strong>Max asteroids</strong>: 15 per episode</li>
-            <li><strong>Obstacle count</strong>: 8 moving obstacles</li>
-            <li><strong>Observation radius</strong>: 20 units (partial observability)</li>
+            <li><strong>Grid size</strong>: 80×80 units (default, configurable)</li>
+            <li><strong>Max asteroids</strong>: 8-12 per episode (random)</li>
+            <li><strong>Moving obstacles</strong>: 4-8 dynamic collision hazards</li>
+            <li><strong>Observation radius</strong>: 15 units (partial observability)</li>
           </ul>
         </div>
         <div class="card">
           <h3>🏆 Reward Structure</h3>
           <ul>
-            <li><strong>Mining rewards</strong>: +8.0 per resource unit</li>
+            <li><strong>Mining rewards</strong>: +8.0 per resource unit extracted</li>
             <li><strong>Delivery bonuses</strong>: +12.0 per delivered unit</li>
             <li><strong>Exploration rewards</strong>: +3.0 per discovered asteroid</li>
-            <li><strong>Efficiency bonuses</strong>: Energy and path optimization</li>
+            <li><strong>Energy recharge bonus</strong>: +0.5 per energy unit restored</li>
           </ul>
         </div>
         <div class="card">
-          <h3>⚠️ Penalties & Limits</h3>
+          <h3>⚠️ Penalties & Constraints</h3>
           <ul>
-            <li><strong>Collision penalty</strong>: -10.0 per obstacle hit</li>
-            <li><strong>Boundary penalty</strong>: -1.0 per boundary contact</li>
-            <li><strong>Energy cost</strong>: Movement and mining consumption</li>
-            <li><strong>Inventory limit</strong>: 10 resource units maximum</li>
+            <li><strong>Obstacle collision</strong>: -10.0 per collision</li>
+            <li><strong>Boundary contact</strong>: -1.0 per boundary hit</li>
+            <li><strong>Energy depletion</strong>: -10.0 when energy reaches zero</li>
+            <li><strong>Inventory limit</strong>: 100 resource units maximum</li>
           </ul>
         </div>
         <div class="card">
-          <h3>⚙️ Episode Termination</h3>
+          <h3>⚙️ Difficulty & Termination</h3>
           <ul>
             <li><strong>Energy depletion</strong>: Agent energy reaches zero</li>
             <li><strong>Collision limit</strong>: 18+ obstacle collisions</li>
