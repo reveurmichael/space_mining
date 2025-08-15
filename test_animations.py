@@ -1,15 +1,14 @@
 #!/usr/bin/env python3
 """
-Test script to demonstrate the complete enhanced Space Mining game with polished adaptive UI.
+Test script to demonstrate the complete enhanced Space Mining game with floating timeline and combo system.
 
-Latest UI Polish Features:
-1. Adaptive status panel with icon-based indicators in 2-column grid layout
-2. Compact legend with visual icons matching game elements in 3-column layout
-3. Horizontal event strip for recent actions instead of vertical text list
-4. Visual icons replace text for faster recognition and better space utilization
-5. All panels adapt to available horizontal space with optimized layouts
+Latest Polish Features:
+1. Floating Event Timeline - Top bar with micro-cards showing last 5 events
+2. Score Combo System - Pulsing multiplier badges for rapid mining chains
+3. Adaptive UI layouts with visual icons for faster recognition
+4. All previous enhancements maintained and working together
 
-This script provides a complete demonstration of the polished space mining experience.
+This script provides a complete demonstration of the polished gaming experience.
 """
 
 import time
@@ -17,14 +16,21 @@ import numpy as np
 from space_mining.envs.space_mining import SpaceMining
 
 def main():
-    """Run the complete enhanced space mining game with polished adaptive UI."""
-    print("🚀 Space Mining - Polished Adaptive UI Demo")
-    print("=" * 75)
-    print("🎨 UI POLISH & READABILITY FEATURES:")
+    """Run the complete enhanced space mining game with floating timeline and combo system."""
+    print("🚀 Space Mining - Complete Polish Demo")
+    print("=" * 80)
+    print("🆕 LATEST POLISH FEATURES:")
+    print("  🎬 Floating Event Timeline - Top bar with micro-cards (last 5 events)")
+    print("  🔥 Score Combo System - x2/x3 multiplier badges for rapid mining")
+    print("  ⏱️ Event Fading - Cards fade after few seconds")
+    print("  ✨ Combo Detection - Chain mining within 50-step window")
+    print("  🎯 Visual Icons - Timeline cards have type-specific icons")
+    print()
+    print("🎨 UI POLISH & READABILITY:")
     print("  📊 Adaptive Status Panel - 2-column grid with visual icons")
     print("  🎯 Icon-Based Indicators - Battery, package, pickaxe, clock, etc.")
     print("  📋 Compact Legend - 3-column layout with matching game icons")
-    print("  ➡️ Horizontal Event Strip - Recent actions in compact format")
+    print("  ➡️ Horizontal Event Strip - Recent actions in status area")
     print("  📐 Space Optimization - Better use of available screen real estate")
     print("  ⚡ Faster Recognition - Visual icons instead of text for key info")
     print()
@@ -40,8 +46,8 @@ def main():
     print("  📊 Score Popups - Floating feedback text")
     print("  ⚠️ Energy Warning System - Red halo for low energy")
     print("  🌟 Atmospheric Effects - Glows, pulses, depth")
-    print("=" * 75)
-    print("🎮 Watch the polished adaptive UI in action!")
+    print("=" * 80)
+    print("🎮 Watch the complete polished experience!")
     print()
 
     # Create environment with human rendering
@@ -51,43 +57,41 @@ def main():
         observation, info = env.reset()
         step_count = 0
         
-        print("🎮 Environment initialized. Starting polished UI demo...")
+        print("🎮 Environment initialized. Starting complete polish demo...")
         print()
-        print("🔍 FOCUS ON NEW UI FEATURES:")
-        print("  📊 STATUS PANEL (top-left):")
-        print("    • 2-column grid layout for efficient space use")
-        print("    • Battery icon shows energy level with visual fill")
-        print("    • Package icon for inventory with cross-pattern")
-        print("    • Pickaxe icon for total resources mined")
-        print("    • Warning icon (!) for collisions with dynamic color")
-        print("    • Clock icon for step counter")
-        print("    • Asteroid icon for remaining asteroids")
+        print("🔍 FOCUS ON NEW FEATURES:")
+        print("  🎬 FLOATING TIMELINE (top center):")
+        print("    • Micro-cards show last 5 events in real-time")
+        print("    • Cards have type-specific icons (pickaxe, arrow, warning)")
+        print("    • Different background colors for different event types")
+        print("    • Automatic fading after a few seconds")
+        print("    • Centered layout adapts to number of events")
         print()
-        print("  📋 LEGEND (bottom-right):")
-        print("    • 3-column compact grid layout")
-        print("    • Visual icons that exactly match game elements")
-        print("    • Agent circle, mothership glow, asteroid shape")
-        print("    • Range circles, beam lines, particle dots")
-        print("    • Much faster to scan than text-heavy legends")
+        print("  🔥 COMBO SYSTEM (center screen):")
+        print("    • Triggers when mining within 50-step window")
+        print("    • Shows x2, x3, x4+ multiplier badges")
+        print("    • Pulsing golden badge with rotating sparkles")
+        print("    • Special combo events appear in timeline")
+        print("    • Badge fades after 4 seconds")
         print()
-        print("  ➡️ EVENT STRIP (below status):")
-        print("    • Horizontal compact format for recent events")
-        print("    • Shows mining results, deliveries, warnings")
-        print("    • Pipes (|) separate different event types")
+        print("  📊 STATUS & LEGEND:")
+        print("    • 2-column status grid with visual icons")
+        print("    • 3-column legend with game-matching elements")
+        print("    • Recent events in horizontal strip below status")
         print()
         print("  ⭐ Also watch for: starfield, mothership aura, all animations")
         print()
         
-        ui_demo_messages = [
-            "📊 Notice the compact 2-column status grid with visual icons",
-            "🎯 Icons provide instant recognition - battery, package, pickaxe, etc.", 
-            "📋 Legend uses 3-column layout with matching visual elements",
-            "➡️ Recent events appear in horizontal strip format",
-            "📐 All panels make efficient use of available screen space",
-            "⚡ Visual icons are much faster to scan than text labels"
+        timeline_tips = [
+            "🎬 Notice the floating timeline cards at the top of the screen",
+            "🔥 Try to mine multiple asteroids quickly to trigger combo multipliers!", 
+            "⏱️ Watch how timeline cards fade out over time",
+            "🎯 Each event type has its own icon and color scheme",
+            "✨ Combo badges appear with rotating sparkles for extra flair"
         ]
         
-        message_index = 0
+        tip_index = 0
+        combo_demonstrated = False
         
         while True:
             # Enhanced AI behavior for better demonstration
@@ -99,7 +103,7 @@ def main():
             asteroid_obs = observation[6:6+env.max_obs_asteroids*3].reshape(-1, 3)
             mothership_rel_pos = observation[-2:]
             
-            # Smart AI logic
+            # Smart AI logic optimized for combo demonstration
             action = np.zeros(3)
             
             if agent_inventory > 0:
@@ -107,9 +111,9 @@ def main():
                 if np.linalg.norm(mothership_rel_pos) > 1:
                     direction = mothership_rel_pos / (np.linalg.norm(mothership_rel_pos) + 1e-8)
                     action[:2] = direction * 0.8
-                print(f"📦 Carrying {agent_inventory:.1f} → mothership (watch package icon & event strip!)")
+                print(f"📦 Carrying {agent_inventory:.1f} → mothership (watch timeline card!)")
             else:
-                # Find nearest asteroid
+                # Find nearest asteroid for rapid mining (combo demo)
                 nearest_asteroid = None
                 min_distance = float('inf')
                 
@@ -124,62 +128,66 @@ def main():
                     if min_distance < env.mining_range:
                         # Mine if close enough
                         action[2] = 1.0  # Mine
-                        print(f"⛏️ Mining {nearest_asteroid[2]:.1f} resources (see pickaxe icon & score popup!)")
+                        print(f"⛏️ Mining {nearest_asteroid[2]:.1f} (watch for combo and timeline!)")
                     else:
-                        # Move towards asteroid
+                        # Move towards asteroid aggressively for combo demo
                         direction = nearest_asteroid[:2] / (min_distance + 1e-8)
-                        action[:2] = direction * 0.6
-                        print(f"🔍 Moving towards asteroid (distance: {min_distance:.1f})")
+                        action[:2] = direction * 1.0  # Faster movement
+                        print(f"🔍 Moving fast to asteroid (distance: {min_distance:.1f})")
             
-            # Show UI demo messages periodically
-            if step_count % 200 == 0 and message_index < len(ui_demo_messages):
-                print(f"💡 UI TIP: {ui_demo_messages[message_index]}")
-                message_index += 1
+            # Show timeline tips periodically
+            if step_count % 250 == 0 and tip_index < len(timeline_tips):
+                print(f"💡 TIMELINE TIP: {timeline_tips[tip_index]}")
+                tip_index += 1
             
-            # Add some movement for starfield demo
-            if step_count % 100 == 0:
-                action[:2] += np.random.uniform(-0.4, 0.4, 2)
+            # Add movement for variety
+            if step_count % 80 == 0:
+                action[:2] += np.random.uniform(-0.3, 0.3, 2)
             
             # Step environment
             observation, reward, terminated, truncated, info = env.step(action)
             step_count += 1
             
-            # Highlight UI-relevant events
+            # Highlight timeline and combo events
             if hasattr(env, 'last_mining_info') and env.last_mining_info.get('step', 0) == step_count:
                 extracted = env.last_mining_info['extracted']
-                print(f"✅ MINED {extracted:.1f}! (See pickaxe icon update & event strip shows '+{extracted:.1f}')")
+                combo_count = env.combo_state.get('chain_count', 0)
+                if combo_count >= 2:
+                    print(f"🔥 COMBO x{combo_count}! Mined {extracted:.1f} (see pulsing badge & timeline!)")
+                    combo_demonstrated = True
+                else:
+                    print(f"✅ MINED {extracted:.1f}! (New card added to timeline)")
             
             if hasattr(env, 'last_delivery_info') and env.last_delivery_info.get('step', 0) == step_count:
                 delivered = env.last_delivery_info['delivered']
-                print(f"🚀 DELIVERED {delivered:.1f}! (Package icon resets, event strip shows delivery)")
+                print(f"🚀 DELIVERED {delivered:.1f}! (Green delivery card in timeline)")
             
             if hasattr(env, 'last_collision_step') and env.last_collision_step == step_count:
-                print(f"💥 COLLISION! (Warning icon flashes red, collision counter updates)")
+                print(f"💥 COLLISION! (Red warning card appears in timeline)")
             
-            # Energy status for UI demo
-            if agent_energy < 30 and step_count % 50 == 0:
-                print(f"⚠️ LOW ENERGY! (Battery icon shows red, visual fill decreases)")
-            
-            # UI status updates
-            if step_count % 150 == 0:
-                print(f"📊 UI Demo Status - Step {step_count}:")
-                print(f"   🔋 Battery Icon: Shows {agent_energy:.0f}/150 energy")
-                print(f"   📦 Package Icon: Shows {agent_inventory:.0f} inventory")
-                print(f"   ⛏️ Pickaxe Icon: Shows {cumulative_mining:.1f} total mined")
-                print(f"   ⚠️ Warning Icon: Shows {env.collision_count} collisions")
-                print(f"   🕒 Clock Icon: Shows {env.steps_count}/{env.max_episode_steps}")
-                print(f"   🌕 Asteroid Icon: Shows active/total asteroids")
-                print(f"   📋 Legend: 3-col layout with visual game element icons")
-                print(f"   ➡️ Event Strip: Horizontal format for recent actions")
+            # Timeline and combo status updates
+            if step_count % 200 == 0:
+                timeline_count = len(env.event_timeline)
+                combo_active = env.combo_state.get('display_timer', 0) > 0
+                combo_chain = env.combo_state.get('chain_count', 0)
                 
-                active_asteroids = np.sum(env.asteroid_resources >= 0.1)
-                print(f"   📐 Space Usage: Optimized 2-col status, 3-col legend")
-                print(f"   ⚡ Recognition: Visual icons for instant understanding")
+                print(f"📊 Polish Demo Status - Step {step_count}:")
+                print(f"   🎬 Timeline Cards: {timeline_count}/5 active")
+                print(f"   🔥 Combo System: {'x' + str(combo_chain) + ' ACTIVE' if combo_active else 'Ready'}")
+                print(f"   ⏱️ Card Fading: {'Active' if timeline_count > 0 else 'Waiting for events'}")
+                print(f"   🎯 Event Types: Mining, Delivery, Collision, Combo")
+                print(f"   📐 UI Layout: Floating top + adaptive sides")
+                print(f"   ✨ Visual Polish: Icons, colors, animations")
+                
+                if combo_demonstrated:
+                    print(f"   🏆 Combo Demo: Successfully triggered!")
+                else:
+                    print(f"   🎯 Combo Demo: Mine quickly to trigger combos!")
             
             # Check for end conditions
             if terminated or truncated:
                 print()
-                print("🎬 GAME OVER - UI DEMO COMPLETE!")
+                print("🎬 COMPLETE POLISH DEMO FINISHED!")
                 if terminated:
                     if hasattr(info, 'exploration_complete') and info.get('exploration_complete'):
                         print("🎉 SUCCESS: All asteroids depleted!")
@@ -189,53 +197,64 @@ def main():
                     print("⏰ TIME LIMIT: Episode truncated!")
                 
                 print()
-                print("🎨 POLISHED UI FEATURES DEMONSTRATED:")
-                print("  ✅ Adaptive status panel with 2-column icon grid")
-                print("  ✅ Visual icons for instant recognition (battery, package, etc.)")
-                print("  ✅ Compact 3-column legend with matching game icons")
-                print("  ✅ Horizontal event strip for efficient space use")
-                print("  ✅ Optimized layouts that adapt to available space")
-                print("  ✅ Faster scanning and better readability")
+                print("🌟 COMPLETE POLISH FEATURES DEMONSTRATED:")
+                print("  ✅ Floating Event Timeline with micro-cards")
+                print("  ✅ Score combo system with pulsing badges")
+                print("  ✅ Event fading and timeline management")
+                print("  ✅ Adaptive UI layouts with visual icons")
+                print("  ✅ All animations and atmospheric effects")
+                print("  ✅ Professional game polish and UX")
                 print()
-                print("⏳ Waiting for game over screen to show final stats...")
+                
+                # Show final timeline state
+                if env.event_timeline:
+                    print(f"📋 Final Timeline State: {len(env.event_timeline)} events")
+                    for i, event in enumerate(env.event_timeline):
+                        print(f"   {i+1}. {event['type']}: {event['text']}")
+                
+                print()
+                print("⏳ Waiting for game over screen...")
                 
                 # Let the game over screen fully appear
                 for _ in range(100):
                     env.render()
                     time.sleep(0.033)
                 
-                print("✅ Complete UI polish demo finished!")
+                print("✅ Complete polish demo finished!")
                 break
             
-            # Run for demonstration duration
-            if step_count > 1000:
+            # Run for good demonstration duration
+            if step_count > 1200:
                 print()
-                print("🎬 Polished UI demo completed successfully!")
+                print("🎬 Complete polish demo completed successfully!")
                 print()
-                print("🏆 UI POLISH ACHIEVEMENTS:")
-                print("  ✅ Replaced text-heavy status with visual icon grid")
-                print("  ✅ Created adaptive 2-column status layout")
-                print("  ✅ Designed 3-column legend with game-matching icons")
-                print("  ✅ Implemented horizontal event strip format")
-                print("  ✅ Optimized space usage across all UI panels")
-                print("  ✅ Achieved faster recognition through visual elements")
-                print("  ✅ Maintained all functionality while improving UX")
+                print("🏆 POLISH ACHIEVEMENTS:")
+                print("  ✅ Implemented floating event timeline system")
+                print("  ✅ Created score combo/chain multiplier system")
+                print("  ✅ Added event fading and lifetime management")
+                print("  ✅ Enhanced UI with adaptive layouts and icons")
+                print("  ✅ Maintained all visual effects and animations")
+                print("  ✅ Achieved professional game polish level")
                 print()
-                print("🌟 Space Mining UI is now polished and user-friendly!")
+                combo_msg = "demonstrated" if combo_demonstrated else "available (mine rapidly!)"
+                print(f"🔥 Combo System: {combo_msg}")
+                print(f"🎬 Timeline Events: {len(env.event_timeline)} currently active")
+                print()
+                print("🌟 Space Mining is now fully polished and complete!")
                 break
                 
             # Optimal viewing speed
-            time.sleep(0.03)
+            time.sleep(0.025)
     
     except KeyboardInterrupt:
         print("\n👋 Demo interrupted by user")
-        print("🎨 Polished adaptive UI successfully demonstrated!")
+        print("🎨 Complete polish features successfully demonstrated!")
     except Exception as e:
         print(f"❌ Error occurred: {e}")
     finally:
         env.close()
-        print("🚪 Enhanced Space Mining UI demo complete!")
-        print("✨ Thank you for experiencing the polished interface!")
+        print("🚪 Complete Space Mining polish demo finished!")
+        print("✨ Thank you for experiencing the fully enhanced interface!")
 
 if __name__ == "__main__":
     main()

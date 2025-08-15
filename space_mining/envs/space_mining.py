@@ -1,4 +1,5 @@
 from typing import Any, Dict, Optional, Tuple
+import math
 
 import gymnasium as gym
 import numpy as np
@@ -73,6 +74,19 @@ class SpaceMining(gym.Env):
             "success": False
         }
 
+        # Floating event timeline
+        self.event_timeline = []  # List of recent events with timestamps
+        self.max_timeline_events = 5
+        
+        # Score combo system
+        self.combo_state = {
+            "chain_count": 0,
+            "last_mining_step": 0,
+            "combo_window": 50,  # Steps to maintain combo
+            "display_timer": 0,
+            "combo_alpha": 0
+        }
+
         self.action_space: spaces.Box = spaces.Box(
             low=np.array([-1.0, -1.0, 0.0]),
             high=np.array([1.0, 1.0, 1.0]),
@@ -119,6 +133,16 @@ class SpaceMining(gym.Env):
             "fade_alpha": 0,
             "final_stats": {},
             "success": False
+        }
+
+        # Reset event timeline and combo system
+        self.event_timeline = []
+        self.combo_state = {
+            "chain_count": 0,
+            "last_mining_step": 0,
+            "combo_window": 50,
+            "display_timer": 0,
+            "combo_alpha": 0
         }
 
         self.agent_position = self.np_random.uniform(low=0, high=self.grid_size, size=(2,))
@@ -236,6 +260,8 @@ class SpaceMining(gym.Env):
                 # Trigger collision effects
                 self.collision_flash_timer = 0.3  # Flash for 0.3 seconds
                 self.screen_shake_timer = 0.2  # Shake for 0.2 seconds
+                # Add to event timeline
+                self._add_timeline_event("collision", "Collision!", (255, 100, 100))
                 to_obstacle = self.agent_position - obstacle_pos
                 if np.linalg.norm(to_obstacle) > 0:
                     to_obstacle = to_obstacle / np.linalg.norm(to_obstacle)
@@ -281,6 +307,10 @@ class SpaceMining(gym.Env):
                         reward += max_possible * 8.0
                         # Add score popup for mining
                         self._add_score_popup(f"+{max_possible:.1f}", asteroid_pos.copy(), (255, 255, 0))
+                        # Add to event timeline
+                        self._add_timeline_event("mining", f"+{max_possible:.1f}", (255, 255, 0))
+                        # Update combo system
+                        self._process_mining_combo()
                         mined_something = True
                         self.agent_velocity *= 0.8
                         break
@@ -308,6 +338,8 @@ class SpaceMining(gym.Env):
             self._spawn_delivery_particles(self.agent_position.copy(), self.mothership_pos.copy())
             # Add score popup for delivery
             self._add_score_popup(f"+{delivered_amount:.1f}", self.agent_position.copy(), (0, 255, 0))
+            # Add to event timeline
+            self._add_timeline_event("delivery", f"Delivered +{delivered_amount:.1f}", (0, 255, 0))
             if not hasattr(self, "last_delivery_info"):
                 self.last_delivery_info = {}
             energy_recharged = 150.0 - self.agent_energy
@@ -541,6 +573,12 @@ class SpaceMining(gym.Env):
         # Update mining beam animation
         self.mining_beam_offset += 0.2
 
+        # Update event timeline
+        self._update_event_timeline()
+
+        # Update combo system
+        self._update_combo_system()
+
     def _spawn_delivery_particles(self, start_pos: np.ndarray, target_pos: np.ndarray) -> None:
         """Spawn glowing particles for resource delivery animation."""
         for _ in range(10):
@@ -631,6 +669,80 @@ class SpaceMining(gym.Env):
                     star["y"] = 810
                 elif star["y"] > 810:
                     star["y"] = -10
+
+    def _add_timeline_event(self, event_type: str, text: str, color: tuple) -> None:
+        """Add an event to the floating timeline."""
+        event = {
+            "type": event_type,
+            "text": text,
+            "color": color,
+            "step": self.steps_count,
+            "alpha": 255,
+            "lifetime": 300  # Steps before fading
+        }
+        
+        # Add to front of timeline
+        self.event_timeline.insert(0, event)
+        
+        # Keep only the last N events
+        if len(self.event_timeline) > self.max_timeline_events:
+            self.event_timeline = self.event_timeline[:self.max_timeline_events]
+
+    def _update_event_timeline(self) -> None:
+        """Update event timeline animations."""
+        # Age all events and remove expired ones
+        for event in self.event_timeline[:]:  # Copy list to avoid modification during iteration
+            age = self.steps_count - event["step"]
+            if age > event["lifetime"]:
+                self.event_timeline.remove(event)
+            else:
+                # Fade out over last 60 steps
+                fade_start = event["lifetime"] - 60
+                if age > fade_start:
+                    fade_progress = (age - fade_start) / 60.0
+                    event["alpha"] = int(255 * (1 - fade_progress))
+                else:
+                    event["alpha"] = 255
+
+    def _process_mining_combo(self) -> None:
+        """Process mining combo chain detection."""
+        current_step = self.steps_count
+        
+        # Check if this mining action extends a combo
+        if (current_step - self.combo_state["last_mining_step"]) <= self.combo_state["combo_window"]:
+            self.combo_state["chain_count"] += 1
+        else:
+            self.combo_state["chain_count"] = 1
+        
+        self.combo_state["last_mining_step"] = current_step
+        
+        # Show combo if we have 2 or more
+        if self.combo_state["chain_count"] >= 2:
+            self.combo_state["display_timer"] = 120  # Show for 4 seconds at 30fps
+            self.combo_state["combo_alpha"] = 255
+            
+            # Add special combo timeline event
+            combo_text = f"x{self.combo_state['chain_count']} COMBO!"
+            self._add_timeline_event("combo", combo_text, (255, 200, 0))
+
+    def _update_combo_system(self) -> None:
+        """Update combo display animations."""
+        # Fade out combo display
+        if self.combo_state["display_timer"] > 0:
+            self.combo_state["display_timer"] -= 1
+            
+            # Pulsing effect
+            pulse = abs(math.sin(self.steps_count * 0.3)) * 0.3 + 0.7
+            self.combo_state["combo_alpha"] = int(255 * pulse)
+            
+            if self.combo_state["display_timer"] <= 0:
+                self.combo_state["combo_alpha"] = 0
+        
+        # Reset combo if too much time has passed
+        if (self.steps_count - self.combo_state["last_mining_step"]) > self.combo_state["combo_window"]:
+            if self.combo_state["chain_count"] > 0:
+                self.combo_state["chain_count"] = 0
+                self.combo_state["display_timer"] = 0
 
     def _trigger_game_over(self, success: bool) -> None:
         """Trigger game over screen with final statistics."""

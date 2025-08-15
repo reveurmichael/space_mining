@@ -367,6 +367,12 @@ class Renderer:
             flash_surface.fill((255, 0, 0, flash_alpha))
             self.window.blit(flash_surface, (0, 0))
 
+        # Draw floating event timeline
+        self._draw_floating_timeline()
+
+        # Draw combo display
+        self._draw_combo_display()
+
         # Draw game UI if not in game over state
         if not self.env.game_over_state["active"]:
             self._draw_game_ui(agent_pos_2d)
@@ -759,6 +765,169 @@ class Renderer:
             # Dimmed area
             pygame.draw.rect(surface, color, (x+3, y+3, 14, 14))
             gfxdraw.filled_circle(surface, x+10, y+10, 5, (0, 0, 0, 0))
+
+    def _draw_floating_timeline(self) -> None:
+        """Draw the floating event timeline at the top of the screen."""
+        try:
+            import pygame
+            from pygame import gfxdraw
+        except ImportError:
+            return
+
+        if not self.env.event_timeline:
+            return
+
+        # Timeline positioning
+        timeline_y = 10
+        card_width = 140
+        card_height = 30
+        card_spacing = 10
+        start_x = (800 - (len(self.env.event_timeline) * (card_width + card_spacing) - card_spacing)) // 2
+
+        for i, event in enumerate(self.env.event_timeline):
+            x = start_x + i * (card_width + card_spacing)
+            y = timeline_y
+            
+            # Create micro-card
+            alpha = max(50, min(255, event["alpha"]))
+            
+            # Card background with transparency
+            card_surface = pygame.Surface((card_width, card_height), pygame.SRCALPHA)
+            
+            # Background color based on event type
+            if event["type"] == "mining":
+                bg_color = (40, 80, 40, alpha)
+                border_color = (*event["color"][:3], alpha)
+            elif event["type"] == "delivery":
+                bg_color = (40, 60, 80, alpha)
+                border_color = (*event["color"][:3], alpha)
+            elif event["type"] == "collision":
+                bg_color = (80, 40, 40, alpha)
+                border_color = (*event["color"][:3], alpha)
+            elif event["type"] == "combo":
+                bg_color = (80, 60, 20, alpha)
+                border_color = (*event["color"][:3], alpha)
+            else:
+                bg_color = (60, 60, 60, alpha)
+                border_color = (200, 200, 200, alpha)
+            
+            # Draw card background
+            card_surface.fill(bg_color)
+            pygame.draw.rect(card_surface, border_color, (0, 0, card_width, card_height), 2)
+            
+            # Add icon based on event type
+            self._draw_timeline_icon(card_surface, event["type"], 8, 5)
+            
+            # Add text
+            font = pygame.font.SysFont("Arial", 11, bold=True)
+            text_surface = font.render(event["text"], True, (*event["color"][:3], alpha))
+            
+            # Position text to the right of icon
+            text_rect = text_surface.get_rect()
+            text_x = 28
+            text_y = (card_height - text_rect.height) // 2
+            card_surface.blit(text_surface, (text_x, text_y))
+            
+            # Blit card to main window
+            self.window.blit(card_surface, (x, y))
+
+    def _draw_timeline_icon(self, surface, event_type, x, y) -> None:
+        """Draw small icons for timeline events."""
+        try:
+            import pygame
+            from pygame import gfxdraw
+        except ImportError:
+            return
+
+        if event_type == "mining":
+            # Small pickaxe
+            color = (255, 255, 0)
+            pygame.draw.line(surface, color, (x+2, y+15), (x+14, y+3), 2)
+            pygame.draw.rect(surface, color, (x+11, y+1, 4, 3))
+            
+        elif event_type == "delivery":
+            # Small arrow pointing up
+            color = (0, 255, 0)
+            points = [(x+8, y+2), (x+12, y+8), (x+10, y+8), (x+10, y+16), (x+6, y+16), (x+6, y+8), (x+4, y+8)]
+            pygame.draw.polygon(surface, color, points)
+            
+        elif event_type == "collision":
+            # Warning symbol
+            color = (255, 100, 100)
+            gfxdraw.filled_circle(surface, x+8, y+10, 7, color)
+            font = pygame.font.SysFont("Arial", 10, bold=True)
+            text = font.render("!", True, (0, 0, 0))
+            surface.blit(text, (x+5, y+4))
+            
+        elif event_type == "combo":
+            # Star/burst symbol
+            color = (255, 200, 0)
+            center_x, center_y = x+8, y+10
+            for i in range(8):
+                angle = i * 45 * 3.14159 / 180
+                end_x = center_x + 6 * math.cos(angle)
+                end_y = center_y + 6 * math.sin(angle)
+                pygame.draw.line(surface, color, (center_x, center_y), (end_x, end_y), 2)
+
+    def _draw_combo_display(self) -> None:
+        """Draw the combo multiplier display."""
+        try:
+            import pygame
+            from pygame import gfxdraw
+            import math
+        except ImportError:
+            return
+
+        if self.env.combo_state["display_timer"] <= 0 or self.env.combo_state["chain_count"] < 2:
+            return
+
+        # Position combo display
+        combo_x = 400  # Center of screen
+        combo_y = 100
+
+        # Create pulsing combo badge
+        alpha = self.env.combo_state["combo_alpha"]
+        combo_text = f"x{self.env.combo_state['chain_count']} COMBO!"
+        
+        # Large, bold font for combo
+        combo_font = pygame.font.SysFont("Arial", 28, bold=True)
+        text_surface = combo_font.render(combo_text, True, (255, 200, 0))
+        text_rect = text_surface.get_rect()
+        
+        # Background badge
+        badge_width = text_rect.width + 40
+        badge_height = text_rect.height + 20
+        badge_surface = pygame.Surface((badge_width, badge_height), pygame.SRCALPHA)
+        
+        # Gradient background effect
+        badge_surface.fill((80, 60, 0, alpha))
+        pygame.draw.rect(badge_surface, (255, 200, 0, alpha), (0, 0, badge_width, badge_height), 3)
+        
+        # Add sparkle effects around badge
+        for i in range(8):
+            angle = i * 45 + self.env.steps_count * 5  # Rotating sparkles
+            sparkle_x = combo_x + 50 * math.cos(math.radians(angle))
+            sparkle_y = combo_y + 30 * math.sin(math.radians(angle))
+            sparkle_color = (255, 255, 100, alpha // 2)
+            
+            sparkle_surface = pygame.Surface((6, 6), pygame.SRCALPHA)
+            gfxdraw.filled_circle(sparkle_surface, 3, 3, 2, sparkle_color)
+            self.window.blit(sparkle_surface, (int(sparkle_x) - 3, int(sparkle_y) - 3))
+        
+        # Position and draw badge
+        badge_x = combo_x - badge_width // 2
+        badge_y = combo_y - badge_height // 2
+        
+        # Set alpha for the text
+        text_surface.set_alpha(alpha)
+        
+        # Draw badge background
+        self.window.blit(badge_surface, (badge_x, badge_y))
+        
+        # Draw combo text
+        text_x = badge_x + (badge_width - text_rect.width) // 2
+        text_y = badge_y + (badge_height - text_rect.height) // 2
+        self.window.blit(text_surface, (text_x, text_y))
 
     def _draw_game_over_screen(self) -> None:
         """Draw the game over/success screen with final statistics."""
