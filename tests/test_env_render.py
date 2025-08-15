@@ -8,5 +8,5 @@ def test_render_rgb_array_shape():
     env.reset()
     frame = env.render()
     assert isinstance(frame, np.ndarray)
-    assert frame.shape == (800, 800, 3)
+    assert frame.shape == (1080, 1920, 3)  # Updated to match new 1920x1080 resolution
     env.close()
