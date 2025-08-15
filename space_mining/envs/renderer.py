@@ -30,11 +30,11 @@ class Renderer:
             # For headless rendering, avoid creating a window
             if self.env.render_mode == "human":
                 pygame.display.init()
-                self.window = pygame.display.set_mode((1920, 1200))  # Ultra-wide for maximum cosmic immersion
-                pygame.display.set_caption("🌌 SPACE MINING UNIVERSE - ULTIMATE COSMIC EXPLORER 🌌")
+                self.window = pygame.display.set_mode((2560, 1600))  # MASSIVE ultra-wide for ULTIMATE cosmic immersion
+                pygame.display.set_caption("🌌 ULTIMATE COSMIC SPACE MINING UNIVERSE - INFINITE GALAXY EXPLORER 🌌")
             else:
                 # Off-screen surface for rgb_array mode
-                self.window = pygame.Surface((1920, 1200))
+                self.window = pygame.Surface((2560, 1600))
             if self.clock is None:
                 self.clock = pygame.time.Clock()
             if self.font is None:
@@ -55,11 +55,11 @@ class Renderer:
         self._draw_cosmic_background()
 
         # Helper function to convert 2D coordinates to screen coordinates with zoom
-        def to_screen(pos, scale=14.0):  # Enhanced scale for ultra-wide screen
+        def to_screen(pos, scale=18.0):  # Enhanced scale for massive ultra-wide screen
             x, y = pos
             zoom_scale = scale * self.env.zoom_level
-            screen_x = int(960 + (x - 40) * zoom_scale + shake_offset[0])  # Center at 1920/2
-            screen_y = int(600 + (y - 40) * zoom_scale + shake_offset[1])  # Center at 1200/2
+            screen_x = int(1280 + (x - 40) * zoom_scale + shake_offset[0])  # Center at 2560/2
+            screen_y = int(800 + (y - 40) * zoom_scale + shake_offset[1])  # Center at 1600/2
             return screen_x, screen_y
 
         # Draw agent trail first (behind everything)

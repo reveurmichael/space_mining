@@ -616,19 +616,19 @@ class SpaceMining(gym.Env):
         self.score_popups.append(popup)
 
     def _initialize_cosmic_background(self) -> None:
-        """Initialize enhanced cosmic background with nebulae, galaxies, and stars."""
+        """Initialize ULTIMATE cosmic background with massive scale for 2560x1600 screen."""
         # Reset cosmic time
         self.cosmic_time = 0.0
         
-        # Create enhanced starfield layers for ultra-wide screen
+        # Create MASSIVE starfield layers for ultimate ultra-wide screen
         self.starfield_layers = []
         
         # Layer 1: Distant background stars (very slow, subtle)
         layer1_stars = []
-        for _ in range(300):  # More stars for ultra-wide screen
+        for _ in range(500):  # Massive star count for 2560x1600 screen
             star = {
-                "x": np.random.uniform(0, 1920),
-                "y": np.random.uniform(0, 1200),
+                "x": np.random.uniform(0, 2560),
+                "y": np.random.uniform(0, 1600),
                 "size": 1,
                 "brightness": np.random.randint(30, 80),
                 "speed": 0.1,
@@ -641,10 +641,10 @@ class SpaceMining(gym.Env):
         
         # Layer 2: Medium distance stars
         layer2_stars = []
-        for _ in range(180):
+        for _ in range(300):  # More medium stars for massive screen
             star = {
-                "x": np.random.uniform(0, 1920),
-                "y": np.random.uniform(0, 1200),
+                "x": np.random.uniform(0, 2560),
+                "y": np.random.uniform(0, 1600),
                 "size": 2,
                 "brightness": np.random.randint(60, 150),
                 "speed": 0.3,
@@ -657,10 +657,10 @@ class SpaceMining(gym.Env):
         
         # Layer 3: Bright foreground stars
         layer3_stars = []
-        for _ in range(90):
+        for _ in range(150):  # More bright stars for epic scale
             star = {
-                "x": np.random.uniform(0, 1920),
-                "y": np.random.uniform(0, 1200),
+                "x": np.random.uniform(0, 2560),
+                "y": np.random.uniform(0, 1600),
                 "size": np.random.randint(3, 5),
                 "brightness": np.random.randint(100, 255),
                 "speed": 0.6,
@@ -671,14 +671,14 @@ class SpaceMining(gym.Env):
             layer3_stars.append(star)
         self.starfield_layers.append(layer3_stars)
         
-        # Create spectacular nebula clouds
+        # Create SPECTACULAR nebula clouds for massive screen
         self.nebula_clouds = []
-        for _ in range(16):  # More nebulae for ultra-wide screen
+        for _ in range(24):  # More nebulae for ultimate cosmic experience
             nebula = {
-                "x": np.random.uniform(-400, 2320),
-                "y": np.random.uniform(-400, 1600),
-                "size": np.random.uniform(400, 1200),
-                "inner_size": np.random.uniform(0.3, 0.7),  # For layered effect
+                "x": np.random.uniform(-500, 3060),
+                "y": np.random.uniform(-500, 2100),
+                "size": np.random.uniform(600, 1600),  # Larger nebulae for bigger screen
+                "inner_size": np.random.uniform(0.3, 0.7),
                 "color": np.random.choice([
                     (80, 20, 150, 35),    # Deep purple
                     (20, 80, 180, 30),    # Deep blue
@@ -697,13 +697,13 @@ class SpaceMining(gym.Env):
             }
             self.nebula_clouds.append(nebula)
         
-        # Create distant galaxies with enhanced detail
+        # Create MORE distant galaxies for epic cosmic scale
         self.distant_galaxies = []
-        for _ in range(12):  # More galaxies for epic ultra-wide feel
+        for _ in range(18):  # More galaxies for ultimate cosmic immersion
             galaxy = {
-                "x": np.random.uniform(0, 1920),
-                "y": np.random.uniform(0, 1200),
-                "size": np.random.uniform(100, 300),
+                "x": np.random.uniform(0, 2560),
+                "y": np.random.uniform(0, 1600),
+                "size": np.random.uniform(120, 400),  # Larger galaxies for bigger screen
                 "brightness": np.random.randint(12, 35),
                 "speed": np.random.uniform(0.01, 0.06),
                 "spiral_arms": np.random.randint(2, 6),
@@ -714,14 +714,14 @@ class SpaceMining(gym.Env):
             }
             self.distant_galaxies.append(galaxy)
         
-        # Create enhanced space dust with multiple types
+        # Create MASSIVE enhanced space dust system
         self.space_dust = []
         
         # Fine cosmic dust
-        for _ in range(450):
+        for _ in range(750):  # Much more dust for massive screen
             dust = {
-                "x": np.random.uniform(0, 1920),
-                "y": np.random.uniform(0, 1200),
+                "x": np.random.uniform(0, 2560),
+                "y": np.random.uniform(0, 1600),
                 "size": np.random.uniform(0.3, 1.0),
                 "brightness": np.random.randint(8, 25),
                 "speed": np.random.uniform(0.5, 2.0),
@@ -732,32 +732,32 @@ class SpaceMining(gym.Env):
             self.space_dust.append(dust)
         
         # Larger dust particles
-        for _ in range(120):
+        for _ in range(200):  # More large dust for epic scale
             dust = {
-                "x": np.random.uniform(0, 1920),
-                "y": np.random.uniform(0, 1200),
+                "x": np.random.uniform(0, 2560),
+                "y": np.random.uniform(0, 1600),
                 "size": np.random.uniform(1.0, 2.5),
                 "brightness": np.random.randint(15, 40),
                 "speed": np.random.uniform(0.8, 1.5),
                 "drift_x": np.random.uniform(-0.1, 0.1),
                 "drift_y": np.random.uniform(-0.1, 0.1),
-                                "type": "coarse"
-             }
-             self.space_dust.append(dust)
+                "type": "coarse"
+            }
+            self.space_dust.append(dust)
         
         # Create spectacular shooting stars
         self.shooting_stars = []
-        for _ in range(3):  # A few occasional shooting stars
+        for _ in range(4):  # More shooting stars for massive screen
             self._spawn_shooting_star()
         
-        # Create cosmic auroras (energy fields)
+        # Create MORE cosmic auroras for ultimate experience
         self.cosmic_auroras = []
-        for _ in range(8):  # More ethereal energy curtains for ultra-wide
+        for _ in range(12):  # More ethereal energy curtains for massive screen
             aurora = {
-                "x": np.random.uniform(-300, 2220),
-                "y": np.random.uniform(-300, 1500),
-                "width": np.random.uniform(150, 400),
-                "height": np.random.uniform(300, 800),
+                "x": np.random.uniform(-400, 2960),
+                "y": np.random.uniform(-400, 2000),
+                "width": np.random.uniform(200, 600),  # Larger auroras
+                "height": np.random.uniform(400, 1000),
                 "intensity": np.random.uniform(0.3, 0.8),
                 "color": np.random.choice([
                     (0, 255, 150, 25),    # Green aurora
@@ -772,12 +772,12 @@ class SpaceMining(gym.Env):
             }
             self.cosmic_auroras.append(aurora)
         
-        # Create pulsars (neutron stars)
+        # Create MORE pulsars for cosmic grandeur
         self.pulsars = []
-        for _ in range(6):  # More spectacular pulsing stars for ultra-wide
+        for _ in range(9):  # More spectacular pulsing stars for massive screen
             pulsar = {
-                "x": np.random.uniform(0, 1920),
-                "y": np.random.uniform(0, 1200),
+                "x": np.random.uniform(0, 2560),
+                "y": np.random.uniform(0, 1600),
                 "pulse_period": np.random.uniform(0.5, 2.0),
                 "pulse_offset": np.random.uniform(0, 2 * math.pi),
                 "brightness": np.random.randint(150, 255),
@@ -790,15 +790,15 @@ class SpaceMining(gym.Env):
                     (255, 200, 255)   # Pink pulsar
                 ])
             }
-                                                   self.pulsars.append(pulsar)
+            self.pulsars.append(pulsar)
         
-        # Create spectacular cosmic storms
+        # Create MASSIVE spectacular cosmic storms for ultimate scale
         self.cosmic_storms = []
-        for _ in range(3):  # Rare, massive storm systems
+        for _ in range(4):  # More massive storm systems for 2560x1600
             storm = {
-                "x": np.random.uniform(0, 1920),
-                "y": np.random.uniform(0, 1200),
-                "size": np.random.uniform(300, 600),
+                "x": np.random.uniform(0, 2560),
+                "y": np.random.uniform(0, 1600),
+                "size": np.random.uniform(400, 800),  # Larger storms for massive screen
                 "intensity": np.random.uniform(0.4, 0.9),
                 "rotation": np.random.uniform(0, 2 * math.pi),
                 "rotation_speed": np.random.uniform(0.01, 0.03),
@@ -812,17 +812,17 @@ class SpaceMining(gym.Env):
             }
             self.cosmic_storms.append(storm)
         
-        # Create mystical wormholes
+        # Create MORE mystical wormholes for massive screen
         self.wormholes = []
-        for _ in range(2):  # Rare dimensional portals
+        for _ in range(3):  # More dimensional portals for epic scale
             wormhole = {
-                "x": np.random.uniform(200, 1720),
-                "y": np.random.uniform(200, 1000),
-                "size": np.random.uniform(80, 150),
+                "x": np.random.uniform(300, 2260),
+                "y": np.random.uniform(300, 1300),
+                "size": np.random.uniform(100, 200),  # Larger wormholes
                 "rotation": np.random.uniform(0, 2 * math.pi),
                 "rotation_speed": np.random.uniform(0.02, 0.05),
                 "pulse_offset": np.random.uniform(0, 2 * math.pi),
-                "distortion_rings": 8
+                "distortion_rings": 10  # More rings for epic effect
             }
             self.wormholes.append(wormhole)
         
@@ -830,29 +830,29 @@ class SpaceMining(gym.Env):
         self.cosmic_lightning = []
 
     def _spawn_shooting_star(self) -> None:
-        """Spawn a spectacular shooting star."""
+        """Spawn a spectacular shooting star for massive 2560x1600 screen."""
         # Random entry point from screen edge
         side = np.random.choice(['top', 'left', 'right', 'bottom'])
         
         if side == 'top':
-            start_x = np.random.uniform(0, 1920)
+            start_x = np.random.uniform(0, 2560)
             start_y = -50
-            end_x = np.random.uniform(0, 1920)
-            end_y = 1250
+            end_x = np.random.uniform(0, 2560)
+            end_y = 1650
         elif side == 'left':
             start_x = -50
-            start_y = np.random.uniform(0, 1200)
-            end_x = 1970
-            end_y = np.random.uniform(0, 1200)
+            start_y = np.random.uniform(0, 1600)
+            end_x = 2610
+            end_y = np.random.uniform(0, 1600)
         elif side == 'right':
-            start_x = 1970
-            start_y = np.random.uniform(0, 1200)
+            start_x = 2610
+            start_y = np.random.uniform(0, 1600)
             end_x = -50
-            end_y = np.random.uniform(0, 1200)
+            end_y = np.random.uniform(0, 1600)
         else:  # bottom
-            start_x = np.random.uniform(0, 1920)
-            start_y = 1250
-            end_x = np.random.uniform(0, 1920)
+            start_x = np.random.uniform(0, 2560)
+            start_y = 1650
+            end_x = np.random.uniform(0, 2560)
             end_y = -50
         
         shooting_star = {
