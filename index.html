@@ -407,7 +407,7 @@
     /* Enhanced grid and cards */
     .grid {
       display: grid;
-      gap: 24px;
+      gap: 40px;
     }
 
     .cols-2 {
@@ -538,6 +538,31 @@
       cursor: pointer;
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       position: relative;
+    }
+    
+    .gif-card::after {
+      content: '▶️';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 2rem;
+      background: rgba(0, 0, 0, 0.7);
+      color: white;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      pointer-events: none;
+      z-index: 10;
+    }
+    
+    .gif-card:hover::after {
+      opacity: 1;
     }
 
     .gif-container {
@@ -1190,7 +1215,7 @@ print(f"Environment initialized with {len(env.asteroid_positions)} asteroids")</
       <div class="gif-gallery">
         <div class="gif-card" role="button" tabindex="0" aria-label="View early exploration demonstration">
           <div class="gif-container">
-            <img data-src="assets/gifs/early_exploration.gif"
+            <img data-src="assets/gif/episode_1_20250722_121511.gif"
               alt="Early exploration phase at 25,000 timesteps showing initial learning behavior" loading="lazy" />
           </div>
           <div class="card-content">
@@ -1202,7 +1227,7 @@ print(f"Environment initialized with {len(env.asteroid_positions)} asteroids")</
 
         <div class="gif-card" role="button" tabindex="0" aria-label="View continued early exploration demonstration">
           <div class="gif-container">
-            <img data-src="assets/gifs/early_exploration_later.gif"
+            <img data-src="assets/gif/episode_2_20250722_121634.gif"
               alt="Early exploration phase at 500,000 timesteps showing continued learning" loading="lazy" />
           </div>
           <div class="card-content">
@@ -1214,7 +1239,7 @@ print(f"Environment initialized with {len(env.asteroid_positions)} asteroids")</
 
         <div class="gif-card" role="button" tabindex="0" aria-label="View successful mining demonstration">
           <div class="gif-container">
-            <img data-src="assets/gifs/successful_mining.gif"
+            <img data-src="assets/gif/space_mining_demo_episode_1_20250730_230841.gif"
               alt="Successful mining operation with strategic resource collection" loading="lazy" />
           </div>
           <div class="card-content">
@@ -1226,7 +1251,7 @@ print(f"Environment initialized with {len(env.asteroid_positions)} asteroids")</
 
         <div class="gif-card" role="button" tabindex="0" aria-label="View complete episode demonstration">
           <div class="gif-container">
-            <img data-src="assets/gifs/complete_episode.gif"
+            <img data-src="assets/gif/space_mining_demo_episode_3_20250730_224120.gif"
               alt="Complete episode demonstration running full 1200 steps with optimal resource collection"
               loading="lazy" />
           </div>
@@ -1239,7 +1264,7 @@ print(f"Environment initialized with {len(env.asteroid_positions)} asteroids")</
 
         <div class="gif-card" role="button" tabindex="0" aria-label="View energy depletion failure demonstration">
           <div class="gif-container">
-            <img data-src="assets/gifs/energy_depletion.gif"
+            <img data-src="assets/gif/episode_4_20250722_121936.gif"
               alt="Energy depletion failure showing agent failing to recharge at mothership" loading="lazy" />
           </div>
           <div class="card-content">
@@ -1251,7 +1276,7 @@ print(f"Environment initialized with {len(env.asteroid_positions)} asteroids")</
 
         <div class="gif-card" role="button" tabindex="0" aria-label="View poor obstacle avoidance demonstration">
           <div class="gif-container">
-            <img data-src="assets/gifs/poor_obstacle_avoidance.gif"
+            <img data-src="assets/gif/episode_5_20250722_122108.gif"
               alt="Poor obstacle avoidance showing multiple collisions with moving obstacles" loading="lazy" />
           </div>
           <div class="card-content">
@@ -1427,6 +1452,9 @@ print(f"Environment initialized with {len(env.asteroid_positions)} asteroids")</
           setTimeout(() => forceGifRestart(modalImg), 100);
         };
 
+        // Add click events to both image and parent card
+        const card = img.closest('.gif-card');
+        
         img.addEventListener('click', openModal);
         img.addEventListener('keydown', (e) => {
           if (e.key === 'Enter' || e.key === ' ') {
@@ -1434,6 +1462,17 @@ print(f"Environment initialized with {len(env.asteroid_positions)} asteroids")</
             openModal();
           }
         });
+        
+        // Make the entire card clickable
+        if (card) {
+          card.addEventListener('click', openModal);
+          card.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              openModal();
+            }
+          });
+        }
       });
 
       // Enhanced modal controls
