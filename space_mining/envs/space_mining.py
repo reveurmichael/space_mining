@@ -606,10 +606,10 @@ class SpaceMining(gym.Env):
         
         # Layer 1: Distant stars (slow, small, dim)
         layer1_stars = []
-        for _ in range(80):
+        for _ in range(120):  # More stars for larger screen
             star = {
-                "x": np.random.uniform(0, 800),
-                "y": np.random.uniform(0, 800),
+                "x": np.random.uniform(0, 1200),
+                "y": np.random.uniform(0, 900),
                 "size": 1,
                 "brightness": np.random.randint(50, 100),
                 "speed": 0.2
@@ -619,10 +619,10 @@ class SpaceMining(gym.Env):
         
         # Layer 2: Mid-distance stars (medium speed and size)
         layer2_stars = []
-        for _ in range(50):
+        for _ in range(75):  # More stars for larger screen
             star = {
-                "x": np.random.uniform(0, 800),
-                "y": np.random.uniform(0, 800),
+                "x": np.random.uniform(0, 1200),
+                "y": np.random.uniform(0, 900),
                 "size": 2,
                 "brightness": np.random.randint(100, 150),
                 "speed": 0.5
@@ -632,10 +632,10 @@ class SpaceMining(gym.Env):
         
         # Layer 3: Close stars (fast, bright, larger)
         layer3_stars = []
-        for _ in range(25):
+        for _ in range(35):  # More stars for larger screen
             star = {
-                "x": np.random.uniform(0, 800),
-                "y": np.random.uniform(0, 800),
+                "x": np.random.uniform(0, 1200),
+                "y": np.random.uniform(0, 900),
                 "size": 3,
                 "brightness": np.random.randint(150, 255),
                 "speed": 1.0
@@ -657,18 +657,18 @@ class SpaceMining(gym.Env):
         for layer in self.starfield_layers:
             for star in layer:
                 # Move stars opposite to agent movement for parallax effect
-                star["x"] -= movement[0] * star["speed"] * 8  # Scale factor for visibility
-                star["y"] -= movement[1] * star["speed"] * 8
+                star["x"] -= movement[0] * star["speed"] * 10  # Adjusted scale factor
+                star["y"] -= movement[1] * star["speed"] * 10
                 
                 # Wrap stars around screen edges
-                if star["x"] < -10:
-                    star["x"] = 810
-                elif star["x"] > 810:
-                    star["x"] = -10
-                if star["y"] < -10:
-                    star["y"] = 810
-                elif star["y"] > 810:
-                    star["y"] = -10
+                if star["x"] < -15:
+                    star["x"] = 1215
+                elif star["x"] > 1215:
+                    star["x"] = -15
+                if star["y"] < -15:
+                    star["y"] = 915
+                elif star["y"] > 915:
+                    star["y"] = -15
 
     def _add_timeline_event(self, event_type: str, text: str, color: tuple) -> None:
         """Add an event to the floating timeline."""

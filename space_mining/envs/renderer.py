@@ -30,21 +30,21 @@ class Renderer:
             # For headless rendering, avoid creating a window
             if self.env.render_mode == "human":
                 pygame.display.init()
-                self.window = pygame.display.set_mode((800, 800))
+                self.window = pygame.display.set_mode((1200, 900))
                 pygame.display.set_caption("Space Mining Environment")
             else:
                 # Off-screen surface for rgb_array mode
-                self.window = pygame.Surface((800, 800))
+                self.window = pygame.Surface((1200, 900))
             if self.clock is None:
                 self.clock = pygame.time.Clock()
             if self.font is None:
                 pygame.font.init()
-                self.font = pygame.font.SysFont("Arial", 16)
+                self.font = pygame.font.SysFont("Arial", 18)
 
         # Screen shake offset
         shake_offset = [0, 0]
         if self.env.screen_shake_timer > 0:
-            shake_intensity = min(5, int(self.env.screen_shake_timer * 25))
+            shake_intensity = min(8, int(self.env.screen_shake_timer * 30))
             shake_offset[0] = random.randint(-shake_intensity, shake_intensity)
             shake_offset[1] = random.randint(-shake_intensity, shake_intensity)
 
@@ -55,10 +55,10 @@ class Renderer:
         self._draw_starfield()
 
         # Helper function to convert 2D coordinates to screen coordinates
-        def to_screen(pos, scale=8.0):
+        def to_screen(pos, scale=10.0):
             x, y = pos
-            screen_x = int(400 + (x - 40) * scale + shake_offset[0])
-            screen_y = int(400 + (y - 40) * scale + shake_offset[1])
+            screen_x = int(600 + (x - 40) * scale + shake_offset[0])
+            screen_y = int(450 + (y - 40) * scale + shake_offset[1])
             return screen_x, screen_y
 
         # Draw agent trail first (behind everything)
@@ -76,7 +76,7 @@ class Renderer:
         
         # Mothership safe zone aura (pulsing blue)
         pulse_intensity = math.sin(self.env.steps_count * 0.08) * 0.3 + 0.7
-        safe_zone_radius = 12 * 8  # Safe zone is 12 units in game coordinates
+        safe_zone_radius = 12 * 10  # Safe zone is 12 units in game coordinates
         
         # Create multiple aura layers for depth
         for i in range(5):
@@ -100,7 +100,7 @@ class Renderer:
 
         # Draw mothership with enhanced glow
         gfxdraw.filled_circle(
-            self.window, mothership_pos_2d[0], mothership_pos_2d[1], 16, (30, 120, 200)
+            self.window, mothership_pos_2d[0], mothership_pos_2d[1], 20, (30, 120, 200)
         )
         # Enhanced mothership glow effect
         for i in range(6):
@@ -109,7 +109,7 @@ class Renderer:
                 self.window, 
                 mothership_pos_2d[0], 
                 mothership_pos_2d[1], 
-                16 + i * 3, 
+                20 + i * 4, 
                 (30, 120, 200, alpha)
             )
 
@@ -143,7 +143,7 @@ class Renderer:
 
             asteroid_pos_2d = to_screen(pos)
             resource_ratio = self.env.asteroid_resources[i] / 40.0
-            size = int(8 + resource_ratio * 8)
+            size = int(10 + resource_ratio * 10)  # 10-20 pixels for larger screen
             
             # Fixed yellow color for all active asteroids
             gfxdraw.filled_circle(
@@ -228,7 +228,7 @@ class Renderer:
             self.window,
             agent_pos_2d[0],
             agent_pos_2d[1],
-            12,
+            15,
             agent_color,
         )
 
@@ -237,7 +237,7 @@ class Renderer:
             self.window,
             agent_pos_2d[0],
             agent_pos_2d[1],
-            12,
+            15,
             (255, 255, 255),
         )
 
@@ -282,13 +282,13 @@ class Renderer:
 
         # Enhanced energy bar
         energy_ratio = self.env.agent_energy / 150.0
-        energy_width = int(60 * energy_ratio)
-        bar_x = agent_pos_2d[0] - 30
-        bar_y = agent_pos_2d[1] - 28
+        energy_width = int(70 * energy_ratio)
+        bar_x = agent_pos_2d[0] - 35
+        bar_y = agent_pos_2d[1] - 35
         
         # Background with border
-        pygame.draw.rect(self.window, (20, 20, 20), (bar_x - 2, bar_y - 2, 64, 10))
-        pygame.draw.rect(self.window, (60, 60, 60), (bar_x, bar_y, 60, 6))
+        pygame.draw.rect(self.window, (20, 20, 20), (bar_x - 2, bar_y - 2, 74, 12))
+        pygame.draw.rect(self.window, (60, 60, 60), (bar_x, bar_y, 70, 8))
         
         # Energy bar with enhanced colors
         if energy_ratio > 0.6:
@@ -297,11 +297,11 @@ class Renderer:
             energy_color = (255, 255, 0)
         else:
             energy_color = (255, 50, 50)
-        pygame.draw.rect(self.window, energy_color, (bar_x, bar_y, energy_width, 6))
+        pygame.draw.rect(self.window, energy_color, (bar_x, bar_y, energy_width, 8))
 
         # Draw observation and mining ranges
-        obs_radius_px = int(self.env.observation_radius * 8.0)
-        mining_radius_px = int(self.env.mining_range * 8.0)
+        obs_radius_px = int(self.env.observation_radius * 10.0)
+        mining_radius_px = int(self.env.mining_range * 10.0)
         
         gfxdraw.aacircle(
             self.window,
@@ -351,7 +351,7 @@ class Renderer:
                 self.window.blit(text_surface, (popup_pos_2d[0] - 20, popup_pos_2d[1] - 10))
 
         # OBSERVATION RANGE DIMMING EFFECT
-        overlay = pygame.Surface((800, 800), pygame.SRCALPHA)
+        overlay = pygame.Surface((1200, 900), pygame.SRCALPHA)
         overlay.fill((0, 0, 0, 120))
         
         # Create a "visible" hole for observation range
@@ -363,7 +363,7 @@ class Renderer:
         # Draw collision flash overlay (after dimming so it's always visible)
         if self.env.collision_flash_timer > 0:
             flash_alpha = int(200 * (self.env.collision_flash_timer / 0.3))
-            flash_surface = pygame.Surface((800, 800), pygame.SRCALPHA)
+            flash_surface = pygame.Surface((1200, 900), pygame.SRCALPHA)
             flash_surface.fill((255, 0, 0, flash_alpha))
             self.window.blit(flash_surface, (0, 0))
 
@@ -400,7 +400,7 @@ class Renderer:
         for layer in self.env.starfield_layers:
             for star in layer:
                 x, y = int(star["x"]), int(star["y"])
-                if 0 <= x <= 800 and 0 <= y <= 800:
+                if 0 <= x <= 1200 and 0 <= y <= 900:
                     size = star["size"]
                     brightness = star["brightness"]
                     color = (brightness, brightness, brightness)
@@ -497,10 +497,10 @@ class Renderer:
         # Calculate adaptive panel size (2 columns, 3 rows)
         cols = 2
         rows = 3
-        item_width = 160
-        item_height = 35
-        panel_width = cols * item_width + 30
-        panel_height = rows * item_height + 60
+        item_width = 180
+        item_height = 40
+        panel_width = cols * item_width + 40
+        panel_height = rows * item_height + 70
 
         # Create main status panel
         status_bg = pygame.Surface((panel_width, panel_height), pygame.SRCALPHA)
@@ -526,14 +526,11 @@ class Renderer:
             self._draw_status_icon(status_bg, item["icon"], icon_x, icon_y, item["warning"])
 
             # Draw value text
-            value_font = pygame.font.SysFont("Arial", 14, bold=item["warning"])
+            value_font = pygame.font.SysFont("Arial", 16, bold=item["warning"])
             value_surface = value_font.render(item["value"], True, item["color"])
-            status_bg.blit(value_surface, (x + 30, y + 8))
+            status_bg.blit(value_surface, (x + 35, y + 10))
 
-        self.window.blit(status_bg, (10, 10))
-
-        # Recent events (adaptive)
-        self._draw_recent_events_compact()
+        self.window.blit(status_bg, (15, 15))
 
     def _draw_status_icon(self, surface, icon_type, x, y, warning=False) -> None:
         """Draw a small status icon."""
@@ -589,50 +586,7 @@ class Renderer:
             points = [(x+10, y+2), (x+16, y+6), (x+15, y+14), (x+8, y+17), (x+3, y+12), (x+4, y+5)]
             pygame.draw.polygon(surface, color, points, 2)
 
-    def _draw_recent_events_compact(self) -> None:
-        """Draw recent events in a compact horizontal strip."""
-        try:
-            import pygame
-        except ImportError:
-            return
 
-        events = []
-        
-        # Collect recent events
-        if (hasattr(self.env, "last_mining_info") and self.env.last_mining_info.get("step", 0) == self.env.steps_count):
-            extracted = self.env.last_mining_info['extracted']
-            events.append(f"⛏️ +{extracted:.1f}")
-            if self.env.last_mining_info.get("asteroid_depleted", False):
-                events.append("💀 DEPLETED")
-
-        if (hasattr(self.env, "last_delivery_info") and self.env.last_delivery_info.get("step", 0) == self.env.steps_count):
-            delivered = self.env.last_delivery_info['delivered']
-            events.append(f"🚀 +{delivered:.1f}")
-            events.append("⚡ RECHARGED")
-
-        if hasattr(self.env, "tried_depleted_asteroid") and self.env.tried_depleted_asteroid:
-            events.append("⚠️ NO RESOURCES")
-
-        if events:
-            # Create horizontal event strip
-            event_text = "  |  ".join(events)
-            event_font = pygame.font.SysFont("Arial", 14, bold=True)
-            
-            # Calculate background size
-            text_surface = event_font.render(event_text, True, (255, 255, 255))
-            bg_width = text_surface.get_width() + 20
-            bg_height = 30
-            
-            # Create event background
-            event_bg = pygame.Surface((bg_width, bg_height), pygame.SRCALPHA)
-            event_bg.fill((50, 50, 50, 200))
-            pygame.draw.rect(event_bg, (100, 100, 100, 100), (0, 0, bg_width, bg_height), 2)
-            
-            # Add text
-            event_bg.blit(text_surface, (10, 8))
-            
-            # Position below status panel
-            self.window.blit(event_bg, (10, 170))
 
     def _draw_adaptive_legend(self) -> None:
         """Draw an adaptive legend with icons and optimized layout."""
@@ -659,12 +613,12 @@ class Renderer:
             {"icon": "dim_area", "text": "Dim Area", "color": (50, 50, 50)}
         ]
 
-        # Calculate adaptive layout (3 columns, 4 rows)
-        cols = 3
-        item_width = 130
-        item_height = 25
-        panel_width = cols * item_width + 30
-        panel_height = len(legend_items) // cols * item_height + 80
+        # Calculate adaptive layout (4 columns for wider screen)
+        cols = 4
+        item_width = 140
+        item_height = 28
+        panel_width = cols * item_width + 40
+        panel_height = len(legend_items) // cols * item_height + 90
         if len(legend_items) % cols != 0:
             panel_height += item_height
 
@@ -674,9 +628,9 @@ class Renderer:
         pygame.draw.rect(legend_bg, (60, 60, 80, 150), (0, 0, panel_width, panel_height), 3)
 
         # Title
-        title_font = pygame.font.SysFont("Arial", 16, bold=True)
-        title_surface = title_font.render("LEGEND", True, (255, 255, 150))
-        title_rect = title_surface.get_rect(center=(panel_width // 2, 20))
+        title_font = pygame.font.SysFont("Arial", 18, bold=True)
+        title_surface = title_font.render("GAME LEGEND", True, (255, 255, 150))
+        title_rect = title_surface.get_rect(center=(panel_width // 2, 25))
         legend_bg.blit(title_surface, title_rect)
 
         # Draw legend items in grid
@@ -684,19 +638,19 @@ class Renderer:
             row = i // cols
             col = i % cols
             x = 15 + col * item_width
-            y = 40 + row * item_height
+            y = 50 + row * item_height
 
             # Draw icon
-            self._draw_legend_icon(legend_bg, item["icon"], x + 5, y + 2, item["color"])
+            self._draw_legend_icon(legend_bg, item["icon"], x + 8, y + 4, item["color"])
 
             # Draw text
-            text_font = pygame.font.SysFont("Arial", 12)
+            text_font = pygame.font.SysFont("Arial", 13)
             text_surface = text_font.render(item["text"], True, (220, 220, 220))
-            legend_bg.blit(text_surface, (x + 30, y + 5))
+            legend_bg.blit(text_surface, (x + 35, y + 7))
 
         # Position legend
-        legend_x = 800 - panel_width - 10
-        legend_y = 800 - panel_height - 10
+        legend_x = 1200 - panel_width - 15
+        legend_y = 900 - panel_height - 15
         self.window.blit(legend_bg, (legend_x, legend_y))
 
     def _draw_legend_icon(self, surface, icon_type, x, y, color) -> None:
@@ -778,11 +732,11 @@ class Renderer:
             return
 
         # Timeline positioning
-        timeline_y = 10
-        card_width = 140
-        card_height = 30
-        card_spacing = 10
-        start_x = (800 - (len(self.env.event_timeline) * (card_width + card_spacing) - card_spacing)) // 2
+        timeline_y = 15
+        card_width = 160
+        card_height = 35
+        card_spacing = 12
+        start_x = (1200 - (len(self.env.event_timeline) * (card_width + card_spacing) - card_spacing)) // 2
 
         for i, event in enumerate(self.env.event_timeline):
             x = start_x + i * (card_width + card_spacing)
@@ -882,15 +836,15 @@ class Renderer:
             return
 
         # Position combo display
-        combo_x = 400  # Center of screen
-        combo_y = 100
+        combo_x = 600  # Center of screen
+        combo_y = 120
 
         # Create pulsing combo badge
         alpha = self.env.combo_state["combo_alpha"]
         combo_text = f"x{self.env.combo_state['chain_count']} COMBO!"
         
         # Large, bold font for combo
-        combo_font = pygame.font.SysFont("Arial", 28, bold=True)
+        combo_font = pygame.font.SysFont("Arial", 32, bold=True)
         text_surface = combo_font.render(combo_text, True, (255, 200, 0))
         text_rect = text_surface.get_rect()
         
@@ -943,7 +897,7 @@ class Renderer:
         fade_alpha = min(255, self.env.game_over_state["fade_alpha"])
         
         # Create fade overlay
-        fade_surface = pygame.Surface((800, 800), pygame.SRCALPHA)
+        fade_surface = pygame.Surface((1200, 900), pygame.SRCALPHA)
         fade_surface.fill((0, 0, 0, fade_alpha))
         self.window.blit(fade_surface, (0, 0))
 
@@ -953,15 +907,15 @@ class Renderer:
             success = self.env.game_over_state["success"]
             
             # Title
-            title_font = pygame.font.SysFont("Arial", 48, bold=True)
+            title_font = pygame.font.SysFont("Arial", 56, bold=True)
             title_text = "🎉 MISSION SUCCESS! 🎉" if success else "💥 MISSION FAILED 💥"
             title_color = (0, 255, 0) if success else (255, 100, 100)
             title_surface = title_font.render(title_text, True, title_color)
-            title_rect = title_surface.get_rect(center=(400, 150))
+            title_rect = title_surface.get_rect(center=(600, 180))
             self.window.blit(title_surface, title_rect)
 
             # Final statistics
-            stats_font = pygame.font.SysFont("Arial", 20)
+            stats_font = pygame.font.SysFont("Arial", 22)
             stats_text = [
                 "",
                 f"📊 FINAL STATISTICS",
@@ -978,10 +932,10 @@ class Renderer:
                 "Press R to restart or ESC to quit"
             ]
 
-            y_offset = 220
+            y_offset = 280
             for line in stats_text:
                 if line == "":
-                    y_offset += 15
+                    y_offset += 18
                     continue
                     
                 color = (255, 255, 100) if "STATISTICS" in line else (255, 255, 255)
@@ -989,9 +943,9 @@ class Renderer:
                     color = (200, 200, 255)
                 
                 text_surface = stats_font.render(line, True, color)
-                text_rect = text_surface.get_rect(center=(400, y_offset))
+                text_rect = text_surface.get_rect(center=(600, y_offset))
                 self.window.blit(text_surface, text_rect)
-                y_offset += 30
+                y_offset += 35
 
     def close(self) -> None:
         """Close the rendering window."""
