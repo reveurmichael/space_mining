@@ -672,12 +672,12 @@ class SpaceMining(gym.Env):
                 "y": np.random.uniform(-200, 1280),
                 "size": np.random.uniform(400, 800),
                 "inner_size": np.random.uniform(100, 250),
-                "color": np.random.choice([
+                "color": [
                     (60, 30, 120, 25),   # Deep cosmic purple
                     (30, 60, 120, 22),   # Deep space blue  
                     (120, 30, 80, 28),   # Cosmic magenta
                     (30, 120, 90, 20),   # Ethereal cyan
-                ]),
+                ][np.random.randint(0, 4)],
                 "speed": np.random.uniform(0.005, 0.02),
                 "rotation": np.random.uniform(0, 2 * math.pi),
                 "rotation_speed": np.random.uniform(-0.0001, 0.0001)
@@ -723,11 +723,11 @@ class SpaceMining(gym.Env):
                 "width": np.random.uniform(250, 600),
                 "height": np.random.uniform(500, 800),
                 "intensity": np.random.uniform(0.1, 0.25),  # Very subtle
-                "color": np.random.choice([
+                "color": [
                     (0, 140, 60, 12),    # Gentle green
                     (60, 100, 140, 10),  # Soft blue
                     (140, 60, 100, 14),  # Soft pink
-                ]),
+                ][np.random.randint(0, 3)],
                 "wave_offset": np.random.uniform(0, 2 * math.pi),
                 "wave_speed": np.random.uniform(0.005, 0.01)
             }
