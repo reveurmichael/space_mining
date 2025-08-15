@@ -71,10 +71,23 @@ class WandbCallbackEveryN(BaseCallback):
             # Delegate to internal callback's _on_step if available.
             if hasattr(self._wandb_callback, "_on_step"):
                 try:
-                    return bool(self._wandb_callback._on_step())
+                    ok = bool(self._wandb_callback._on_step())
                 except Exception:
                     # if internal callback fails, don't kill training
-                    return True
+                    ok = True
+
+                # --- Force W&B to log an entry with step parameter to ensure x-axis uses env steps ---
+                try:
+                    import wandb
+                    # When there's an active run, write a lightweight metric (env_step) with explicit step
+                    if wandb.run is not None:
+                        # Use a small metric name, easy to hide or identify in dashboard
+                        wandb.log({"env_step": int(step)}, step=int(step))
+                except Exception:
+                    # Never block training regardless of what happens
+                    pass
+
+                return ok
         return True
 
     def _on_training_end(self) -> None:
