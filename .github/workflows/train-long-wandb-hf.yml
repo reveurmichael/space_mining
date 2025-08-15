@@ -429,14 +429,7 @@ jobs:
           echo "## Training Summary" >> $GITHUB_STEP_SUMMARY
           echo "- **Run ID**: ${{ github.run_id }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Total Timesteps**: ${{ inputs.total_timesteps }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Log Every**: ${{ inputs.log_every }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Device**: ${{ inputs.device }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Model Used**: ${{ steps.choose_model.outputs.model_type }}" >> $GITHUB_STEP_SUMMARY
           
-          if [ -f evaluation.json ]; then
-            echo "- **Evaluation**: ✅ Completed" >> $GITHUB_STEP_SUMMARY
-            echo "\`\`\`json" >> $GITHUB_STEP_SUMMARY
-            cat evaluation.json >> $GITHUB_STEP_SUMMARY
-            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "- **Evaluation**: ❌ Failed" >> $GITHUB_STEP_SUMMARY
-          fi
