@@ -61,11 +61,20 @@ class SpaceMining(gym.Env):
         self.collision_flash_timer = 0.0
         self.screen_shake_timer = 0.0
         self.mining_beam_offset = 0.0
-
-        # Starfield background layers
+        
+        # Enhanced cosmic background system
         self.starfield_layers = []
-        self._initialize_starfield()
-
+        self.nebula_clouds = []
+        self.distant_galaxies = []
+        self.space_dust = []
+        self.cosmic_time = 0.0
+        self._initialize_cosmic_background()
+        
+        # Zoom system
+        self.zoom_level = 1.0
+        self.target_zoom = 1.0
+        self.zoom_speed = 0.02
+        
         # Game over screen state
         self.game_over_state = {
             "active": False,
@@ -73,7 +82,7 @@ class SpaceMining(gym.Env):
             "final_stats": {},
             "success": False
         }
-
+        
         # Floating event timeline
         self.event_timeline = []  # List of recent events with timestamps
         self.max_timeline_events = 5
@@ -126,8 +135,8 @@ class SpaceMining(gym.Env):
         self.screen_shake_timer = 0.0
         self.mining_beam_offset = 0.0
 
-        # Reset starfield and game over state
-        self._initialize_starfield()
+        # Reset cosmic background and game over state
+        self._initialize_cosmic_background()
         self.game_over_state = {
             "active": False,
             "fade_alpha": 0,
@@ -358,9 +367,10 @@ class SpaceMining(gym.Env):
                 if self.obstacle_positions[i][axis] < 0 or self.obstacle_positions[i][axis] > self.grid_size:
                     self.obstacle_velocities[i][axis] *= -1
 
-        # Update animations and starfield
+        # Update animations and cosmic background
         self._update_animations()
-        self._update_starfield()
+        self._update_cosmic_background()
+        self._update_zoom()
 
         observation = self._get_observation()
 
@@ -599,52 +609,113 @@ class SpaceMining(gym.Env):
         }
         self.score_popups.append(popup)
 
-    def _initialize_starfield(self) -> None:
-        """Initialize parallax starfield background layers."""
-        # Create 3 layers of stars at different depths
+    def _initialize_cosmic_background(self) -> None:
+        """Initialize enhanced cosmic background with nebulae, galaxies, and stars."""
+        # Reset cosmic time
+        self.cosmic_time = 0.0
+        
+        # Create enhanced starfield layers
         self.starfield_layers = []
         
         # Layer 1: Distant stars (slow, small, dim)
         layer1_stars = []
-        for _ in range(120):  # More stars for larger screen
+        for _ in range(150):  # More stars for cosmic feel
             star = {
                 "x": np.random.uniform(0, 1200),
                 "y": np.random.uniform(0, 900),
                 "size": 1,
-                "brightness": np.random.randint(50, 100),
-                "speed": 0.2
+                "brightness": np.random.randint(40, 120),
+                "speed": 0.15,
+                "twinkle_offset": np.random.uniform(0, 2 * math.pi),
+                "color_type": np.random.choice(["white", "blue", "yellow", "red"])
             }
             layer1_stars.append(star)
         self.starfield_layers.append(layer1_stars)
         
-        # Layer 2: Mid-distance stars (medium speed and size)
+        # Layer 2: Medium stars
         layer2_stars = []
-        for _ in range(75):  # More stars for larger screen
+        for _ in range(80):
             star = {
                 "x": np.random.uniform(0, 1200),
                 "y": np.random.uniform(0, 900),
                 "size": 2,
-                "brightness": np.random.randint(100, 150),
-                "speed": 0.5
+                "brightness": np.random.randint(80, 180),
+                "speed": 0.4,
+                "twinkle_offset": np.random.uniform(0, 2 * math.pi),
+                "color_type": np.random.choice(["white", "blue", "yellow"])
             }
             layer2_stars.append(star)
         self.starfield_layers.append(layer2_stars)
         
-        # Layer 3: Close stars (fast, bright, larger)
+        # Layer 3: Bright foreground stars
         layer3_stars = []
-        for _ in range(35):  # More stars for larger screen
+        for _ in range(40):
             star = {
                 "x": np.random.uniform(0, 1200),
                 "y": np.random.uniform(0, 900),
                 "size": 3,
-                "brightness": np.random.randint(150, 255),
-                "speed": 1.0
+                "brightness": np.random.randint(120, 255),
+                "speed": 0.8,
+                "twinkle_offset": np.random.uniform(0, 2 * math.pi),
+                "color_type": np.random.choice(["white", "blue", "yellow"])
             }
             layer3_stars.append(star)
         self.starfield_layers.append(layer3_stars)
+        
+        # Create nebula clouds
+        self.nebula_clouds = []
+        for _ in range(8):  # Several nebula regions
+            nebula = {
+                "x": np.random.uniform(-200, 1400),
+                "y": np.random.uniform(-200, 1100),
+                "size": np.random.uniform(300, 800),
+                "color": np.random.choice([
+                    (120, 0, 180, 30),    # Purple
+                    (0, 100, 180, 25),    # Blue
+                    (180, 50, 120, 30),   # Pink
+                    (100, 0, 150, 20),    # Deep purple
+                    (0, 150, 100, 25),    # Cyan
+                    (150, 80, 0, 30)      # Orange
+                ]),
+                "speed": np.random.uniform(0.05, 0.15),
+                "rotation": np.random.uniform(0, 2 * math.pi),
+                "rotation_speed": np.random.uniform(-0.002, 0.002)
+            }
+            self.nebula_clouds.append(nebula)
+        
+        # Create distant galaxies
+        self.distant_galaxies = []
+        for _ in range(5):  # A few distant galaxies
+            galaxy = {
+                "x": np.random.uniform(0, 1200),
+                "y": np.random.uniform(0, 900),
+                "size": np.random.uniform(80, 200),
+                "brightness": np.random.randint(15, 40),
+                "speed": np.random.uniform(0.02, 0.08),
+                "spiral_arms": np.random.randint(2, 5),
+                "rotation": np.random.uniform(0, 2 * math.pi),
+                "rotation_speed": np.random.uniform(-0.001, 0.001)
+            }
+            self.distant_galaxies.append(galaxy)
+        
+        # Create space dust particles
+        self.space_dust = []
+        for _ in range(200):  # Fine cosmic dust
+            dust = {
+                "x": np.random.uniform(0, 1200),
+                "y": np.random.uniform(0, 900),
+                "size": np.random.uniform(0.5, 1.5),
+                "brightness": np.random.randint(10, 40),
+                "speed": np.random.uniform(0.3, 1.2),
+                "drift_x": np.random.uniform(-0.1, 0.1),
+                "drift_y": np.random.uniform(-0.1, 0.1)
+            }
+            self.space_dust.append(dust)
 
-    def _update_starfield(self) -> None:
-        """Update starfield animation based on agent movement."""
+    def _update_cosmic_background(self) -> None:
+        """Update cosmic background elements with parallax and animations."""
+        self.cosmic_time += 0.016  # ~60fps time step
+        
         if not hasattr(self, "prev_agent_position"):
             self.prev_agent_position = self.agent_position.copy()
             return
@@ -653,22 +724,108 @@ class SpaceMining(gym.Env):
         movement = self.agent_position - self.prev_agent_position
         self.prev_agent_position = self.agent_position.copy()
         
-        # Update each layer with parallax effect
+        # Update stars with enhanced parallax
         for layer in self.starfield_layers:
             for star in layer:
-                # Move stars opposite to agent movement for parallax effect
-                star["x"] -= movement[0] * star["speed"] * 10  # Adjusted scale factor
-                star["y"] -= movement[1] * star["speed"] * 10
+                # Move with parallax and zoom effect
+                parallax_factor = star["speed"] * self.zoom_level
+                star["x"] -= movement[0] * parallax_factor * 10
+                star["y"] -= movement[1] * parallax_factor * 10
                 
-                # Wrap stars around screen edges
-                if star["x"] < -15:
-                    star["x"] = 1215
-                elif star["x"] > 1215:
-                    star["x"] = -15
-                if star["y"] < -15:
-                    star["y"] = 915
-                elif star["y"] > 915:
-                    star["y"] = -15
+                # Add natural drift for cosmic movement
+                star["x"] += star.get("drift_x", 0) * 0.5
+                star["y"] += star.get("drift_y", 0) * 0.5
+                
+                # Wrap around with buffer zone
+                if star["x"] < -50:
+                    star["x"] = 1250
+                elif star["x"] > 1250:
+                    star["x"] = -50
+                if star["y"] < -50:
+                    star["y"] = 950
+                elif star["y"] > 950:
+                    star["y"] = -50
+        
+        # Update nebula clouds
+        for nebula in self.nebula_clouds:
+            # Slow parallax movement
+            nebula["x"] -= movement[0] * nebula["speed"] * self.zoom_level * 2
+            nebula["y"] -= movement[1] * nebula["speed"] * self.zoom_level * 2
+            
+            # Slow rotation
+            nebula["rotation"] += nebula["rotation_speed"]
+            
+            # Wrap around
+            if nebula["x"] < -nebula["size"]:
+                nebula["x"] = 1200 + nebula["size"]
+            elif nebula["x"] > 1200 + nebula["size"]:
+                nebula["x"] = -nebula["size"]
+            if nebula["y"] < -nebula["size"]:
+                nebula["y"] = 900 + nebula["size"]
+            elif nebula["y"] > 900 + nebula["size"]:
+                nebula["y"] = -nebula["size"]
+        
+        # Update distant galaxies
+        for galaxy in self.distant_galaxies:
+            # Very slow parallax
+            galaxy["x"] -= movement[0] * galaxy["speed"] * self.zoom_level * 1
+            galaxy["y"] -= movement[1] * galaxy["speed"] * self.zoom_level * 1
+            
+            # Rotation
+            galaxy["rotation"] += galaxy["rotation_speed"]
+            
+            # Wrap around
+            if galaxy["x"] < -galaxy["size"]:
+                galaxy["x"] = 1200 + galaxy["size"]
+            elif galaxy["x"] > 1200 + galaxy["size"]:
+                galaxy["x"] = -galaxy["size"]
+            if galaxy["y"] < -galaxy["size"]:
+                galaxy["y"] = 900 + galaxy["size"]
+            elif galaxy["y"] > 900 + galaxy["size"]:
+                galaxy["y"] = -galaxy["size"]
+        
+        # Update space dust
+        for dust in self.space_dust:
+            # Fast parallax movement
+            dust["x"] -= movement[0] * dust["speed"] * self.zoom_level * 8
+            dust["y"] -= movement[1] * dust["speed"] * self.zoom_level * 8
+            
+            # Natural cosmic drift
+            dust["x"] += dust["drift_x"]
+            dust["y"] += dust["drift_y"]
+            
+            # Wrap around
+            if dust["x"] < -10:
+                dust["x"] = 1210
+            elif dust["x"] > 1210:
+                dust["x"] = -10
+            if dust["y"] < -10:
+                dust["y"] = 910
+            elif dust["y"] > 910:
+                dust["y"] = -10
+
+    def _update_zoom(self) -> None:
+        """Update dynamic zoom system."""
+        # Smooth zoom interpolation
+        zoom_diff = self.target_zoom - self.zoom_level
+        self.zoom_level += zoom_diff * self.zoom_speed
+        
+        # Dynamic zoom based on game state
+        if hasattr(self, 'agent_energy') and self.agent_energy < 30:
+            # Zoom in when energy is low for tension
+            self.target_zoom = 1.3
+        elif len([a for a in self.asteroid_resources if a > 0.1]) <= 2:
+            # Zoom out when few asteroids remain
+            self.target_zoom = 0.8
+        elif hasattr(self, 'collision_flash_timer') and self.collision_flash_timer > 0:
+            # Quick zoom out during collision
+            self.target_zoom = 0.7
+        else:
+            # Normal zoom
+            self.target_zoom = 1.0
+        
+        # Clamp zoom level
+        self.zoom_level = max(0.5, min(2.0, self.zoom_level))
 
     def _add_timeline_event(self, event_type: str, text: str, color: tuple) -> None:
         """Add an event to the floating timeline."""

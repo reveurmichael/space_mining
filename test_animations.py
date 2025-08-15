@@ -1,15 +1,16 @@
 #!/usr/bin/env python3
 """
-Test script to demonstrate the enhanced Space Mining game with improved visual coherence.
+Test script to demonstrate the cosmic-enhanced Space Mining game with universe-like background.
 
-Visual Coherence Improvements:
-1. Larger screen size (1200x900) for better visual experience
-2. Properly scaled UI elements and game objects
-3. Consistent visual hierarchy and spacing
-4. Removed redundant elements for cleaner interface
-5. Enhanced fonts and sizing for better readability
+Cosmic Background Features:
+1. Colorful nebula clouds with rotation and parallax
+2. Distant spiral galaxies with rotating arms
+3. Fine space dust particles
+4. Enhanced starfield with colored stars and twinkling
+5. Dynamic zoom system that responds to game state
+6. Multi-layered cosmic atmosphere
 
-This script showcases the polished, coherent visual experience.
+This script showcases the truly cosmic, universe-like visual experience.
 """
 
 import time
@@ -17,38 +18,37 @@ import numpy as np
 from space_mining.envs.space_mining import SpaceMining
 
 def main():
-    """Run the enhanced space mining game with improved visual coherence."""
-    print("🚀 Space Mining - Enhanced Visual Coherence Demo")
-    print("=" * 85)
-    print("🎨 VISUAL COHERENCE IMPROVEMENTS:")
-    print("  📺 Larger Screen Size - 1200x900 for better visual experience")
-    print("  🔍 Proper Scaling - All elements sized correctly for new resolution")
-    print("  📐 Consistent Layout - Harmonious spacing and positioning")
-    print("  🧹 Clean Interface - Removed redundant visual elements")
-    print("  📝 Enhanced Typography - Larger, more readable fonts")
-    print("  🎯 Visual Hierarchy - Clear information organization")
+    """Run the cosmic-enhanced space mining game with universe-like background."""
+    print("🌌 Space Mining - Cosmic Universe Demo")
+    print("=" * 90)
+    print("🌟 COSMIC BACKGROUND ENHANCEMENTS:")
+    print("  🌌 Colorful Nebula Clouds - Purple, blue, pink nebulae with rotation")
+    print("  🌀 Distant Spiral Galaxies - Rotating spiral arms in the background") 
+    print("  ✨ Enhanced Starfield - Colored stars (blue, yellow, red, white) with twinkling")
+    print("  💫 Space Dust Particles - Fine cosmic dust with natural drift")
+    print("  🔍 Dynamic Zoom System - Context-sensitive zoom based on game state")
+    print("  🎨 Multi-Layer Parallax - Different cosmic elements move at different speeds")
     print()
-    print("🆕 COMPLETE POLISH FEATURES:")
-    print("  🎬 Floating Event Timeline - Top bar with micro-cards (last 5 events)")
-    print("  🔥 Score Combo System - x2/x3 multiplier badges for rapid mining")
-    print("  📊 Adaptive Status Panel - 2-column grid with visual icons")
-    print("  📋 4-Column Legend - Optimized for wider screen layout")
-    print("  🎯 Icon-Based UI - Visual elements for faster recognition")
+    print("🎮 ZOOM FEATURES:")
+    print("  🔍 Zoom In - When energy is low (tension effect)")
+    print("  🔍 Zoom Out - When few asteroids remain or during collisions")
+    print("  🔍 Smooth Transitions - Gradual zoom changes for cinematic feel")
+    print("  🔍 All Elements Scale - Nebulae, galaxies, stars scale with zoom")
     print()
-    print("🌟 ALL VISUAL ENHANCEMENTS:")
-    print("  💫 Dynamic Parallax Starfield - 3-layer moving background (230 stars)")
-    print("  🎬 Game Over Screen - Fade-to-black with comprehensive statistics")
-    print("  🛡️ Mothership Safe Zone - Pulsing blue protective aura")
-    print("  🎯 Fixed Color Scheme - Consistent object identification")
-    print("  🌑 Observation Dimming - Spotlight effect for visibility")
-    print("  📏 Size-Based Resources - Asteroid size shows resource level")
-    print("  ✨ Enhanced Animations - Particles, beams, trails")
-    print("  💥 Collision Effects - Flash + screen shake")
-    print("  📊 Score Popups - Floating feedback text")
-    print("  ⚠️ Energy Warning System - Red halo for low energy")
-    print("  🌟 Atmospheric Effects - Glows, pulses, depth")
-    print("=" * 85)
-    print("🎮 Experience the enhanced visual coherence!")
+    print("🌠 COSMIC ELEMENTS:")
+    print("  🌌 8 Nebula Clouds - Rotating, colorful gas clouds")
+    print("  🌀 5 Distant Galaxies - Spiral arms with multiple layers")
+    print("  ⭐ 270 Enhanced Stars - 4 colors with realistic twinkling")
+    print("  💫 200 Space Dust - Fine particles with cosmic drift")
+    print("  🎨 Layered Depth - Background to foreground cosmic elements")
+    print()
+    print("🎯 VISUAL IMPROVEMENTS:")
+    print("  📺 Large Display (1200x900) for immersive cosmic view")
+    print("  🎨 Deep Space Colors - Rich cosmic atmosphere")
+    print("  ✨ Atmospheric Effects - Glows, rotations, fading")
+    print("  🔄 Continuous Animation - Living, breathing universe")
+    print("=" * 90)
+    print("🚀 Experience the cosmic universe of space mining!")
     print()
 
     # Create environment with human rendering
@@ -58,42 +58,52 @@ def main():
         observation, info = env.reset()
         step_count = 0
         
-        print("🎮 Environment initialized with enhanced visuals...")
+        print("🌌 Cosmic environment initialized...")
         print()
-        print("🔍 VISUAL IMPROVEMENTS TO NOTICE:")
-        print("  📺 LARGER DISPLAY:")
-        print("    • 1200x900 screen for more immersive experience")
-        print("    • Better game view with larger play area")
-        print("    • More space for UI elements without crowding")
+        print("🔍 COSMIC FEATURES TO OBSERVE:")
+        print("  🌌 NEBULA CLOUDS:")
+        print("    • Colorful gas clouds in purple, blue, pink, orange")
+        print("    • Slow rotation and movement with parallax")
+        print("    • Multi-layered gradual transparency effects")
+        print("    • Scale with zoom level for immersive depth")
         print()
-        print("  🎯 SCALED ELEMENTS:")
-        print("    • Agent: 15px radius (was 12px) with better energy bar")
-        print("    • Mothership: 20px radius (was 16px) with enhanced aura")
-        print("    • Asteroids: 10-20px based on resources (was 8-16px)")
-        print("    • UI fonts: 18px base (was 16px) for better readability")
+        print("  🌀 DISTANT GALAXIES:")
+        print("    • Spiral arms rotating slowly in background")
+        print("    • Multiple arms (2-5) per galaxy")
+        print("    • Fading brightness from core to edge")
+        print("    • Very slow parallax movement")
         print()
-        print("  📐 IMPROVED LAYOUT:")
-        print("    • 4-column legend (was 3-column) for wider screen")
-        print("    • Better spacing and positioning throughout")
-        print("    • Removed redundant event strip (timeline is cleaner)")
-        print("    • Enhanced combo displays and timeline cards")
+        print("  ⭐ ENHANCED STARFIELD:")
+        print("    • Blue, yellow, red, and white colored stars")
+        print("    • Realistic twinkling effects")
+        print("    • Different sizes and brightness levels")
+        print("    • Multi-layer parallax at different speeds")
         print()
-        print("  ✨ Also watch for: All animations, starfield, combo system")
+        print("  💫 SPACE DUST:")
+        print("    • Fine cosmic particles drifting naturally")
+        print("    • Fast parallax movement in foreground")
+        print("    • Subtle but adds to cosmic atmosphere")
+        print()
+        print("  🔍 DYNAMIC ZOOM:")
+        print("    • Watch zoom change based on game state")
+        print("    • Low energy = zoom in for tension")
+        print("    • Few asteroids = zoom out for overview")
+        print("    • Collisions = quick zoom out for impact")
         print()
         
-        visual_tips = [
-            "📺 Notice the larger, more immersive game display",
-            "🎯 All elements are properly scaled for the bigger screen",
-            "📐 UI layout uses available space more effectively",
-            "🧹 Interface is cleaner with redundant elements removed",
-            "📝 Text and fonts are larger and more readable"
+        cosmic_tips = [
+            "🌌 Notice the colorful nebula clouds rotating slowly in the background",
+            "🌀 Look for distant spiral galaxies with rotating arms",
+            "⭐ Observe the colored stars twinkling realistically",
+            "🔍 Watch how zoom changes create cinematic effects during gameplay",
+            "💫 See the fine space dust adding cosmic atmosphere"
         ]
         
         tip_index = 0
-        combo_demonstrated = False
+        zoom_changes_observed = []
         
         while True:
-            # Enhanced AI behavior for visual demonstration
+            # Enhanced AI behavior for cosmic demonstration
             agent_pos = observation[:2]
             agent_energy = observation[4]
             agent_inventory = observation[5]
@@ -102,7 +112,16 @@ def main():
             asteroid_obs = observation[6:6+env.max_obs_asteroids*3].reshape(-1, 3)
             mothership_rel_pos = observation[-2:]
             
-            # Optimized AI logic for visual showcase
+            # Track zoom changes for demonstration
+            current_zoom = env.zoom_level
+            if step_count > 10:  # Allow initial stabilization
+                if abs(current_zoom - 1.0) > 0.1:
+                    zoom_type = "zoom in" if current_zoom > 1.0 else "zoom out"
+                    if zoom_type not in zoom_changes_observed:
+                        zoom_changes_observed.append(zoom_type)
+                        print(f"🔍 COSMIC ZOOM: {zoom_type.upper()} detected (level: {current_zoom:.2f})")
+            
+            # Optimized AI logic for cosmic showcase
             action = np.zeros(3)
             
             if agent_inventory > 0:
@@ -110,7 +129,7 @@ def main():
                 if np.linalg.norm(mothership_rel_pos) > 1:
                     direction = mothership_rel_pos / (np.linalg.norm(mothership_rel_pos) + 1e-8)
                     action[:2] = direction * 0.8
-                print(f"📦 Delivering {agent_inventory:.1f} → mothership (notice larger display!)")
+                print(f"📦 Delivering {agent_inventory:.1f} → mothership (cosmic zoom: {current_zoom:.2f})")
             else:
                 # Find nearest asteroid for demonstration
                 nearest_asteroid = None
@@ -127,127 +146,130 @@ def main():
                     if min_distance < env.mining_range:
                         # Mine if close enough
                         action[2] = 1.0  # Mine
-                        print(f"⛏️ Mining {nearest_asteroid[2]:.1f} (see enhanced beam animation!)")
+                        print(f"⛏️ Mining {nearest_asteroid[2]:.1f} (cosmic atmosphere enhanced!)")
                     else:
                         # Move towards asteroid
                         direction = nearest_asteroid[:2] / (min_distance + 1e-8)
                         action[:2] = direction * 0.8
                         print(f"🔍 Moving to asteroid (distance: {min_distance:.1f})")
             
-            # Show visual tips periodically
-            if step_count % 300 == 0 and tip_index < len(visual_tips):
-                print(f"💡 VISUAL TIP: {visual_tips[tip_index]}")
+            # Show cosmic tips periodically
+            if step_count % 400 == 0 and tip_index < len(cosmic_tips):
+                print(f"🌟 COSMIC TIP: {cosmic_tips[tip_index]}")
                 tip_index += 1
             
-            # Add movement variety
-            if step_count % 90 == 0:
-                action[:2] += np.random.uniform(-0.3, 0.3, 2)
+            # Add movement variety for better cosmic showcase
+            if step_count % 120 == 0:
+                action[:2] += np.random.uniform(-0.2, 0.2, 2)
             
             # Step environment
             observation, reward, terminated, truncated, info = env.step(action)
             step_count += 1
             
-            # Highlight enhanced visual events
+            # Highlight cosmic visual events
             if hasattr(env, 'last_mining_info') and env.last_mining_info.get('step', 0) == step_count:
                 extracted = env.last_mining_info['extracted']
                 combo_count = env.combo_state.get('chain_count', 0)
                 if combo_count >= 2:
-                    print(f"🔥 COMBO x{combo_count}! Enhanced badge display with larger fonts!")
-                    combo_demonstrated = True
+                    print(f"🔥 COMBO x{combo_count}! Enhanced by cosmic atmosphere!")
                 else:
-                    print(f"✅ MINED {extracted:.1f}! (Timeline card appears at top)")
+                    print(f"✅ MINED {extracted:.1f}! (Nebulae dance in background)")
             
             if hasattr(env, 'last_delivery_info') and env.last_delivery_info.get('step', 0) == step_count:
                 delivered = env.last_delivery_info['delivered']
-                print(f"🚀 DELIVERED {delivered:.1f}! (Enhanced particle animation)")
+                print(f"🚀 DELIVERED {delivered:.1f}! (Galaxies rotate in the distance)")
             
             if hasattr(env, 'last_collision_step') and env.last_collision_step == step_count:
-                print(f"💥 COLLISION! (Enhanced screen shake on larger display)")
+                print(f"💥 COLLISION! (Zoom effect with cosmic background!)")
             
-            # Visual coherence status updates
-            if step_count % 200 == 0:
-                timeline_count = len(env.event_timeline)
-                total_stars = sum(len(layer) for layer in env.starfield_layers)
+            # Cosmic status updates
+            if step_count % 250 == 0:
+                nebula_count = len(env.nebula_clouds)
+                galaxy_count = len(env.distant_galaxies)
+                star_count = sum(len(layer) for layer in env.starfield_layers)
+                dust_count = len(env.space_dust)
+                cosmic_time = env.cosmic_time
                 
-                print(f"📊 Visual Coherence Demo - Step {step_count}:")
-                print(f"   📺 Screen Size: 1200x900 (enhanced from 800x800)")
-                print(f"   🎬 Timeline Cards: {timeline_count}/5 active")
-                print(f"   ⭐ Starfield: {total_stars} stars across 3 layers")
-                print(f"   🎯 Element Scaling: All objects properly sized")
-                print(f"   📐 UI Layout: 4-column legend, 2-column status")
-                print(f"   📝 Typography: Enhanced fonts for readability")
-                print(f"   🧹 Interface: Clean, no redundant elements")
+                print(f"🌌 Cosmic Universe Status - Step {step_count}:")
+                print(f"   🔍 Current Zoom: {current_zoom:.2f}x")
+                print(f"   🌌 Nebula Clouds: {nebula_count} rotating gas clouds")
+                print(f"   🌀 Distant Galaxies: {galaxy_count} spiral formations")
+                print(f"   ⭐ Enhanced Stars: {star_count} twinkling points")
+                print(f"   💫 Space Dust: {dust_count} cosmic particles")
+                print(f"   ⏱️ Cosmic Time: {cosmic_time:.1f}s (twinkling cycle)")
+                print(f"   🎨 Background Layers: Nebulae → Galaxies → Dust → Stars")
                 
-                if combo_demonstrated:
-                    print(f"   🏆 Combo Demo: Enhanced display demonstrated!")
+                if len(zoom_changes_observed) > 0:
+                    print(f"   🎬 Zoom Effects: {', '.join(zoom_changes_observed)} demonstrated")
                 else:
-                    print(f"   🎯 Visual Demo: All improvements active!")
+                    print(f"   🎯 Zoom Effects: Waiting for state changes...")
             
             # Check for end conditions
             if terminated or truncated:
                 print()
-                print("🎬 VISUAL COHERENCE DEMO COMPLETE!")
+                print("🌌 COSMIC UNIVERSE DEMO COMPLETE!")
                 if terminated:
                     if hasattr(info, 'exploration_complete') and info.get('exploration_complete'):
-                        print("🎉 SUCCESS: All asteroids depleted!")
+                        print("🎉 SUCCESS: Mission completed in cosmic space!")
                     else:
-                        print("💥 FAILURE: Energy depleted or too many collisions!")
+                        print("💥 FAILURE: Lost in the cosmic void!")
                 if truncated:
-                    print("⏰ TIME LIMIT: Episode truncated!")
+                    print("⏰ TIME LIMIT: Cosmic journey ended!")
                 
                 print()
-                print("🌟 VISUAL COHERENCE IMPROVEMENTS DEMONSTRATED:")
-                print("  ✅ Enhanced screen size (1200x900) for better experience")
-                print("  ✅ Properly scaled game objects and UI elements")
-                print("  ✅ Consistent visual hierarchy and spacing")
-                print("  ✅ Clean interface with redundant elements removed")
-                print("  ✅ Enhanced typography and readability")
-                print("  ✅ Harmonious integration of all visual systems")
+                print("🌟 COSMIC FEATURES DEMONSTRATED:")
+                print("  ✅ Colorful nebula clouds with rotation and parallax")
+                print("  ✅ Distant spiral galaxies with animated arms")
+                print("  ✅ Enhanced starfield with colors and twinkling")
+                print("  ✅ Fine space dust creating cosmic atmosphere")
+                print("  ✅ Dynamic zoom system for cinematic effects")
+                print("  ✅ Multi-layered cosmic background system")
                 print()
-                print("⏳ Waiting for enhanced game over screen...")
+                print("⏳ Waiting for cosmic game over screen...")
                 
-                # Let the game over screen show with larger fonts
-                for _ in range(120):
+                # Let the cosmic game over screen show
+                for _ in range(140):
                     env.render()
                     time.sleep(0.025)
                 
-                print("✅ Visual coherence demo finished!")
+                print("✅ Cosmic universe demo finished!")
                 break
             
-            # Run for good demonstration duration
-            if step_count > 1400:
+            # Run for good cosmic demonstration
+            if step_count > 1600:
                 print()
-                print("🎬 Visual coherence demo completed successfully!")
+                print("🌌 Cosmic universe demo completed successfully!")
                 print()
-                print("🏆 VISUAL ACHIEVEMENTS:")
-                print("  ✅ Upgraded to larger, more immersive display")
-                print("  ✅ Achieved consistent visual scaling throughout")
-                print("  ✅ Improved layout and spacing for better UX")
-                print("  ✅ Enhanced typography and readability")
-                print("  ✅ Streamlined interface by removing redundancy")
-                print("  ✅ Maintained all animations and polish features")
-                print("  ✅ Created cohesive, professional visual experience")
+                print("🏆 COSMIC ACHIEVEMENTS:")
+                print("  ✅ Created immersive universe-like background")
+                print("  ✅ Implemented multi-layered cosmic elements")
+                print("  ✅ Added dynamic zoom for cinematic experience")
+                print("  ✅ Enhanced with colorful nebulae and galaxies")
+                print("  ✅ Integrated twinkling colored starfield")
+                print("  ✅ Added fine space dust for atmosphere")
+                print("  ✅ Created living, breathing cosmic environment")
                 print()
-                combo_msg = "demonstrated" if combo_demonstrated else "available"
-                print(f"🔥 Enhanced Combo System: {combo_msg}")
-                print(f"🎬 Timeline Events: {len(env.event_timeline)} active")
-                print(f"⭐ Enhanced Starfield: {sum(len(layer) for layer in env.starfield_layers)} stars")
+                zoom_msg = f"({', '.join(zoom_changes_observed)})" if zoom_changes_observed else "(waiting for triggers)"
+                print(f"🔍 Dynamic Zoom: {zoom_msg}")
+                print(f"🌌 Cosmic Elements: {nebula_count} nebulae, {galaxy_count} galaxies")
+                print(f"⭐ Total Stars: {star_count} with enhanced effects")
+                print(f"💫 Space Dust: {dust_count} atmospheric particles")
                 print()
-                print("🌟 Space Mining visuals are now fully coherent and polished!")
+                print("🌟 The universe of Space Mining is now truly cosmic!")
                 break
                 
-            # Optimal viewing speed
-            time.sleep(0.03)
+            # Optimal cosmic viewing speed
+            time.sleep(0.035)
     
     except KeyboardInterrupt:
-        print("\n👋 Demo interrupted by user")
-        print("🎨 Visual coherence improvements successfully demonstrated!")
+        print("\n👋 Cosmic demo interrupted by user")
+        print("🌌 Universe-like background successfully demonstrated!")
     except Exception as e:
-        print(f"❌ Error occurred: {e}")
+        print(f"❌ Cosmic error occurred: {e}")
     finally:
         env.close()
-        print("🚪 Enhanced Space Mining visual demo complete!")
-        print("✨ Thank you for experiencing the improved visual coherence!")
+        print("🚪 Cosmic Space Mining demo complete!")
+        print("✨ Thank you for exploring the enhanced cosmic universe!")
 
 if __name__ == "__main__":
     main()

@@ -51,14 +51,15 @@ class Renderer:
         # Deep space background
         self.window.fill((5, 5, 15))
 
-        # Draw dynamic starfield background
-        self._draw_starfield()
+        # Draw enhanced cosmic background
+        self._draw_cosmic_background()
 
-        # Helper function to convert 2D coordinates to screen coordinates
+        # Helper function to convert 2D coordinates to screen coordinates with zoom
         def to_screen(pos, scale=10.0):
             x, y = pos
-            screen_x = int(600 + (x - 40) * scale + shake_offset[0])
-            screen_y = int(450 + (y - 40) * scale + shake_offset[1])
+            zoom_scale = scale * self.env.zoom_level
+            screen_x = int(600 + (x - 40) * zoom_scale + shake_offset[0])
+            screen_y = int(450 + (y - 40) * zoom_scale + shake_offset[1])
             return screen_x, screen_y
 
         # Draw agent trail first (behind everything)
@@ -299,9 +300,9 @@ class Renderer:
             energy_color = (255, 50, 50)
         pygame.draw.rect(self.window, energy_color, (bar_x, bar_y, energy_width, 8))
 
-        # Draw observation and mining ranges
-        obs_radius_px = int(self.env.observation_radius * 10.0)
-        mining_radius_px = int(self.env.mining_range * 10.0)
+        # Draw observation and mining ranges (affected by zoom)
+        obs_radius_px = int(self.env.observation_radius * 10.0 * self.env.zoom_level)
+        mining_radius_px = int(self.env.mining_range * 10.0 * self.env.zoom_level)
         
         gfxdraw.aacircle(
             self.window,
@@ -389,8 +390,142 @@ class Renderer:
                 np.array(pygame.surfarray.pixels3d(self.window)), axes=(1, 0, 2)
             )
 
-    def _draw_starfield(self) -> None:
-        """Draw the parallax starfield background."""
+    def _draw_cosmic_background(self) -> None:
+        """Draw the enhanced cosmic background with nebulae, galaxies, and stars."""
+        try:
+            import pygame
+            from pygame import gfxdraw
+        except ImportError:
+            return
+
+        # Draw nebula clouds first (background layer)
+        self._draw_nebulae()
+        
+        # Draw distant galaxies
+        self._draw_distant_galaxies()
+        
+        # Draw space dust
+        self._draw_space_dust()
+        
+        # Draw enhanced starfield with colors and twinkling
+        self._draw_enhanced_starfield()
+
+    def _draw_nebulae(self) -> None:
+        """Draw colorful nebula clouds."""
+        try:
+            import pygame
+            from pygame import gfxdraw
+        except ImportError:
+            return
+
+        for nebula in self.env.nebula_clouds:
+            x, y = int(nebula["x"]), int(nebula["y"])
+            size = int(nebula["size"] * self.env.zoom_level)
+            
+            # Skip if completely off screen
+            if x < -size or x > 1200 + size or y < -size or y > 900 + size:
+                continue
+            
+            # Create nebula effect with multiple layers
+            r, g, b, base_alpha = nebula["color"]
+            
+            # Outer nebula glow
+            for i in range(5):
+                layer_size = size - i * (size // 8)
+                if layer_size > 0:
+                    alpha = max(5, base_alpha - i * 5)
+                    # Create gradient effect
+                    color_variation = 1.0 - (i * 0.15)
+                    final_color = (
+                        int(r * color_variation),
+                        int(g * color_variation), 
+                        int(b * color_variation),
+                        alpha
+                    )
+                    
+                    # Create nebula surface with transparency
+                    nebula_surface = pygame.Surface((layer_size * 2, layer_size * 2), pygame.SRCALPHA)
+                    gfxdraw.filled_circle(nebula_surface, layer_size, layer_size, layer_size, final_color)
+                    
+                    # Apply rotation if needed
+                    if nebula["rotation"] != 0:
+                        nebula_surface = pygame.transform.rotate(nebula_surface, math.degrees(nebula["rotation"]))
+                    
+                    # Blit to main surface
+                    blit_x = x - nebula_surface.get_width() // 2
+                    blit_y = y - nebula_surface.get_height() // 2
+                    self.window.blit(nebula_surface, (blit_x, blit_y))
+
+    def _draw_distant_galaxies(self) -> None:
+        """Draw distant spiral galaxies."""
+        try:
+            import pygame
+            from pygame import gfxdraw
+        except ImportError:
+            return
+
+        for galaxy in self.env.distant_galaxies:
+            x, y = int(galaxy["x"]), int(galaxy["y"])
+            size = int(galaxy["size"] * self.env.zoom_level)
+            
+            # Skip if off screen
+            if x < -size or x > 1200 + size or y < -size or y > 900 + size:
+                continue
+            
+            brightness = galaxy["brightness"]
+            
+            # Galaxy core
+            core_color = (brightness + 20, brightness + 15, brightness + 25)
+            gfxdraw.filled_circle(self.window, x, y, max(1, size // 8), core_color)
+            
+            # Spiral arms
+            arm_count = galaxy["spiral_arms"]
+            rotation = galaxy["rotation"]
+            
+            for arm in range(arm_count):
+                arm_angle = rotation + (arm * 2 * math.pi / arm_count)
+                
+                # Draw spiral arm as series of dots
+                for r in range(size // 8, size, max(1, size // 20)):
+                    spiral_angle = arm_angle + r * 0.3  # Spiral curve
+                    
+                    arm_x = x + int(r * math.cos(spiral_angle))
+                    arm_y = y + int(r * math.sin(spiral_angle))
+                    
+                    if 0 <= arm_x <= 1200 and 0 <= arm_y <= 900:
+                        # Fade towards edge
+                        fade_factor = 1.0 - (r / size)
+                        arm_brightness = int(brightness * fade_factor)
+                        if arm_brightness > 5:
+                            arm_color = (arm_brightness, arm_brightness, arm_brightness + 10)
+                            if r < size // 3:
+                                gfxdraw.filled_circle(self.window, arm_x, arm_y, 2, arm_color)
+                            else:
+                                self.window.set_at((arm_x, arm_y), arm_color)
+
+    def _draw_space_dust(self) -> None:
+        """Draw fine cosmic dust particles."""
+        try:
+            import pygame
+        except ImportError:
+            return
+
+        for dust in self.env.space_dust:
+            x, y = int(dust["x"]), int(dust["y"])
+            
+            if 0 <= x <= 1200 and 0 <= y <= 900:
+                brightness = dust["brightness"]
+                # Subtle dust particles
+                dust_color = (brightness, brightness, brightness + 5)
+                size = max(1, int(dust["size"] * self.env.zoom_level))
+                
+                if size == 1:
+                    self.window.set_at((x, y), dust_color)
+                else:
+                    gfxdraw.filled_circle(self.window, x, y, size, dust_color)
+
+    def _draw_enhanced_starfield(self) -> None:
+        """Draw enhanced starfield with colors and twinkling."""
         try:
             import pygame
             from pygame import gfxdraw
@@ -400,20 +535,36 @@ class Renderer:
         for layer in self.env.starfield_layers:
             for star in layer:
                 x, y = int(star["x"]), int(star["y"])
+                
                 if 0 <= x <= 1200 and 0 <= y <= 900:
-                    size = star["size"]
-                    brightness = star["brightness"]
-                    color = (brightness, brightness, brightness)
+                    size = max(1, int(star["size"] * self.env.zoom_level))
+                    base_brightness = star["brightness"]
+                    
+                    # Add twinkling effect
+                    twinkle = math.sin(self.env.cosmic_time * 2 + star["twinkle_offset"]) * 0.3 + 0.7
+                    brightness = int(base_brightness * twinkle)
+                    brightness = max(20, min(255, brightness))
+                    
+                    # Color based on star type
+                    color_type = star["color_type"]
+                    if color_type == "blue":
+                        color = (brightness // 2, brightness // 2, brightness)
+                    elif color_type == "yellow":
+                        color = (brightness, brightness, brightness // 2)
+                    elif color_type == "red":
+                        color = (brightness, brightness // 2, brightness // 2)
+                    else:  # white
+                        color = (brightness, brightness, brightness)
                     
                     if size == 1:
-                        # Single pixel star
                         self.window.set_at((x, y), color)
                     else:
-                        # Larger stars with glow
                         gfxdraw.filled_circle(self.window, x, y, size, color)
+                        
+                        # Add glow for larger stars
                         if size > 2:
-                            # Add subtle glow for close stars
-                            glow_color = (brightness // 2, brightness // 2, brightness // 2)
+                            glow_brightness = brightness // 3
+                            glow_color = (glow_brightness, glow_brightness, glow_brightness)
                             gfxdraw.aacircle(self.window, x, y, size + 1, glow_color)
 
     def _draw_game_ui(self, agent_pos_2d) -> None:
