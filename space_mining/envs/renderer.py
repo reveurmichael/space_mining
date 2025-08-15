@@ -278,6 +278,10 @@ class Renderer:
 
         # Update cosmic background
         self._update_cosmic_background()
+        
+        # Update animations and zoom
+        self.update_animations()
+        self.update_zoom()
 
         # Perfect cosmic void - maximum atmospheric depth
         self.window.fill((0, 0, 3))  # Pure deep space
@@ -341,13 +345,10 @@ class Renderer:
         # Enhanced mothership glow effect
         for i in range(6):
             alpha = max(20, 150 - i * 25)
-            gfxdraw.aacircle(
-                self.window, 
-                mothership_pos_2d[0], 
-                mothership_pos_2d[1], 
-                20 + i * 4, 
-                (30, 120, 200, alpha)
-            )
+            if alpha > 0:
+                glow_surface = pygame.Surface((40 + i * 8 + 10, 40 + i * 8 + 10), pygame.SRCALPHA)
+                gfxdraw.filled_circle(glow_surface, 20 + i * 4 + 5, 20 + i * 4 + 5, 20 + i * 4, (30, 120, 200, alpha))
+                self.window.blit(glow_surface, (mothership_pos_2d[0] - 20 - i * 4 - 5, mothership_pos_2d[1] - 20 - i * 4 - 5), special_flags=pygame.BLEND_ADD)
 
         # Draw asteroids with fixed yellow color and size-based resource indication
         for i, pos in enumerate(self.env.asteroid_positions):
@@ -395,13 +396,11 @@ class Renderer:
                 pulse = math.sin(self.env.steps_count * 0.15) * 0.3 + 0.7
                 glow_alpha = int(60 * pulse)
                 for j in range(3):
-                    gfxdraw.aacircle(
-                        self.window,
-                        asteroid_pos_2d[0],
-                        asteroid_pos_2d[1],
-                        size + j * 2,
-                        (255, 255, 100, glow_alpha - j * 20)
-                    )
+                    alpha_val = max(0, glow_alpha - j * 20)
+                    if alpha_val > 0:
+                        glow_surface = pygame.Surface((size * 2 + j * 4 + 10, size * 2 + j * 4 + 10), pygame.SRCALPHA)
+                        gfxdraw.filled_circle(glow_surface, size + j * 2 + 5, size + j * 2 + 5, size + j * 2, (255, 255, 100, alpha_val))
+                        self.window.blit(glow_surface, (asteroid_pos_2d[0] - size - j * 2 - 5, asteroid_pos_2d[1] - size - j * 2 - 5), special_flags=pygame.BLEND_ADD)
 
             # Enhanced health bar
             health_ratio = resource_ratio
@@ -436,10 +435,11 @@ class Renderer:
             )
             # Enhanced danger glow
             for i in range(3):
-                gfxdraw.aacircle(
-                    self.window, obstacle_pos_2d[0], obstacle_pos_2d[1], 
-                    pulse + 2 + i * 2, (255, 100, 100, 100 - i * 30)
-                )
+                alpha_val = max(0, 100 - i * 30)
+                if alpha_val > 0:
+                    glow_surface = pygame.Surface((pulse * 2 + i * 4 + 20, pulse * 2 + i * 4 + 20), pygame.SRCALPHA)
+                    gfxdraw.filled_circle(glow_surface, pulse + i * 2 + 10, pulse + i * 2 + 10, pulse + 2 + i * 2, (255, 100, 100, alpha_val))
+                    self.window.blit(glow_surface, (obstacle_pos_2d[0] - pulse - i * 2 - 10, obstacle_pos_2d[1] - pulse - i * 2 - 10), special_flags=pygame.BLEND_ADD)
 
         # Draw agent with FIXED GREEN color
         agent_pos_2d = to_screen(self.env.agent_position)
@@ -452,13 +452,11 @@ class Renderer:
             warning_intensity = int(100 * (1 - self.env.agent_energy / 30.0))
             warning_pulse = math.sin(self.env.steps_count * 0.3) * 0.5 + 0.5
             for i in range(3):
-                gfxdraw.aacircle(
-                    self.window,
-                    agent_pos_2d[0],
-                    agent_pos_2d[1],
-                    14 + i * 3,
-                    (255, 0, 0, int(warning_intensity * warning_pulse) - i * 20)
-                )
+                alpha_val = max(0, int(warning_intensity * warning_pulse) - i * 20)
+                if alpha_val > 0:
+                    warning_surface = pygame.Surface((28 + i * 6 + 10, 28 + i * 6 + 10), pygame.SRCALPHA)
+                    gfxdraw.filled_circle(warning_surface, 14 + i * 3 + 5, 14 + i * 3 + 5, 14 + i * 3, (255, 0, 0, alpha_val))
+                    self.window.blit(warning_surface, (agent_pos_2d[0] - 14 - i * 3 - 5, agent_pos_2d[1] - 14 - i * 3 - 5), special_flags=pygame.BLEND_ADD)
 
         gfxdraw.filled_circle(
             self.window,
@@ -876,7 +874,7 @@ class Renderer:
         # Create main status panel
         status_bg = pygame.Surface((panel_width, panel_height), pygame.SRCALPHA)
         status_bg.fill((0, 0, 0, 220))
-        pygame.draw.rect(status_bg, (60, 60, 80, 150), (0, 0, panel_width, panel_height), 3)
+        pygame.draw.rect(status_bg, (60, 60, 80), (0, 0, panel_width, panel_height), 3)
 
         # Title with state
         title_font = pygame.font.SysFont("Arial", 16, bold=True)
@@ -996,7 +994,7 @@ class Renderer:
         # Create legend background
         legend_bg = pygame.Surface((panel_width, panel_height), pygame.SRCALPHA)
         legend_bg.fill((0, 0, 0, 220))
-        pygame.draw.rect(legend_bg, (60, 60, 80, 150), (0, 0, panel_width, panel_height), 3)
+        pygame.draw.rect(legend_bg, (60, 60, 80), (0, 0, panel_width, panel_height), 3)
 
         # Title
         title_font = pygame.font.SysFont("Arial", 18, bold=True)
@@ -1069,8 +1067,12 @@ class Renderer:
         elif icon_type == "safe_zone":
             # Safe zone aura
             for i in range(3):
-                alpha = 100 - i * 30
-                gfxdraw.aacircle(surface, x+10, y+10, 8 + i * 2, (*color[:3], alpha))
+                alpha = max(0, 100 - i * 30)
+                if alpha > 0:
+                    # Create a temporary surface for the aura effect
+                    aura_surface = pygame.Surface((20 + i * 4, 20 + i * 4), pygame.SRCALPHA)
+                    gfxdraw.filled_circle(aura_surface, 10 + i * 2, 10 + i * 2, 8 + i * 2, (*color[:3], alpha))
+                    surface.blit(aura_surface, (x - i * 2, y - i * 2), special_flags=pygame.BLEND_ADD)
 
         elif icon_type == "energy_beam":
             # Mining beam
@@ -1226,7 +1228,7 @@ class Renderer:
         
         # Gradient background effect
         badge_surface.fill((80, 60, 0, alpha))
-        pygame.draw.rect(badge_surface, (255, 200, 0, alpha), (0, 0, badge_width, badge_height), 3)
+        pygame.draw.rect(badge_surface, (255, 200, 0), (0, 0, badge_width, badge_height), 3)
         
         # Add sparkle effects around badge
         for i in range(8):
@@ -1317,6 +1319,183 @@ class Renderer:
                 text_rect = text_surface.get_rect(center=(960, y_offset))
                 self.window.blit(text_surface, text_rect)
                 y_offset += 45
+
+    def update_zoom(self) -> None:
+        """Update zoom system for cosmic immersion."""
+        zoom_diff = self.env.target_zoom - self.env.zoom_level
+        self.env.zoom_speed = 0.025
+        self.env.zoom_level += zoom_diff * self.env.zoom_speed
+        
+        # Perfect zoom logic for cosmic experience
+        if hasattr(self.env, 'agent_energy') and self.env.agent_energy < 20:
+            self.env.target_zoom = 1.25  # Focus when energy critical
+        elif hasattr(self.env, 'collision_flash_timer') and self.env.collision_flash_timer > 0:
+            self.env.target_zoom = 0.85  # Pull back for drama
+        elif len([a for a in self.env.asteroid_resources if a > 0.1]) <= 2:
+            self.env.target_zoom = 0.9   # Overview when few asteroids
+        elif hasattr(self.env, 'mining_asteroid_id') and self.env.mining_asteroid_id is not None:
+            self.env.target_zoom = 1.1   # Subtle mining focus
+        else:
+            self.env.target_zoom = 1.0   # Perfect cosmic view
+        
+        # Perfect zoom bounds for cosmic viewing
+        self.env.zoom_level = max(0.8, min(1.3, self.env.zoom_level))
+
+    def update_event_timeline(self) -> None:
+        """Update event timeline animations."""
+        # Age all events and remove expired ones
+        for event in self.env.event_timeline[:]:  # Copy list to avoid modification during iteration
+            age = self.env.steps_count - event["step"]
+            if age > event["lifetime"]:
+                self.env.event_timeline.remove(event)
+            else:
+                # Fade out over last 60 steps
+                fade_start = event["lifetime"] - 60
+                if age > fade_start:
+                    fade_progress = (age - fade_start) / 60.0
+                    event["alpha"] = int(255 * (1 - fade_progress))
+                else:
+                    event["alpha"] = 255
+
+    def update_combo_system(self) -> None:
+        """Update combo display animations."""
+        # Fade out combo display
+        if self.env.combo_state["display_timer"] > 0:
+            self.env.combo_state["display_timer"] -= 1
+            
+            # Pulsing effect
+            import math
+            pulse = abs(math.sin(self.env.steps_count * 0.3)) * 0.3 + 0.7
+            self.env.combo_state["combo_alpha"] = int(255 * pulse)
+            
+            if self.env.combo_state["display_timer"] <= 0:
+                self.env.combo_state["combo_alpha"] = 0
+        
+        # Reset combo if too much time has passed
+        if (self.env.steps_count - self.env.combo_state["last_mining_step"]) > self.env.combo_state["combo_window"]:
+            if self.env.combo_state["chain_count"] > 0:
+                self.env.combo_state["chain_count"] = 0
+                self.env.combo_state["display_timer"] = 0
+
+    def spawn_delivery_particles(self, start_pos: np.ndarray, target_pos: np.ndarray) -> None:
+        """Spawn glowing particles for resource delivery animation."""
+        for _ in range(10):
+            particle = {
+                "start_pos": start_pos.copy(),
+                "target_pos": target_pos.copy(),
+                "progress": 0.0
+            }
+            self.env.delivery_particles.append(particle)
+
+    def add_score_popup(self, text: str, pos: np.ndarray, color: tuple) -> None:
+        """Add a floating score popup."""
+        popup = {
+            "text": text,
+            "pos": pos.copy(),
+            "alpha": 255,
+            "color": color
+        }
+        self.env.score_popups.append(popup)
+
+    def add_timeline_event(self, event_type: str, text: str, color: tuple) -> None:
+        """Add an event to the floating timeline."""
+        event = {
+            "type": event_type,
+            "text": text,
+            "color": color,
+            "step": self.env.steps_count,
+            "alpha": 255,
+            "lifetime": 300  # Steps before fading
+        }
+        
+        # Add to front of timeline
+        self.env.event_timeline.insert(0, event)
+        
+        # Keep only the last N events
+        if len(self.env.event_timeline) > self.env.max_timeline_events:
+            self.env.event_timeline = self.env.event_timeline[:self.env.max_timeline_events]
+
+    def process_mining_combo(self) -> None:
+        """Process mining combo chain detection."""
+        current_step = self.env.steps_count
+        
+        # Check if this mining action extends a combo
+        if (current_step - self.env.combo_state["last_mining_step"]) <= self.env.combo_state["combo_window"]:
+            self.env.combo_state["chain_count"] += 1
+        else:
+            self.env.combo_state["chain_count"] = 1
+        
+        self.env.combo_state["last_mining_step"] = current_step
+        
+        # Show combo if we have 2 or more
+        if self.env.combo_state["chain_count"] >= 2:
+            self.env.combo_state["display_timer"] = 120  # Show for 4 seconds at 30fps
+            self.env.combo_state["combo_alpha"] = 255
+            
+            # Add special combo timeline event
+            combo_text = f"x{self.env.combo_state['chain_count']} COMBO!"
+            self.add_timeline_event("combo", combo_text, (255, 200, 0))
+
+    def update_animations(self) -> None:
+        """Update all animation states."""
+        # Update agent trail
+        self.env.agent_trail.append({"pos": self.env.agent_position.copy(), "alpha": 255})
+        # Fade existing trail points
+        for trail_point in self.env.agent_trail:
+            trail_point["alpha"] -= 15
+        # Remove faded trail points
+        self.env.agent_trail = [p for p in self.env.agent_trail if p["alpha"] > 0]
+
+        # Update delivery particles
+        for particle in self.env.delivery_particles:
+            particle["progress"] += 0.05
+            if particle["progress"] >= 1.0:
+                particle["progress"] = 1.0
+        # Remove completed particles
+        self.env.delivery_particles = [p for p in self.env.delivery_particles if p["progress"] < 1.0]
+
+        # Update score popups
+        for popup in self.env.score_popups:
+            popup["pos"][1] -= 0.3  # Move upward
+            popup["alpha"] -= 5
+        # Remove faded popups
+        self.env.score_popups = [p for p in self.env.score_popups if p["alpha"] > 0]
+
+        # Update collision effects
+        if self.env.collision_flash_timer > 0:
+            self.env.collision_flash_timer -= self.env.dt
+        if self.env.screen_shake_timer > 0:
+            self.env.screen_shake_timer -= self.env.dt
+
+        # Update mining beam animation
+        self.env.mining_beam_offset += 0.2
+
+        # Update event timeline
+        self.update_event_timeline()
+
+        # Update combo system
+        self.update_combo_system()
+
+    def trigger_game_over(self, success: bool) -> None:
+        """Trigger game over screen with final statistics."""
+        cumulative_mining = getattr(self.env, "cumulative_mining_amount", 0.0)
+        
+        self.env.game_over_state = {
+            "active": True,
+            "fade_alpha": 0,
+            "success": success,
+            "final_stats": {
+                "total_resources_mined": cumulative_mining,
+                "resources_delivered": cumulative_mining - self.env.agent_inventory,
+                "current_inventory": self.env.agent_inventory,
+                "collisions": self.env.collision_count,
+                "steps_taken": self.env.steps_count,
+                "final_energy": self.env.agent_energy,
+                "asteroids_depleted": len(self.env.asteroid_positions) - np.sum(self.env.asteroid_resources >= 0.1),
+                "total_asteroids": len(self.env.asteroid_positions),
+                "efficiency_score": self.env.compute_fitness_score()
+            }
+        }
 
     def close(self) -> None:
         """Close the rendering window."""
