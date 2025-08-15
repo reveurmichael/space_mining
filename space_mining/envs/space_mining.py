@@ -61,6 +61,18 @@ class SpaceMining(gym.Env):
         self.screen_shake_timer = 0.0
         self.mining_beam_offset = 0.0
 
+        # Starfield background layers
+        self.starfield_layers = []
+        self._initialize_starfield()
+
+        # Game over screen state
+        self.game_over_state = {
+            "active": False,
+            "fade_alpha": 0,
+            "final_stats": {},
+            "success": False
+        }
+
         self.action_space: spaces.Box = spaces.Box(
             low=np.array([-1.0, -1.0, 0.0]),
             high=np.array([1.0, 1.0, 1.0]),
@@ -99,6 +111,15 @@ class SpaceMining(gym.Env):
         self.collision_flash_timer = 0.0
         self.screen_shake_timer = 0.0
         self.mining_beam_offset = 0.0
+
+        # Reset starfield and game over state
+        self._initialize_starfield()
+        self.game_over_state = {
+            "active": False,
+            "fade_alpha": 0,
+            "final_stats": {},
+            "success": False
+        }
 
         self.agent_position = self.np_random.uniform(low=0, high=self.grid_size, size=(2,))
         self.agent_velocity = np.zeros(2, dtype=np.float32)
@@ -198,6 +219,7 @@ class SpaceMining(gym.Env):
             self.agent_energy = 0
             reward += -10.0
             terminated = True
+            self._trigger_game_over(success=False)
         else:
             terminated = False
 
@@ -221,6 +243,7 @@ class SpaceMining(gym.Env):
         if self.collision_count >= 18:
             print(f"[EPISODE END] Step {self.steps_count}: Too many collisions, terminating episode.")
             terminated = True
+            self._trigger_game_over(success=False)
 
         if mine and self.agent_energy > 0 and self.agent_inventory < self.max_inventory:
             mined_something = False
@@ -303,13 +326,15 @@ class SpaceMining(gym.Env):
                 if self.obstacle_positions[i][axis] < 0 or self.obstacle_positions[i][axis] > self.grid_size:
                     self.obstacle_velocities[i][axis] *= -1
 
-        # Update animations
+        # Update animations and starfield
         self._update_animations()
+        self._update_starfield()
 
         observation = self._get_observation()
 
         truncated = self.steps_count >= self.max_episode_steps
         if truncated:
+            self._trigger_game_over(success=False)
             print(
                 (
                     f"[EPISODE END] Step {self.steps_count}: Time limit reached "
@@ -319,6 +344,7 @@ class SpaceMining(gym.Env):
 
         if np.all(self.asteroid_resources < 0.1):
             terminated = True
+            self._trigger_game_over(success=True)
             info = self._get_info()
             info["exploration_complete"] = True
             print((f"[EPISODE END] Step {self.steps_count}: All asteroids depleted " f"- Episode completed successfully"))
@@ -534,5 +560,97 @@ class SpaceMining(gym.Env):
             "color": color
         }
         self.score_popups.append(popup)
+
+    def _initialize_starfield(self) -> None:
+        """Initialize parallax starfield background layers."""
+        # Create 3 layers of stars at different depths
+        self.starfield_layers = []
+        
+        # Layer 1: Distant stars (slow, small, dim)
+        layer1_stars = []
+        for _ in range(80):
+            star = {
+                "x": np.random.uniform(0, 800),
+                "y": np.random.uniform(0, 800),
+                "size": 1,
+                "brightness": np.random.randint(50, 100),
+                "speed": 0.2
+            }
+            layer1_stars.append(star)
+        self.starfield_layers.append(layer1_stars)
+        
+        # Layer 2: Mid-distance stars (medium speed and size)
+        layer2_stars = []
+        for _ in range(50):
+            star = {
+                "x": np.random.uniform(0, 800),
+                "y": np.random.uniform(0, 800),
+                "size": 2,
+                "brightness": np.random.randint(100, 150),
+                "speed": 0.5
+            }
+            layer2_stars.append(star)
+        self.starfield_layers.append(layer2_stars)
+        
+        # Layer 3: Close stars (fast, bright, larger)
+        layer3_stars = []
+        for _ in range(25):
+            star = {
+                "x": np.random.uniform(0, 800),
+                "y": np.random.uniform(0, 800),
+                "size": 3,
+                "brightness": np.random.randint(150, 255),
+                "speed": 1.0
+            }
+            layer3_stars.append(star)
+        self.starfield_layers.append(layer3_stars)
+
+    def _update_starfield(self) -> None:
+        """Update starfield animation based on agent movement."""
+        if not hasattr(self, "prev_agent_position"):
+            self.prev_agent_position = self.agent_position.copy()
+            return
+            
+        # Calculate agent movement vector
+        movement = self.agent_position - self.prev_agent_position
+        self.prev_agent_position = self.agent_position.copy()
+        
+        # Update each layer with parallax effect
+        for layer in self.starfield_layers:
+            for star in layer:
+                # Move stars opposite to agent movement for parallax effect
+                star["x"] -= movement[0] * star["speed"] * 8  # Scale factor for visibility
+                star["y"] -= movement[1] * star["speed"] * 8
+                
+                # Wrap stars around screen edges
+                if star["x"] < -10:
+                    star["x"] = 810
+                elif star["x"] > 810:
+                    star["x"] = -10
+                if star["y"] < -10:
+                    star["y"] = 810
+                elif star["y"] > 810:
+                    star["y"] = -10
+
+    def _trigger_game_over(self, success: bool) -> None:
+        """Trigger game over screen with final statistics."""
+        cumulative_mining = getattr(self, "cumulative_mining_amount", 0.0)
+        
+        self.game_over_state = {
+            "active": True,
+            "fade_alpha": 0,
+            "success": success,
+            "final_stats": {
+                "total_resources_mined": cumulative_mining,
+                "resources_delivered": cumulative_mining - self.agent_inventory,
+                "current_inventory": self.agent_inventory,
+                "collisions": self.collision_count,
+                "steps_taken": self.steps_count,
+                "final_energy": self.agent_energy,
+                "asteroids_depleted": len(self.asteroid_positions) - np.sum(self.asteroid_resources >= 0.1),
+                "total_asteroids": len(self.asteroid_positions),
+                "efficiency_score": self.compute_fitness_score()
+            }
+        }
 
 __all__ = ["SpaceMining"]

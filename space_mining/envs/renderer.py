@@ -48,7 +48,11 @@ class Renderer:
             shake_offset[0] = random.randint(-shake_intensity, shake_intensity)
             shake_offset[1] = random.randint(-shake_intensity, shake_intensity)
 
-        self.window.fill((5, 5, 15))  # Deep space background (dark blue-black)
+        # Deep space background
+        self.window.fill((5, 5, 15))
+
+        # Draw dynamic starfield background
+        self._draw_starfield()
 
         # Helper function to convert 2D coordinates to screen coordinates
         def to_screen(pos, scale=8.0):
@@ -63,19 +67,44 @@ class Renderer:
             alpha = max(0, min(255, trail_point["alpha"]))
             if alpha > 0:
                 trail_surface = pygame.Surface((10, 10), pygame.SRCALPHA)
-                # Always green trail for consistency
                 trail_color = (50, 255, 50, alpha // 2)
                 gfxdraw.filled_circle(trail_surface, 5, 5, 3, trail_color)
                 self.window.blit(trail_surface, (trail_pos_2d[0] - 5, trail_pos_2d[1] - 5))
 
-        # Draw mothership with consistent blue
+        # Draw mothership with safe zone aura
         mothership_pos_2d = to_screen(self.env.mothership_pos)
+        
+        # Mothership safe zone aura (pulsing blue)
+        pulse_intensity = math.sin(self.env.steps_count * 0.08) * 0.3 + 0.7
+        safe_zone_radius = 12 * 8  # Safe zone is 12 units in game coordinates
+        
+        # Create multiple aura layers for depth
+        for i in range(5):
+            aura_radius = safe_zone_radius - i * 15
+            if aura_radius > 0:
+                aura_alpha = int(40 * pulse_intensity * (1 - i * 0.15))
+                if aura_alpha > 0:
+                    aura_surface = pygame.Surface((aura_radius * 2 + 20, aura_radius * 2 + 20), pygame.SRCALPHA)
+                    aura_color = (30, 120, 255, aura_alpha)
+                    gfxdraw.filled_circle(
+                        aura_surface, 
+                        aura_radius + 10, 
+                        aura_radius + 10, 
+                        aura_radius, 
+                        aura_color
+                    )
+                    self.window.blit(
+                        aura_surface, 
+                        (mothership_pos_2d[0] - aura_radius - 10, mothership_pos_2d[1] - aura_radius - 10)
+                    )
+
+        # Draw mothership with enhanced glow
         gfxdraw.filled_circle(
             self.window, mothership_pos_2d[0], mothership_pos_2d[1], 16, (30, 120, 200)
         )
-        # Add mothership glow effect
-        for i in range(4):
-            alpha = max(30, 120 - i * 30)
+        # Enhanced mothership glow effect
+        for i in range(6):
+            alpha = max(20, 150 - i * 25)
             gfxdraw.aacircle(
                 self.window, 
                 mothership_pos_2d[0], 
@@ -93,7 +122,7 @@ class Renderer:
                     asteroid_pos_2d[0],
                     asteroid_pos_2d[1],
                     8,
-                    (80, 80, 80),  # Gray for depleted
+                    (80, 80, 80),
                 )
                 # Draw X mark for depleted asteroid
                 pygame.draw.line(
@@ -113,9 +142,8 @@ class Renderer:
                 continue
 
             asteroid_pos_2d = to_screen(pos)
-            # Size based on resource amount (not color)
             resource_ratio = self.env.asteroid_resources[i] / 40.0
-            size = int(8 + resource_ratio * 8)  # 8-16 pixels based on resources
+            size = int(8 + resource_ratio * 8)
             
             # Fixed yellow color for all active asteroids
             gfxdraw.filled_circle(
@@ -123,7 +151,7 @@ class Renderer:
                 asteroid_pos_2d[0],
                 asteroid_pos_2d[1],
                 size,
-                (255, 215, 0),  # Golden yellow
+                (255, 215, 0),
             )
 
             # Add resource glow for high-value asteroids
@@ -156,8 +184,8 @@ class Renderer:
                 health_color = (255, 100, 0)
             pygame.draw.rect(self.window, health_color, (health_x, health_y, health_width, 6))
 
-            # Optional: Show resource value as text
-            if size > 12:  # Only for larger asteroids
+            # Show resource value as text for larger asteroids
+            if size > 12:
                 resource_text = f"{self.env.asteroid_resources[i]:.0f}"
                 text_surface = pygame.font.SysFont("Arial", 12).render(resource_text, True, (255, 255, 255))
                 text_rect = text_surface.get_rect(center=(asteroid_pos_2d[0], asteroid_pos_2d[1] + size + 18))
@@ -180,8 +208,8 @@ class Renderer:
         # Draw agent with FIXED GREEN color
         agent_pos_2d = to_screen(self.env.agent_position)
 
-        # Always green agent (no color changes for state)
-        agent_color = (50, 255, 50)  # Bright green
+        # Always green agent
+        agent_color = (50, 255, 50)
         
         # Add energy warning halo if low energy
         if self.env.agent_energy < 30:
@@ -241,7 +269,7 @@ class Renderer:
                         color = (255, int(200 * beam_intensity), 50)
                     pygame.draw.line(self.window, color, (x1, y1), (x2, y2), 5)
 
-        # Draw inventory indicator (size changes, not color)
+        # Draw inventory indicator
         if self.env.agent_inventory > 0:
             inventory_size = int(4 + self.env.agent_inventory / 8)
             gfxdraw.filled_circle(
@@ -249,7 +277,7 @@ class Renderer:
                 agent_pos_2d[0],
                 agent_pos_2d[1],
                 inventory_size,
-                (255, 215, 0),  # Same yellow as asteroids
+                (255, 215, 0),
             )
 
         # Enhanced energy bar
@@ -324,7 +352,7 @@ class Renderer:
 
         # OBSERVATION RANGE DIMMING EFFECT
         overlay = pygame.Surface((800, 800), pygame.SRCALPHA)
-        overlay.fill((0, 0, 0, 120))  # Semi-transparent black
+        overlay.fill((0, 0, 0, 120))
         
         # Create a "visible" hole for observation range
         pygame.draw.circle(overlay, (0, 0, 0, 0), agent_pos_2d, obs_radius_px)
@@ -338,6 +366,57 @@ class Renderer:
             flash_surface = pygame.Surface((800, 800), pygame.SRCALPHA)
             flash_surface.fill((255, 0, 0, flash_alpha))
             self.window.blit(flash_surface, (0, 0))
+
+        # Draw game UI if not in game over state
+        if not self.env.game_over_state["active"]:
+            self._draw_game_ui(agent_pos_2d)
+        else:
+            self._draw_game_over_screen()
+
+        # Update display / timing
+        if self.env.render_mode == "human":
+            pygame.display.flip()
+            self.clock.tick(self.env.metadata["render_fps"])
+
+        if self.env.render_mode == "rgb_array":
+            return np.transpose(
+                np.array(pygame.surfarray.pixels3d(self.window)), axes=(1, 0, 2)
+            )
+
+    def _draw_starfield(self) -> None:
+        """Draw the parallax starfield background."""
+        try:
+            import pygame
+            from pygame import gfxdraw
+        except ImportError:
+            return
+
+        for layer in self.env.starfield_layers:
+            for star in layer:
+                x, y = int(star["x"]), int(star["y"])
+                if 0 <= x <= 800 and 0 <= y <= 800:
+                    size = star["size"]
+                    brightness = star["brightness"]
+                    color = (brightness, brightness, brightness)
+                    
+                    if size == 1:
+                        # Single pixel star
+                        self.window.set_at((x, y), color)
+                    else:
+                        # Larger stars with glow
+                        gfxdraw.filled_circle(self.window, x, y, size, color)
+                        if size > 2:
+                            # Add subtle glow for close stars
+                            glow_color = (brightness // 2, brightness // 2, brightness // 2)
+                            gfxdraw.aacircle(self.window, x, y, size + 1, glow_color)
+
+    def _draw_game_ui(self, agent_pos_2d) -> None:
+        """Draw the main game UI elements."""
+        try:
+            import pygame
+            import numpy as np
+        except ImportError:
+            return
 
         # Enhanced status panel with better layout
         cumulative_mining = getattr(self.env, "cumulative_mining_amount", 0.0)
@@ -406,14 +485,15 @@ class Renderer:
             "🔴 Red Ring = Mining Range", 
             "⚡ Yellow Beam = Active Mining Energy",
             "✨ Yellow Dots = Resource Delivery",
-            "🌑 Dim Area = Outside Observation Range"
+            "🌑 Dim Area = Outside Observation Range",
+            "💫 Blue Aura = Mothership Safe Zone"
         ]
         
         legend_height = len(legend_text) * 22 + 20
-        legend_bg = pygame.Surface((400, legend_height), pygame.SRCALPHA)
+        legend_bg = pygame.Surface((420, legend_height), pygame.SRCALPHA)
         legend_bg.fill((0, 0, 0, 200))
-        pygame.draw.rect(legend_bg, (50, 50, 50, 100), (0, 0, 400, legend_height), 2)
-        self.window.blit(legend_bg, (390, 580 - legend_height))
+        pygame.draw.rect(legend_bg, (50, 50, 50, 100), (0, 0, 420, legend_height), 2)
+        self.window.blit(legend_bg, (370, 580 - legend_height))
         
         for i, text in enumerate(legend_text):
             if text == "":
@@ -421,17 +501,71 @@ class Renderer:
             color = (255, 255, 100) if i == 0 else (220, 220, 220)
             font_to_use = pygame.font.SysFont("Arial", 14, bold=(i == 0))
             rendered_text = font_to_use.render(text, True, color)
-            self.window.blit(rendered_text, (400, 590 - legend_height + i * 22))
+            self.window.blit(rendered_text, (380, 590 - legend_height + i * 22))
 
-        # Update display / timing
-        if self.env.render_mode == "human":
-            pygame.display.flip()
-            self.clock.tick(self.env.metadata["render_fps"])
+    def _draw_game_over_screen(self) -> None:
+        """Draw the game over/success screen with final statistics."""
+        try:
+            import pygame
+        except ImportError:
+            return
 
-        if self.env.render_mode == "rgb_array":
-            return np.transpose(
-                np.array(pygame.surfarray.pixels3d(self.window)), axes=(1, 0, 2)
-            )
+        # Update fade alpha
+        if self.env.game_over_state["fade_alpha"] < 255:
+            self.env.game_over_state["fade_alpha"] += 3
+
+        fade_alpha = min(255, self.env.game_over_state["fade_alpha"])
+        
+        # Create fade overlay
+        fade_surface = pygame.Surface((800, 800), pygame.SRCALPHA)
+        fade_surface.fill((0, 0, 0, fade_alpha))
+        self.window.blit(fade_surface, (0, 0))
+
+        # Only show text once fade is substantial
+        if fade_alpha > 100:
+            stats = self.env.game_over_state["final_stats"]
+            success = self.env.game_over_state["success"]
+            
+            # Title
+            title_font = pygame.font.SysFont("Arial", 48, bold=True)
+            title_text = "🎉 MISSION SUCCESS! 🎉" if success else "💥 MISSION FAILED 💥"
+            title_color = (0, 255, 0) if success else (255, 100, 100)
+            title_surface = title_font.render(title_text, True, title_color)
+            title_rect = title_surface.get_rect(center=(400, 150))
+            self.window.blit(title_surface, title_rect)
+
+            # Final statistics
+            stats_font = pygame.font.SysFont("Arial", 20)
+            stats_text = [
+                "",
+                f"📊 FINAL STATISTICS",
+                "",
+                f"🌕 Total Resources Mined: {stats['total_resources_mined']:.1f}",
+                f"🚀 Resources Delivered: {stats['resources_delivered']:.1f}",
+                f"📦 Final Inventory: {stats['current_inventory']:.1f}",
+                f"💥 Collisions: {stats['collisions']}",
+                f"⏱️ Steps Taken: {stats['steps_taken']}",
+                f"⚡ Final Energy: {stats['final_energy']:.1f}/150",
+                f"💀 Asteroids Depleted: {stats['asteroids_depleted']}/{stats['total_asteroids']}",
+                f"🏆 Efficiency Score: {stats['efficiency_score']:.0f}",
+                "",
+                "Press R to restart or ESC to quit"
+            ]
+
+            y_offset = 220
+            for line in stats_text:
+                if line == "":
+                    y_offset += 15
+                    continue
+                    
+                color = (255, 255, 100) if "STATISTICS" in line else (255, 255, 255)
+                if "restart" in line:
+                    color = (200, 200, 255)
+                
+                text_surface = stats_font.render(line, True, color)
+                text_rect = text_surface.get_rect(center=(400, y_offset))
+                self.window.blit(text_surface, text_rect)
+                y_offset += 30
 
     def close(self) -> None:
         """Close the rendering window."""

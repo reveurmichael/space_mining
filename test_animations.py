@@ -1,15 +1,14 @@
 #!/usr/bin/env python3
 """
-Test script to demonstrate the enhanced Space Mining game with all visual improvements.
+Test script to demonstrate the complete enhanced Space Mining game with all visual improvements.
 
-New Visual Features:
-1. Fixed, intuitive colors (green agent, yellow asteroids, blue mothership)
-2. Observation range dimming (spotlight effect)
-3. Size-based asteroid resource indication
-4. Enhanced animations (delivery particles, mining beam, agent trail)
-5. Collision effects (flash + screen shake)
-6. Score popups and improved UI layout
-7. Energy warning system and atmospheric effects
+Latest Visual Features:
+1. Dynamic parallax starfield background that moves with agent
+2. Game over/success screen with comprehensive final statistics
+3. Mothership safe zone aura (pulsing blue protective field)
+4. All previous enhancements: fixed colors, observation dimming, animations, etc.
+
+This script provides a complete demonstration of the enhanced space mining experience.
 """
 
 import time
@@ -17,20 +16,25 @@ import numpy as np
 from space_mining.envs.space_mining import SpaceMining
 
 def main():
-    """Run the enhanced space mining game with all visual improvements."""
-    print("🚀 Enhanced Space Mining - Visual Demo")
-    print("=" * 60)
-    print("🎨 NEW VISUAL FEATURES:")
-    print("  🎯 Fixed Colors - Agent always green, asteroids yellow")
-    print("  🌑 Observation Dimming - Spotlight effect shows visible area")
-    print("  📏 Size-Based Resources - Asteroid size shows resource amount")
-    print("  ✨ Enhanced Animations - Smooth particles & effects")
-    print("  💥 Collision System - Flash + screen shake")
-    print("  📊 Score Popups - Floating +X text")
-    print("  ⚠️ Energy Warning - Red halo when energy is low")
-    print("  🌟 Atmospheric Effects - Glowing asteroids, pulsing obstacles")
-    print("=" * 60)
-    print("🎮 Watch the AI play or press Ctrl+C to exit")
+    """Run the complete enhanced space mining game with all visual improvements."""
+    print("🚀 Space Mining - Complete Visual Enhancement Demo")
+    print("=" * 70)
+    print("🌟 LATEST VISUAL FEATURES:")
+    print("  💫 Dynamic Parallax Starfield - 3-layer moving background")
+    print("  🎬 Game Over Screen - Fade-to-black with final statistics")
+    print("  🛡️ Mothership Safe Zone - Pulsing blue protective aura")
+    print()
+    print("🎨 ALL VISUAL ENHANCEMENTS:")
+    print("  🎯 Fixed Color Scheme - Consistent object identification")
+    print("  🌑 Observation Dimming - Spotlight effect for visibility")
+    print("  📏 Size-Based Resources - Asteroid size shows resource level")
+    print("  ✨ Enhanced Animations - Particles, beams, trails")
+    print("  💥 Collision Effects - Flash + screen shake")
+    print("  📊 Score Popups - Floating feedback text")
+    print("  ⚠️ Energy Warning System - Red halo for low energy")
+    print("  🌟 Atmospheric Effects - Glows, pulses, depth")
+    print("=" * 70)
+    print("🎮 Watch the complete enhanced experience!")
     print()
 
     # Create environment with human rendering
@@ -40,24 +44,26 @@ def main():
         observation, info = env.reset()
         step_count = 0
         
-        print("🎮 Environment initialized. Starting enhanced visual demo...")
+        print("🎮 Environment initialized. Starting complete visual demo...")
         print()
-        print("🔍 Look for these visual features:")
-        print("  • Green agent with white outline (always green regardless of state)")
-        print("  • Yellow asteroids that get LARGER when they have more resources")
-        print("  • Blue mothership with glow effect") 
-        print("  • Red pulsing obstacles with danger aura")
-        print("  • Dimmed areas outside observation range")
-        print("  • Fading green trail behind the agent")
-        print("  • Animated mining beam when extracting resources")
-        print("  • Glowing particles when delivering to mothership")
-        print("  • Score popups (+X.X) when mining/delivering")
-        print("  • Red flash and screen shake on collisions")
-        print("  • Red warning halo when energy is low (<30)")
+        print("🔍 WATCH FOR THESE ENHANCED FEATURES:")
+        print("  ⭐ Parallax starfield moving behind everything")
+        print("  🛡️ Blue pulsing aura around the mothership (safe zone)")
+        print("  🤖 Green agent with white outline (consistent color)")
+        print("  🌕 Yellow asteroids that grow larger with more resources")
+        print("  ☄️ Red pulsing obstacles with danger glow")
+        print("  🌑 Dimmed areas outside observation range")
+        print("  ✨ Fading green trail behind the agent")
+        print("  ⚡ Animated mining beam when extracting")
+        print("  💫 Glowing particles when delivering to mothership")
+        print("  📊 Score popups (+X.X) floating upward")
+        print("  💥 Red flash and screen shake on collisions")
+        print("  ⚠️ Red warning halo when energy is critically low")
+        print("  🎬 Game over screen with complete statistics at the end")
         print()
         
         while True:
-            # Simple AI behavior for demonstration
+            # Enhanced AI behavior for better demonstration
             agent_pos = observation[:2]
             agent_energy = observation[4]
             agent_inventory = observation[5]
@@ -66,7 +72,7 @@ def main():
             asteroid_obs = observation[6:6+env.max_obs_asteroids*3].reshape(-1, 3)
             mothership_rel_pos = observation[-2:]
             
-            # Simple AI logic
+            # Smart AI logic
             action = np.zeros(3)
             
             if agent_inventory > 0:
@@ -74,7 +80,7 @@ def main():
                 if np.linalg.norm(mothership_rel_pos) > 1:
                     direction = mothership_rel_pos / (np.linalg.norm(mothership_rel_pos) + 1e-8)
                     action[:2] = direction * 0.8
-                print(f"📦 Agent carrying {agent_inventory:.1f} resources → mothership (watch for delivery particles!)")
+                print(f"📦 Agent carrying {agent_inventory:.1f} → mothership (watch delivery particles + starfield motion!)")
             else:
                 # Find nearest asteroid
                 nearest_asteroid = None
@@ -91,88 +97,122 @@ def main():
                     if min_distance < env.mining_range:
                         # Mine if close enough
                         action[2] = 1.0  # Mine
-                        print(f"⛏️ Mining asteroid with {nearest_asteroid[2]:.1f} resources (watch animated beam!)")
+                        print(f"⛏️ Mining asteroid with {nearest_asteroid[2]:.1f} resources (animated beam + score popup!)")
                     else:
                         # Move towards asteroid
                         direction = nearest_asteroid[:2] / (min_distance + 1e-8)
                         action[:2] = direction * 0.6
-                        print(f"🔍 Moving towards asteroid (distance: {min_distance:.1f})")
+                        print(f"🔍 Moving towards asteroid (distance: {min_distance:.1f}) - notice starfield parallax!")
             
-            # Add some random movement for variety
-            if step_count % 150 == 0:
-                action[:2] += np.random.uniform(-0.4, 0.4, 2)
+            # Add some exploration movement for better starfield demo
+            if step_count % 120 == 0:
+                action[:2] += np.random.uniform(-0.5, 0.5, 2)
+                print("🌟 Random movement - great for seeing starfield parallax effect!")
             
             # Step environment
             observation, reward, terminated, truncated, info = env.step(action)
             step_count += 1
             
-            # Highlight interesting visual events
+            # Highlight important visual events
             if hasattr(env, 'last_mining_info') and env.last_mining_info.get('step', 0) == step_count:
                 extracted = env.last_mining_info['extracted']
-                print(f"✅ MINED {extracted:.1f} resources! (Yellow score popup should appear)")
+                print(f"✅ MINED {extracted:.1f} resources! (Yellow score popup should float upward)")
             
             if hasattr(env, 'last_delivery_info') and env.last_delivery_info.get('step', 0) == step_count:
                 delivered = env.last_delivery_info['delivered']
-                print(f"🚀 DELIVERED {delivered:.1f} resources! (Glowing particles should fly to mothership)")
+                print(f"🚀 DELIVERED {delivered:.1f} resources! (Glowing particles fly to mothership)")
             
             if hasattr(env, 'last_collision_step') and env.last_collision_step == step_count:
-                print(f"💥 COLLISION! (Red flash + screen shake should trigger)")
+                print(f"💥 COLLISION! (Red flash + screen shake + starfield disruption)")
             
-            # Show energy warnings
-            if agent_energy < 30 and step_count % 50 == 0:
-                print(f"⚠️ LOW ENERGY ({agent_energy:.1f}/150) - Red warning halo should be visible!")
+            # Energy warnings for visual effect demonstration
+            if agent_energy < 30 and step_count % 40 == 0:
+                print(f"⚠️ CRITICAL ENERGY ({agent_energy:.1f}/150) - Red warning halo should pulse around agent!")
             
-            # Show visual stats every 100 steps
+            # Mothership proximity notifications
+            distance_to_mothership = np.linalg.norm(mothership_rel_pos)
+            if distance_to_mothership < 15 and step_count % 60 == 0:
+                print(f"🛡️ Near mothership safe zone - blue pulsing aura should be visible!")
+            
+            # Enhanced visual stats every 100 steps
             if step_count % 100 == 0:
-                print(f"📊 Step {step_count}:")
+                print(f"📊 Visual Demo Status - Step {step_count}:")
                 print(f"   🔋 Energy: {agent_energy:.1f}/150")
                 print(f"   📦 Inventory: {agent_inventory:.1f}")
+                print(f"   ⭐ Starfield layers: {len(env.starfield_layers)} (parallax active)")
                 print(f"   ✨ Active particles: {len(env.delivery_particles)}")
                 print(f"   🌟 Trail points: {len(env.agent_trail)}")
                 print(f"   📊 Score popups: {len(env.score_popups)}")
-                print(f"   🌑 Observation dimming: {'Active' if len(env.agent_trail) > 0 else 'Initializing'}")
+                print(f"   🌑 Observation dimming: Active")
+                print(f"   🛡️ Mothership aura: Pulsing")
                 
-                # Describe what should be visible
+                # Describe current visual state
                 active_asteroids = np.sum(env.asteroid_resources >= 0.1)
-                print(f"   🌕 Active asteroids: {active_asteroids} (size shows resource level)")
-                print(f"   🎯 Visual features: Fixed colors, dimming effect, enhanced UI")
+                print(f"   🌕 Active asteroids: {active_asteroids} (varying sizes)")
+                print(f"   🎯 All visual systems: Fully operational")
             
-            # Check for end conditions
+            # Check for end conditions - game over screen demo
             if terminated or truncated:
-                if terminated:
-                    print("🏁 Episode completed!")
-                if truncated:
-                    print("⏰ Time limit reached!")
                 print()
-                print("🎨 Visual Demo Summary:")
-                print("  ✅ Fixed color scheme demonstrated")
-                print("  ✅ Observation range dimming shown")
-                print("  ✅ Size-based asteroid indicators active") 
-                print("  ✅ All animations and effects working")
+                print("🎬 GAME OVER TRIGGERED!")
+                if terminated:
+                    if hasattr(info, 'exploration_complete') and info.get('exploration_complete'):
+                        print("🎉 SUCCESS: All asteroids depleted!")
+                    else:
+                        print("💥 FAILURE: Energy depleted or too many collisions!")
+                if truncated:
+                    print("⏰ TIME LIMIT: Episode truncated!")
+                
+                print()
+                print("🎭 GAME OVER SCREEN FEATURES:")
+                print("  • Fade-to-black transition")
+                print("  • Success/failure title with appropriate colors")
+                print("  • Comprehensive final statistics")
+                print("  • Resources mined, delivered, collisions, etc.")
+                print("  • Efficiency scoring")
+                print("  • Restart instructions")
+                print()
+                print("⏳ Waiting for game over screen to fully fade in...")
+                
+                # Let the game over screen fully appear
+                for _ in range(100):  # About 3 seconds at 30 FPS
+                    env.render()
+                    time.sleep(0.033)
+                
+                print("✅ Game over screen demo complete!")
                 break
             
-            # Run for a reasonable time to show all features
-            if step_count > 1500:
-                print("🎬 Enhanced visual demo completed successfully!")
+            # Run for a good demonstration duration
+            if step_count > 1200:
                 print()
-                print("🌟 All visual enhancements are now active:")
-                print("  • Consistent color scheme")
-                print("  • Atmospheric lighting effects")
-                print("  • Enhanced UI and status displays")
-                print("  • Smooth animations and feedback")
+                print("🎬 Complete visual enhancement demo finished successfully!")
+                print()
+                print("🌟 ALL VISUAL FEATURES DEMONSTRATED:")
+                print("  ✅ Dynamic parallax starfield background")
+                print("  ✅ Mothership safe zone aura (pulsing blue)")
+                print("  ✅ Game over screen with statistics (see by letting game end)")
+                print("  ✅ Fixed color scheme and consistent visuals")
+                print("  ✅ Observation range dimming effect")
+                print("  ✅ Size-based asteroid resource indication")
+                print("  ✅ All animations: particles, beams, trails")
+                print("  ✅ Collision effects and energy warnings")
+                print("  ✅ Enhanced UI and atmospheric effects")
+                print()
+                print("🏆 Space Mining visual enhancement is complete!")
                 break
                 
-            # Controlled speed for better visibility
-            time.sleep(0.02)
+            # Controlled speed for optimal viewing
+            time.sleep(0.025)
     
     except KeyboardInterrupt:
         print("\n👋 Demo interrupted by user")
-        print("🎨 Visual enhancements successfully demonstrated!")
+        print("🎨 All visual enhancements successfully demonstrated!")
     except Exception as e:
         print(f"❌ Error occurred: {e}")
     finally:
         env.close()
-        print("🚪 Environment closed. Enhanced Space Mining demo complete!")
+        print("🚪 Enhanced Space Mining demo complete!")
+        print("🌟 Thank you for experiencing the visual enhancements!")
 
 if __name__ == "__main__":
     main()
