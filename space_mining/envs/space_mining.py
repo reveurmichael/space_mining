@@ -614,101 +614,128 @@ class SpaceMining(gym.Env):
         # Reset cosmic time
         self.cosmic_time = 0.0
         
-        # Create enhanced starfield layers
+        # Create enhanced starfield layers for larger screen
         self.starfield_layers = []
         
-        # Layer 1: Distant stars (slow, small, dim)
+        # Layer 1: Distant background stars (very slow, subtle)
         layer1_stars = []
-        for _ in range(150):  # More stars for cosmic feel
+        for _ in range(200):  # More stars for larger screen
             star = {
-                "x": np.random.uniform(0, 1200),
-                "y": np.random.uniform(0, 900),
+                "x": np.random.uniform(0, 1440),
+                "y": np.random.uniform(0, 1080),
                 "size": 1,
-                "brightness": np.random.randint(40, 120),
-                "speed": 0.15,
+                "brightness": np.random.randint(30, 80),
+                "speed": 0.1,
                 "twinkle_offset": np.random.uniform(0, 2 * math.pi),
-                "color_type": np.random.choice(["white", "blue", "yellow", "red"])
+                "twinkle_speed": np.random.uniform(0.5, 1.5),
+                "color_type": np.random.choice(["white", "blue", "yellow", "red"], p=[0.5, 0.2, 0.2, 0.1])
             }
             layer1_stars.append(star)
         self.starfield_layers.append(layer1_stars)
         
-        # Layer 2: Medium stars
+        # Layer 2: Medium distance stars
         layer2_stars = []
-        for _ in range(80):
+        for _ in range(120):
             star = {
-                "x": np.random.uniform(0, 1200),
-                "y": np.random.uniform(0, 900),
+                "x": np.random.uniform(0, 1440),
+                "y": np.random.uniform(0, 1080),
                 "size": 2,
-                "brightness": np.random.randint(80, 180),
-                "speed": 0.4,
+                "brightness": np.random.randint(60, 150),
+                "speed": 0.3,
                 "twinkle_offset": np.random.uniform(0, 2 * math.pi),
-                "color_type": np.random.choice(["white", "blue", "yellow"])
+                "twinkle_speed": np.random.uniform(0.8, 2.0),
+                "color_type": np.random.choice(["white", "blue", "yellow"], p=[0.6, 0.25, 0.15])
             }
             layer2_stars.append(star)
         self.starfield_layers.append(layer2_stars)
         
         # Layer 3: Bright foreground stars
         layer3_stars = []
-        for _ in range(40):
+        for _ in range(60):
             star = {
-                "x": np.random.uniform(0, 1200),
-                "y": np.random.uniform(0, 900),
-                "size": 3,
-                "brightness": np.random.randint(120, 255),
-                "speed": 0.8,
+                "x": np.random.uniform(0, 1440),
+                "y": np.random.uniform(0, 1080),
+                "size": np.random.randint(3, 5),
+                "brightness": np.random.randint(100, 255),
+                "speed": 0.6,
                 "twinkle_offset": np.random.uniform(0, 2 * math.pi),
-                "color_type": np.random.choice(["white", "blue", "yellow"])
+                "twinkle_speed": np.random.uniform(1.0, 2.5),
+                "color_type": np.random.choice(["white", "blue", "yellow"], p=[0.5, 0.3, 0.2])
             }
             layer3_stars.append(star)
         self.starfield_layers.append(layer3_stars)
         
-        # Create nebula clouds
+        # Create spectacular nebula clouds
         self.nebula_clouds = []
-        for _ in range(8):  # Several nebula regions
+        for _ in range(12):  # More nebulae for larger screen
             nebula = {
-                "x": np.random.uniform(-200, 1400),
-                "y": np.random.uniform(-200, 1100),
-                "size": np.random.uniform(300, 800),
+                "x": np.random.uniform(-300, 1740),
+                "y": np.random.uniform(-300, 1380),
+                "size": np.random.uniform(400, 1200),
+                "inner_size": np.random.uniform(0.3, 0.7),  # For layered effect
                 "color": np.random.choice([
-                    (120, 0, 180, 30),    # Purple
-                    (0, 100, 180, 25),    # Blue
-                    (180, 50, 120, 30),   # Pink
-                    (100, 0, 150, 20),    # Deep purple
-                    (0, 150, 100, 25),    # Cyan
-                    (150, 80, 0, 30)      # Orange
+                    (80, 20, 150, 35),    # Deep purple
+                    (20, 80, 180, 30),    # Deep blue
+                    (150, 30, 100, 35),   # Magenta
+                    (60, 20, 120, 25),    # Dark purple
+                    (20, 120, 80, 30),    # Cyan
+                    (120, 60, 20, 35),    # Orange
+                    (100, 20, 150, 30),   # Violet
+                    (20, 150, 120, 25)    # Teal
                 ]),
-                "speed": np.random.uniform(0.05, 0.15),
+                "speed": np.random.uniform(0.03, 0.12),
                 "rotation": np.random.uniform(0, 2 * math.pi),
-                "rotation_speed": np.random.uniform(-0.002, 0.002)
+                "rotation_speed": np.random.uniform(-0.001, 0.001),
+                "pulse_offset": np.random.uniform(0, 2 * math.pi),
+                "pulse_speed": np.random.uniform(0.01, 0.03)
             }
             self.nebula_clouds.append(nebula)
         
-        # Create distant galaxies
+        # Create distant galaxies with enhanced detail
         self.distant_galaxies = []
-        for _ in range(5):  # A few distant galaxies
+        for _ in range(8):  # More galaxies for epic feel
             galaxy = {
-                "x": np.random.uniform(0, 1200),
-                "y": np.random.uniform(0, 900),
-                "size": np.random.uniform(80, 200),
-                "brightness": np.random.randint(15, 40),
-                "speed": np.random.uniform(0.02, 0.08),
-                "spiral_arms": np.random.randint(2, 5),
+                "x": np.random.uniform(0, 1440),
+                "y": np.random.uniform(0, 1080),
+                "size": np.random.uniform(100, 300),
+                "brightness": np.random.randint(12, 35),
+                "speed": np.random.uniform(0.01, 0.06),
+                "spiral_arms": np.random.randint(2, 6),
+                "arm_thickness": np.random.uniform(0.5, 2.0),
                 "rotation": np.random.uniform(0, 2 * math.pi),
-                "rotation_speed": np.random.uniform(-0.001, 0.001)
+                "rotation_speed": np.random.uniform(-0.0008, 0.0008),
+                "core_brightness": np.random.randint(25, 50)
             }
             self.distant_galaxies.append(galaxy)
         
-        # Create space dust particles
+        # Create enhanced space dust with multiple types
         self.space_dust = []
-        for _ in range(200):  # Fine cosmic dust
+        
+        # Fine cosmic dust
+        for _ in range(300):
             dust = {
-                "x": np.random.uniform(0, 1200),
-                "y": np.random.uniform(0, 900),
-                "size": np.random.uniform(0.5, 1.5),
-                "brightness": np.random.randint(10, 40),
-                "speed": np.random.uniform(0.3, 1.2),
+                "x": np.random.uniform(0, 1440),
+                "y": np.random.uniform(0, 1080),
+                "size": np.random.uniform(0.3, 1.0),
+                "brightness": np.random.randint(8, 25),
+                "speed": np.random.uniform(0.5, 2.0),
+                "drift_x": np.random.uniform(-0.05, 0.05),
+                "drift_y": np.random.uniform(-0.05, 0.05),
+                "type": "fine"
+            }
+            self.space_dust.append(dust)
+        
+        # Larger dust particles
+        for _ in range(80):
+            dust = {
+                "x": np.random.uniform(0, 1440),
+                "y": np.random.uniform(0, 1080),
+                "size": np.random.uniform(1.0, 2.5),
+                "brightness": np.random.randint(15, 40),
+                "speed": np.random.uniform(0.8, 1.5),
                 "drift_x": np.random.uniform(-0.1, 0.1),
-                "drift_y": np.random.uniform(-0.1, 0.1)
+                "drift_y": np.random.uniform(-0.1, 0.1),
+                "type": "coarse"
             }
             self.space_dust.append(dust)
 
@@ -729,22 +756,22 @@ class SpaceMining(gym.Env):
             for star in layer:
                 # Move with parallax and zoom effect
                 parallax_factor = star["speed"] * self.zoom_level
-                star["x"] -= movement[0] * parallax_factor * 10
-                star["y"] -= movement[1] * parallax_factor * 10
+                star["x"] -= movement[0] * parallax_factor * 12
+                star["y"] -= movement[1] * parallax_factor * 12
                 
-                # Add natural drift for cosmic movement
-                star["x"] += star.get("drift_x", 0) * 0.5
-                star["y"] += star.get("drift_y", 0) * 0.5
+                # Add subtle natural drift
+                star["x"] += star.get("drift_x", 0) * 0.3
+                star["y"] += star.get("drift_y", 0) * 0.3
                 
-                # Wrap around with buffer zone
-                if star["x"] < -50:
-                    star["x"] = 1250
-                elif star["x"] > 1250:
-                    star["x"] = -50
-                if star["y"] < -50:
-                    star["y"] = 950
-                elif star["y"] > 950:
-                    star["y"] = -50
+                # Wrap around with buffer zone for larger screen
+                if star["x"] < -60:
+                    star["x"] = 1500
+                elif star["x"] > 1500:
+                    star["x"] = -60
+                if star["y"] < -60:
+                    star["y"] = 1140
+                elif star["y"] > 1140:
+                    star["y"] = -60
         
         # Update nebula clouds
         for nebula in self.nebula_clouds:
@@ -755,14 +782,14 @@ class SpaceMining(gym.Env):
             # Slow rotation
             nebula["rotation"] += nebula["rotation_speed"]
             
-            # Wrap around
+            # Wrap around for larger screen
             if nebula["x"] < -nebula["size"]:
-                nebula["x"] = 1200 + nebula["size"]
-            elif nebula["x"] > 1200 + nebula["size"]:
+                nebula["x"] = 1440 + nebula["size"]
+            elif nebula["x"] > 1440 + nebula["size"]:
                 nebula["x"] = -nebula["size"]
             if nebula["y"] < -nebula["size"]:
-                nebula["y"] = 900 + nebula["size"]
-            elif nebula["y"] > 900 + nebula["size"]:
+                nebula["y"] = 1080 + nebula["size"]
+            elif nebula["y"] > 1080 + nebula["size"]:
                 nebula["y"] = -nebula["size"]
         
         # Update distant galaxies
@@ -774,14 +801,14 @@ class SpaceMining(gym.Env):
             # Rotation
             galaxy["rotation"] += galaxy["rotation_speed"]
             
-            # Wrap around
+            # Wrap around for larger screen
             if galaxy["x"] < -galaxy["size"]:
-                galaxy["x"] = 1200 + galaxy["size"]
-            elif galaxy["x"] > 1200 + galaxy["size"]:
+                galaxy["x"] = 1440 + galaxy["size"]
+            elif galaxy["x"] > 1440 + galaxy["size"]:
                 galaxy["x"] = -galaxy["size"]
             if galaxy["y"] < -galaxy["size"]:
-                galaxy["y"] = 900 + galaxy["size"]
-            elif galaxy["y"] > 900 + galaxy["size"]:
+                galaxy["y"] = 1080 + galaxy["size"]
+            elif galaxy["y"] > 1080 + galaxy["size"]:
                 galaxy["y"] = -galaxy["size"]
         
         # Update space dust
@@ -794,15 +821,15 @@ class SpaceMining(gym.Env):
             dust["x"] += dust["drift_x"]
             dust["y"] += dust["drift_y"]
             
-            # Wrap around
-            if dust["x"] < -10:
-                dust["x"] = 1210
-            elif dust["x"] > 1210:
-                dust["x"] = -10
-            if dust["y"] < -10:
-                dust["y"] = 910
-            elif dust["y"] > 910:
-                dust["y"] = -10
+            # Wrap around for larger screen
+            if dust["x"] < -15:
+                dust["x"] = 1455
+            elif dust["x"] > 1455:
+                dust["x"] = -15
+            if dust["y"] < -15:
+                dust["y"] = 1095
+            elif dust["y"] > 1095:
+                dust["y"] = -15
 
     def _update_zoom(self) -> None:
         """Update dynamic zoom system."""

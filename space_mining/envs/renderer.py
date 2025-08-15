@@ -30,11 +30,11 @@ class Renderer:
             # For headless rendering, avoid creating a window
             if self.env.render_mode == "human":
                 pygame.display.init()
-                self.window = pygame.display.set_mode((1200, 900))
-                pygame.display.set_caption("Space Mining Environment")
+                self.window = pygame.display.set_mode((1440, 1080))  # 4:3 HD ratio for cinematic feel
+                pygame.display.set_caption("🚀 Space Mining Universe - Cosmic Explorer")
             else:
                 # Off-screen surface for rgb_array mode
-                self.window = pygame.Surface((1200, 900))
+                self.window = pygame.Surface((1440, 1080))
             if self.clock is None:
                 self.clock = pygame.time.Clock()
             if self.font is None:
@@ -55,11 +55,11 @@ class Renderer:
         self._draw_cosmic_background()
 
         # Helper function to convert 2D coordinates to screen coordinates with zoom
-        def to_screen(pos, scale=10.0):
+        def to_screen(pos, scale=12.0):  # Increased scale for larger screen
             x, y = pos
             zoom_scale = scale * self.env.zoom_level
-            screen_x = int(600 + (x - 40) * zoom_scale + shake_offset[0])
-            screen_y = int(450 + (y - 40) * zoom_scale + shake_offset[1])
+            screen_x = int(720 + (x - 40) * zoom_scale + shake_offset[0])  # Center at 1440/2
+            screen_y = int(540 + (y - 40) * zoom_scale + shake_offset[1])  # Center at 1080/2
             return screen_x, screen_y
 
         # Draw agent trail first (behind everything)
@@ -301,8 +301,8 @@ class Renderer:
         pygame.draw.rect(self.window, energy_color, (bar_x, bar_y, energy_width, 8))
 
         # Draw observation and mining ranges (affected by zoom)
-        obs_radius_px = int(self.env.observation_radius * 10.0 * self.env.zoom_level)
-        mining_radius_px = int(self.env.mining_range * 10.0 * self.env.zoom_level)
+        obs_radius_px = int(self.env.observation_radius * 12.0 * self.env.zoom_level)
+        mining_radius_px = int(self.env.mining_range * 12.0 * self.env.zoom_level)
         
         gfxdraw.aacircle(
             self.window,
@@ -352,8 +352,8 @@ class Renderer:
                 self.window.blit(text_surface, (popup_pos_2d[0] - 20, popup_pos_2d[1] - 10))
 
         # OBSERVATION RANGE DIMMING EFFECT
-        overlay = pygame.Surface((1200, 900), pygame.SRCALPHA)
-        overlay.fill((0, 0, 0, 120))
+        overlay = pygame.Surface((1440, 1080), pygame.SRCALPHA)
+        overlay.fill((0, 0, 0, 100))  # Slightly less dimming for better cosmic view
         
         # Create a "visible" hole for observation range
         pygame.draw.circle(overlay, (0, 0, 0, 0), agent_pos_2d, obs_radius_px)
@@ -363,8 +363,8 @@ class Renderer:
 
         # Draw collision flash overlay (after dimming so it's always visible)
         if self.env.collision_flash_timer > 0:
-            flash_alpha = int(200 * (self.env.collision_flash_timer / 0.3))
-            flash_surface = pygame.Surface((1200, 900), pygame.SRCALPHA)
+            flash_alpha = int(180 * (self.env.collision_flash_timer / 0.3))  # Slightly less intense
+            flash_surface = pygame.Surface((1440, 1080), pygame.SRCALPHA)
             flash_surface.fill((255, 0, 0, flash_alpha))
             self.window.blit(flash_surface, (0, 0))
 
@@ -423,23 +423,30 @@ class Renderer:
             size = int(nebula["size"] * self.env.zoom_level)
             
             # Skip if completely off screen
-            if x < -size or x > 1200 + size or y < -size or y > 900 + size:
+            if x < -size or x > 1440 + size or y < -size or y > 1080 + size:
                 continue
             
-            # Create nebula effect with multiple layers
+            # Create enhanced nebula effect with pulsing
             r, g, b, base_alpha = nebula["color"]
             
-            # Outer nebula glow
-            for i in range(5):
-                layer_size = size - i * (size // 8)
-                if layer_size > 0:
-                    alpha = max(5, base_alpha - i * 5)
-                    # Create gradient effect
-                    color_variation = 1.0 - (i * 0.15)
+            # Add pulsing effect
+            pulse = math.sin(self.env.cosmic_time * nebula.get("pulse_speed", 0.02) + nebula.get("pulse_offset", 0)) * 0.4 + 0.6
+            
+            # Enhanced multi-layered nebula
+            for i in range(7):  # More layers for better effect
+                layer_size = int(size * (1.0 - i * 0.12))
+                if layer_size > 5:
+                    alpha = int((base_alpha * pulse - i * 4) * (1.0 - i * 0.1))
+                    alpha = max(3, min(alpha, 50))
+                    
+                    # Enhanced gradient with inner glow
+                    color_variation = 1.0 - (i * 0.1)
+                    inner_glow = 1.0 + (0.3 if i < 3 else 0)  # Brighter inner core
+                    
                     final_color = (
-                        int(r * color_variation),
-                        int(g * color_variation), 
-                        int(b * color_variation),
+                        int(min(255, r * color_variation * inner_glow)),
+                        int(min(255, g * color_variation * inner_glow)), 
+                        int(min(255, b * color_variation * inner_glow)),
                         alpha
                     )
                     
@@ -469,37 +476,56 @@ class Renderer:
             size = int(galaxy["size"] * self.env.zoom_level)
             
             # Skip if off screen
-            if x < -size or x > 1200 + size or y < -size or y > 900 + size:
+            if x < -size or x > 1440 + size or y < -size or y > 1080 + size:
                 continue
             
             brightness = galaxy["brightness"]
+            core_brightness = galaxy.get("core_brightness", brightness + 20)
+            arm_thickness = galaxy.get("arm_thickness", 1.0)
             
-            # Galaxy core
-            core_color = (brightness + 20, brightness + 15, brightness + 25)
-            gfxdraw.filled_circle(self.window, x, y, max(1, size // 8), core_color)
+            # Enhanced galaxy core with glow
+            core_color = (core_brightness + 15, core_brightness + 10, core_brightness + 20)
+            core_size = max(2, size // 6)
+            gfxdraw.filled_circle(self.window, x, y, core_size, core_color)
             
-            # Spiral arms
+            # Core glow
+            if core_size > 2:
+                glow_color = (core_brightness // 2, core_brightness // 2, core_brightness // 2 + 5)
+                gfxdraw.aacircle(self.window, x, y, core_size + 1, glow_color)
+            
+            # Enhanced spiral arms
             arm_count = galaxy["spiral_arms"]
             rotation = galaxy["rotation"]
             
             for arm in range(arm_count):
                 arm_angle = rotation + (arm * 2 * math.pi / arm_count)
                 
-                # Draw spiral arm as series of dots
-                for r in range(size // 8, size, max(1, size // 20)):
-                    spiral_angle = arm_angle + r * 0.3  # Spiral curve
+                # Draw enhanced spiral arm
+                for r in range(size // 8, size, max(1, size // 25)):
+                    spiral_angle = arm_angle + r * 0.25  # Tighter spiral
                     
                     arm_x = x + int(r * math.cos(spiral_angle))
                     arm_y = y + int(r * math.sin(spiral_angle))
                     
-                    if 0 <= arm_x <= 1200 and 0 <= arm_y <= 900:
-                        # Fade towards edge
-                        fade_factor = 1.0 - (r / size)
+                    if 0 <= arm_x <= 1440 and 0 <= arm_y <= 1080:
+                        # Enhanced fade with distance
+                        fade_factor = (1.0 - (r / size)) ** 1.5
                         arm_brightness = int(brightness * fade_factor)
-                        if arm_brightness > 5:
-                            arm_color = (arm_brightness, arm_brightness, arm_brightness + 10)
-                            if r < size // 3:
-                                gfxdraw.filled_circle(self.window, arm_x, arm_y, 2, arm_color)
+                        
+                        if arm_brightness > 3:
+                            arm_color = (
+                                arm_brightness, 
+                                arm_brightness, 
+                                min(255, arm_brightness + 8)
+                            )
+                            
+                            # Variable thickness based on distance
+                            if r < size // 2:
+                                dot_size = max(1, int(2 * arm_thickness))
+                                if dot_size > 1:
+                                    gfxdraw.filled_circle(self.window, arm_x, arm_y, dot_size, arm_color)
+                                else:
+                                    self.window.set_at((arm_x, arm_y), arm_color)
                             else:
                                 self.window.set_at((arm_x, arm_y), arm_color)
 
@@ -513,16 +539,33 @@ class Renderer:
         for dust in self.env.space_dust:
             x, y = int(dust["x"]), int(dust["y"])
             
-            if 0 <= x <= 1200 and 0 <= y <= 900:
+            if 0 <= x <= 1440 and 0 <= y <= 1080:
                 brightness = dust["brightness"]
-                # Subtle dust particles
-                dust_color = (brightness, brightness, brightness + 5)
-                size = max(1, int(dust["size"] * self.env.zoom_level))
+                dust_type = dust.get("type", "fine")
                 
-                if size == 1:
-                    self.window.set_at((x, y), dust_color)
+                # Different rendering for different dust types
+                if dust_type == "coarse":
+                    # Larger, more visible dust
+                    dust_color = (brightness + 5, brightness + 3, brightness + 8)
+                    size = max(1, int(dust["size"] * self.env.zoom_level))
+                    
+                    if size > 1:
+                        gfxdraw.filled_circle(self.window, x, y, size, dust_color)
+                        # Add subtle glow for larger particles
+                        if size > 2:
+                            glow_color = (brightness // 2, brightness // 2, brightness // 2)
+                            gfxdraw.aacircle(self.window, x, y, size + 1, glow_color)
+                    else:
+                        self.window.set_at((x, y), dust_color)
                 else:
-                    gfxdraw.filled_circle(self.window, x, y, size, dust_color)
+                    # Fine cosmic dust
+                    dust_color = (brightness, brightness, brightness + 2)
+                    size = max(1, int(dust["size"] * self.env.zoom_level))
+                    
+                    if size == 1:
+                        self.window.set_at((x, y), dust_color)
+                    else:
+                        gfxdraw.filled_circle(self.window, x, y, size, dust_color)
 
     def _draw_enhanced_starfield(self) -> None:
         """Draw enhanced starfield with colors and twinkling."""
@@ -536,14 +579,15 @@ class Renderer:
             for star in layer:
                 x, y = int(star["x"]), int(star["y"])
                 
-                if 0 <= x <= 1200 and 0 <= y <= 900:
+                if 0 <= x <= 1440 and 0 <= y <= 1080:
                     size = max(1, int(star["size"] * self.env.zoom_level))
                     base_brightness = star["brightness"]
                     
-                    # Add twinkling effect
-                    twinkle = math.sin(self.env.cosmic_time * 2 + star["twinkle_offset"]) * 0.3 + 0.7
+                    # Enhanced twinkling effect with variable speed
+                    twinkle_speed = star.get("twinkle_speed", 1.0)
+                    twinkle = math.sin(self.env.cosmic_time * twinkle_speed + star["twinkle_offset"]) * 0.4 + 0.6
                     brightness = int(base_brightness * twinkle)
-                    brightness = max(20, min(255, brightness))
+                    brightness = max(15, min(255, brightness))
                     
                     # Color based on star type
                     color_type = star["color_type"]
@@ -764,12 +808,12 @@ class Renderer:
             {"icon": "dim_area", "text": "Dim Area", "color": (50, 50, 50)}
         ]
 
-        # Calculate adaptive layout (4 columns for wider screen)
-        cols = 4
-        item_width = 140
-        item_height = 28
-        panel_width = cols * item_width + 40
-        panel_height = len(legend_items) // cols * item_height + 90
+        # Calculate adaptive layout (5 columns for larger screen)
+        cols = 5
+        item_width = 160
+        item_height = 32
+        panel_width = cols * item_width + 50
+        panel_height = len(legend_items) // cols * item_height + 100
         if len(legend_items) % cols != 0:
             panel_height += item_height
 
@@ -799,9 +843,9 @@ class Renderer:
             text_surface = text_font.render(item["text"], True, (220, 220, 220))
             legend_bg.blit(text_surface, (x + 35, y + 7))
 
-        # Position legend
-        legend_x = 1200 - panel_width - 15
-        legend_y = 900 - panel_height - 15
+        # Position legend for larger screen
+        legend_x = 1440 - panel_width - 20
+        legend_y = 1080 - panel_height - 20
         self.window.blit(legend_bg, (legend_x, legend_y))
 
     def _draw_legend_icon(self, surface, icon_type, x, y, color) -> None:
@@ -882,12 +926,12 @@ class Renderer:
         if not self.env.event_timeline:
             return
 
-        # Timeline positioning
-        timeline_y = 15
-        card_width = 160
-        card_height = 35
-        card_spacing = 12
-        start_x = (1200 - (len(self.env.event_timeline) * (card_width + card_spacing) - card_spacing)) // 2
+        # Timeline positioning for larger screen
+        timeline_y = 20
+        card_width = 180
+        card_height = 40
+        card_spacing = 15
+        start_x = (1440 - (len(self.env.event_timeline) * (card_width + card_spacing) - card_spacing)) // 2
 
         for i, event in enumerate(self.env.event_timeline):
             x = start_x + i * (card_width + card_spacing)
@@ -986,16 +1030,16 @@ class Renderer:
         if self.env.combo_state["display_timer"] <= 0 or self.env.combo_state["chain_count"] < 2:
             return
 
-        # Position combo display
-        combo_x = 600  # Center of screen
-        combo_y = 120
+        # Position combo display for larger screen
+        combo_x = 720  # Center of larger screen
+        combo_y = 140
 
         # Create pulsing combo badge
         alpha = self.env.combo_state["combo_alpha"]
         combo_text = f"x{self.env.combo_state['chain_count']} COMBO!"
         
         # Large, bold font for combo
-        combo_font = pygame.font.SysFont("Arial", 32, bold=True)
+        combo_font = pygame.font.SysFont("Arial", 36, bold=True)
         text_surface = combo_font.render(combo_text, True, (255, 200, 0))
         text_rect = text_surface.get_rect()
         
@@ -1047,8 +1091,8 @@ class Renderer:
 
         fade_alpha = min(255, self.env.game_over_state["fade_alpha"])
         
-        # Create fade overlay
-        fade_surface = pygame.Surface((1200, 900), pygame.SRCALPHA)
+        # Create fade overlay for larger screen
+        fade_surface = pygame.Surface((1440, 1080), pygame.SRCALPHA)
         fade_surface.fill((0, 0, 0, fade_alpha))
         self.window.blit(fade_surface, (0, 0))
 
@@ -1057,16 +1101,16 @@ class Renderer:
             stats = self.env.game_over_state["final_stats"]
             success = self.env.game_over_state["success"]
             
-            # Title
-            title_font = pygame.font.SysFont("Arial", 56, bold=True)
+            # Title for larger screen
+            title_font = pygame.font.SysFont("Arial", 64, bold=True)
             title_text = "🎉 MISSION SUCCESS! 🎉" if success else "💥 MISSION FAILED 💥"
             title_color = (0, 255, 0) if success else (255, 100, 100)
             title_surface = title_font.render(title_text, True, title_color)
-            title_rect = title_surface.get_rect(center=(600, 180))
+            title_rect = title_surface.get_rect(center=(720, 220))
             self.window.blit(title_surface, title_rect)
 
             # Final statistics
-            stats_font = pygame.font.SysFont("Arial", 22)
+            stats_font = pygame.font.SysFont("Arial", 24)
             stats_text = [
                 "",
                 f"📊 FINAL STATISTICS",
