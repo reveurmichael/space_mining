@@ -407,7 +407,7 @@
     /* Enhanced grid and cards */
     .grid {
       display: grid;
-      gap: 24px;
+      gap: 40px;
     }
 
     .cols-2 {
@@ -430,6 +430,59 @@
       transition: all 0.3s ease;
       position: relative;
       overflow: hidden;
+    }
+
+    /* Unified card content styling for cleaner look */
+    .card h3 {
+      color: var(--text);
+      font-size: 1.2rem;
+      margin: 0 0 16px;
+      font-weight: 600;
+      line-height: 1.4;
+    }
+
+    .card p {
+      color: var(--text-muted);
+      margin: 0 0 12px;
+      line-height: 1.6;
+      font-size: 0.95rem;
+    }
+
+    .card ul {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .card li {
+      color: var(--text-muted);
+      margin: 0 0 8px;
+      line-height: 1.5;
+      font-size: 0.9rem;
+      position: relative;
+      padding-left: 16px;
+    }
+
+    .card li:before {
+      content: "•";
+      color: var(--brand);
+      position: absolute;
+      left: 0;
+      font-weight: bold;
+    }
+
+    .card strong {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .card code {
+      background: rgba(59, 130, 246, 0.1);
+      color: var(--brand);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.85rem;
+      font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
     }
 
     .card::before {
@@ -538,6 +591,31 @@
       cursor: pointer;
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       position: relative;
+    }
+    
+    .gif-card::after {
+      content: '▶️';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 2rem;
+      background: rgba(0, 0, 0, 0.7);
+      color: white;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      pointer-events: none;
+      z-index: 10;
+    }
+    
+    .gif-card:hover::after {
+      opacity: 1;
     }
 
     .gif-container {
@@ -969,18 +1047,15 @@
       <div class="grid cols-3">
         <div class="card">
           <h3>🎯 Novel Benchmark</h3>
-          <p>Custom environment intentionally unfamiliar to LLMs, enabling evaluation of reward-design capabilities
-            without leakage from standard RL benchmarks.</p>
+          <p>Custom environment unfamiliar to LLMs for fair evaluation of reward-design capabilities.</p>
         </div>
         <div class="card">
           <h3>⚡ 2D Space Physics</h3>
-          <p>Realistic physics simulation with thrust dynamics, drag forces, gravitational attraction, and collision
-            detection in an 80×80 grid environment.</p>
+          <p>Realistic physics with thrust dynamics, collisions, and gravitational forces in an 80×80 grid.</p>
         </div>
         <div class="card">
           <h3>🔋 Strategic Constraints</h3>
-          <p>Energy management requiring periodic mothership returns, limited observation radius, and moving obstacles
-            creating balanced difficulty.</p>
+          <p>Energy management, limited observation radius, and moving obstacles create balanced difficulty.</p>
         </div>
       </div>
     </section>
@@ -994,30 +1069,26 @@
         <div class="card">
           <h3>🎯 Primary Objectives</h3>
           <ul>
-            <li><strong>Resource Collection:</strong> Navigate efficiently to discover and mine resource-rich asteroids
-            </li>
-            <li><strong>Energy Management:</strong> Monitor consumption and return to mothership for recharging</li>
-            <li><strong>Obstacle Avoidance:</strong> Avoid collisions with moving obstacles</li>
-            <li><strong>Delivery Optimization:</strong> Transport resources to maximize collection efficiency</li>
+            <li>Navigate and mine resource-rich asteroids</li>
+            <li>Monitor energy and return to mothership for recharging</li>
+            <li>Avoid collisions with moving obstacles</li>
+            <li>Transport resources to maximize efficiency</li>
           </ul>
         </div>
         <div class="card">
           <h3>⚖️ Strategic Balance</h3>
           <ul>
-            <li><strong>Exploration vs Exploitation:</strong> Discover new asteroids vs mine known resources</li>
-            <li><strong>Risk vs Reward:</strong> Navigate through obstacles vs safe paths</li>
-            <li><strong>Energy vs Progress:</strong> Conservative movement vs aggressive mining</li>
-            <li><strong>Efficiency Optimization:</strong> Minimize travel time while maximizing collection</li>
+            <li>Exploration vs exploitation of known resources</li>
+            <li>Risk vs reward in obstacle navigation</li>
+            <li>Energy conservation vs aggressive mining</li>
+            <li>Travel time vs collection optimization</li>
           </ul>
         </div>
       </div>
 
       <div class="card" style="margin-top: 32px;">
-        <h3>🏆 Fitness Scoring System</h3>
-        <p>The environment uses a comprehensive fitness scoring system with a target range of approximately <strong>3000
-            points</strong>, evaluating resource collection, energy management, efficiency, and survival time. This
-          multi-faceted scoring encourages agents to develop sophisticated strategies rather than optimizing for single
-          objectives.</p>
+        <h3>🏆 Fitness Scoring</h3>
+        <p>Comprehensive scoring system targeting <strong>~3000 points</strong> through resource collection, energy management, and survival time. Multi-faceted approach encourages sophisticated strategies.</p>
       </div>
     </section>
 
@@ -1029,60 +1100,57 @@
       <div class="grid cols-3">
         <div class="card">
           <h3>📊 Action Space</h3>
-          <p><strong>Type:</strong> Box(3) - Continuous control</p>
+          <p>Box(3) - Continuous control</p>
           <ul>
-            <li><code>thrust_x</code>: Horizontal force [-1.0, 1.0]</li>
-            <li><code>thrust_y</code>: Vertical force [-1.0, 1.0]</li>
-            <li><code>mine_action</code>: Binary mining activation [0.0, 1.0]</li>
+            <li><code>thrust_x</code> and <code>thrust_y</code>: Movement forces</li>
+            <li><code>mine_action</code>: Mining activation</li>
           </ul>
         </div>
         <div class="card">
           <h3>👁️ State Space</h3>
-          <p><strong>Type:</strong> Box(53) - Structured observations</p>
+          <p>Box(53) - Structured observations</p>
           <ul>
-            <li><strong>Agent State (6)</strong>: Position (x, y), velocity (vx, vy), energy level, inventory</li>
-            <li><strong>Asteroid Information (45)</strong>: Relative positions and resource amounts for visible
-              asteroids</li>
-            <li><strong>Mothership Position (2)</strong>: Relative position to mothership</li>
+            <li>Agent state: position, velocity, energy, inventory</li>
+            <li>Asteroid information: positions and resources</li>
+            <li>Mothership position</li>
           </ul>
         </div>
         <div class="card">
-          <h3>🌍 Environment Parameters</h3>
+          <h3>🌍 Environment</h3>
           <ul>
-            <li><strong>Grid size</strong>: 80×80 units (default, configurable)</li>
-            <li><strong>Max asteroids</strong>: 8-12 per episode (random)</li>
-            <li><strong>Moving obstacles</strong>: 4-8 dynamic collision hazards</li>
-            <li><strong>Observation radius</strong>: 15 units (partial observability)</li>
-            <li><strong>Episode limit</strong>: 1200 steps (configurable)</li>
-            <li><strong>Collision limit</strong>: 18+ obstacle collisions</li>
+            <li>Grid size: 80×80 units</li>
+            <li>Asteroids: 8-12 per episode</li>
+            <li>Moving obstacles: 4-8 hazards</li>
+            <li>Observation radius: 15 units</li>
+            <li>Episode limit: 1200 steps</li>
           </ul>
         </div>
         <div class="card">
-          <h3>🏆 Reward Structure</h3>
+          <h3>🏆 Rewards</h3>
           <ul>
-            <li><strong>Mining rewards</strong>: +8.0 per resource unit extracted</li>
-            <li><strong>Delivery bonuses</strong>: +12.0 per delivered unit</li>
-            <li><strong>Exploration rewards</strong>: +3.0 per discovered asteroid</li>
-            <li><strong>Energy recharge bonus</strong>: +0.5 per energy unit restored</li>
+            <li>Mining: +8.0 per resource unit</li>
+            <li>Delivery: +12.0 per delivered unit</li>
+            <li>Exploration: +3.0 per discovered asteroid</li>
+            <li>Energy recharge: +0.5 per unit</li>
           </ul>
         </div>
         <div class="card">
-          <h3>⚠️ Penalties & Constraints</h3>
+          <h3>⚠️ Penalties</h3>
           <ul>
-            <li><strong>Obstacle collision</strong>: -10.0 per collision</li>
-            <li><strong>Boundary contact</strong>: -1.0 per boundary hit</li>
-            <li><strong>Energy depletion</strong>: -10.0 when energy reaches zero</li>
-            <li><strong>Inventory limit</strong>: 100 resource units maximum</li>
+            <li>Obstacle collision: -10.0</li>
+            <li>Boundary contact: -1.0</li>
+            <li>Energy depletion: -10.0</li>
+            <li>Inventory limit: 100 units max</li>
           </ul>
         </div>
         <div class="card">
-          <h3>⚙️ Difficulty Level</h3>
-          <p><strong>Medium Difficulty:</strong> Balanced challenge with:</p>
+          <h3>⚙️ Difficulty</h3>
+          <p>Medium - Balanced challenge</p>
           <ul>
-            <li><strong>Limited observation radius</strong>: 15 units requiring strategic exploration</li>
-            <li><strong>Energy constraints</strong>: Periodic mothership returns required</li>
-            <li><strong>Moving obstacles</strong>: Collision avoidance required</li>
-            <li><strong>Resource depletion</strong>: Efficient mining strategies needed</li>
+            <li>Limited observation radius</li>
+            <li>Energy management required</li>
+            <li>Collision avoidance needed</li>
+            <li>Strategic resource planning</li>
           </ul>
         </div>
       </div>
@@ -1190,7 +1258,7 @@ print(f"Environment initialized with {len(env.asteroid_positions)} asteroids")</
       <div class="gif-gallery">
         <div class="gif-card" role="button" tabindex="0" aria-label="View early exploration demonstration">
           <div class="gif-container">
-            <img data-src="assets/gifs/early_exploration.gif"
+            <img data-src="assets/gif/episode_1_20250722_121511.gif"
               alt="Early exploration phase at 25,000 timesteps showing initial learning behavior" loading="lazy" />
           </div>
           <div class="card-content">
@@ -1202,7 +1270,7 @@ print(f"Environment initialized with {len(env.asteroid_positions)} asteroids")</
 
         <div class="gif-card" role="button" tabindex="0" aria-label="View continued early exploration demonstration">
           <div class="gif-container">
-            <img data-src="assets/gifs/early_exploration_later.gif"
+            <img data-src="assets/gif/episode_2_20250722_121634.gif"
               alt="Early exploration phase at 500,000 timesteps showing continued learning" loading="lazy" />
           </div>
           <div class="card-content">
@@ -1214,7 +1282,7 @@ print(f"Environment initialized with {len(env.asteroid_positions)} asteroids")</
 
         <div class="gif-card" role="button" tabindex="0" aria-label="View successful mining demonstration">
           <div class="gif-container">
-            <img data-src="assets/gifs/successful_mining.gif"
+            <img data-src="assets/gif/space_mining_demo_episode_1_20250730_230841.gif"
               alt="Successful mining operation with strategic resource collection" loading="lazy" />
           </div>
           <div class="card-content">
@@ -1226,7 +1294,7 @@ print(f"Environment initialized with {len(env.asteroid_positions)} asteroids")</
 
         <div class="gif-card" role="button" tabindex="0" aria-label="View complete episode demonstration">
           <div class="gif-container">
-            <img data-src="assets/gifs/complete_episode.gif"
+            <img data-src="assets/gif/space_mining_demo_episode_3_20250730_224120.gif"
               alt="Complete episode demonstration running full 1200 steps with optimal resource collection"
               loading="lazy" />
           </div>
@@ -1239,7 +1307,7 @@ print(f"Environment initialized with {len(env.asteroid_positions)} asteroids")</
 
         <div class="gif-card" role="button" tabindex="0" aria-label="View energy depletion failure demonstration">
           <div class="gif-container">
-            <img data-src="assets/gifs/energy_depletion.gif"
+            <img data-src="assets/gif/episode_4_20250722_121936.gif"
               alt="Energy depletion failure showing agent failing to recharge at mothership" loading="lazy" />
           </div>
           <div class="card-content">
@@ -1251,7 +1319,7 @@ print(f"Environment initialized with {len(env.asteroid_positions)} asteroids")</
 
         <div class="gif-card" role="button" tabindex="0" aria-label="View poor obstacle avoidance demonstration">
           <div class="gif-container">
-            <img data-src="assets/gifs/poor_obstacle_avoidance.gif"
+            <img data-src="assets/gif/episode_5_20250722_122108.gif"
               alt="Poor obstacle avoidance showing multiple collisions with moving obstacles" loading="lazy" />
           </div>
           <div class="card-content">
@@ -1401,12 +1469,18 @@ print(f"Environment initialized with {len(env.asteroid_positions)} asteroids")</
 
       // Initialize GIFs
       gifs.forEach(img => {
-        // Set up lazy loading
-        if (img.src) {
+        // Set up lazy loading - preserve existing data-src, don't remove src if it exists
+        if (img.src && !img.dataset.src) {
           img.dataset.src = img.src;
           img.removeAttribute('src');
         }
-        img.style.opacity = '0';
+        
+        // If data-src exists but no src, start with opacity 0 for lazy loading
+        if (img.dataset.src && !img.src) {
+          img.style.opacity = '0';
+        } else {
+          img.style.opacity = '1'; // If src already exists, show it
+        }
         img.style.transition = 'opacity 0.3s ease';
 
         gifObserver.observe(img);
@@ -1427,6 +1501,9 @@ print(f"Environment initialized with {len(env.asteroid_positions)} asteroids")</
           setTimeout(() => forceGifRestart(modalImg), 100);
         };
 
+        // Add click events to both image and parent card
+        const card = img.closest('.gif-card');
+        
         img.addEventListener('click', openModal);
         img.addEventListener('keydown', (e) => {
           if (e.key === 'Enter' || e.key === ' ') {
@@ -1434,6 +1511,17 @@ print(f"Environment initialized with {len(env.asteroid_positions)} asteroids")</
             openModal();
           }
         });
+        
+        // Make the entire card clickable
+        if (card) {
+          card.addEventListener('click', openModal);
+          card.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              openModal();
+            }
+          });
+        }
       });
 
       // Enhanced modal controls

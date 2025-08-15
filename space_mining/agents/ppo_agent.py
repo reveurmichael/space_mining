@@ -171,7 +171,16 @@ class PPOAgent:
             raise ValueError("Model not initialized. Load a model or provide an environment during initialization.")
             
         try:
-            action, state = self.model.predict(observation, deterministic=deterministic)
+            # SB3's predict method can return different numbers of values depending on version
+            # Handle both (action, state) and (action, state, log_prob) return formats
+            result = self.model.predict(observation, deterministic=deterministic)
+            if len(result) == 2:
+                action, state = result
+            elif len(result) == 3:
+                action, state, _ = result  # Ignore log_prob
+            else:
+                # Fallback: take first two values
+                action, state = result[0], result[1] if len(result) > 1 else None
             return action, state
         except Exception as e:
             raise RuntimeError(f"Prediction failed: {e}") from e
