@@ -165,13 +165,12 @@ jobs:
             --log-every-n-env-steps ${{ inputs.log_every }} \
             2>&1 | tee training.log
         
-        # Stop monitoring when training completes
-        - name: Stop monitoring
-          if: always()
-          run: |
-            if [ -n "${MONITOR_PID:-}" ]; then
-              kill $MONITOR_PID 2>/dev/null || true
-            fi
+      - name: Stop monitoring
+        if: always()
+        run: |
+          if [ -n "${MONITOR_PID:-}" ]; then
+            kill $MONITOR_PID 2>/dev/null || true
+          fi
 
       - name: Choose best or final model
         id: choose_model
