@@ -409,6 +409,11 @@ class Renderer:
         
         # Draw enhanced starfield with colors and twinkling
         self._draw_enhanced_starfield()
+        
+        # Draw spectacular new cosmic phenomena
+        self._draw_cosmic_auroras()
+        self._draw_pulsars()
+        self._draw_shooting_stars()
 
     def _draw_nebulae(self) -> None:
         """Draw colorful nebula clouds."""
@@ -608,8 +613,156 @@ class Renderer:
                         # Add glow for larger stars
                         if size > 2:
                             glow_brightness = brightness // 3
-                            glow_color = (glow_brightness, glow_brightness, glow_brightness)
-                            gfxdraw.aacircle(self.window, x, y, size + 1, glow_color)
+                                                         glow_color = (glow_brightness, glow_brightness, glow_brightness)
+                             gfxdraw.aacircle(self.window, x, y, size + 1, glow_color)
+
+    def _draw_cosmic_auroras(self) -> None:
+        """Draw ethereal cosmic auroras."""
+        try:
+            import pygame
+            from pygame import gfxdraw
+        except ImportError:
+            return
+
+        for aurora in self.env.cosmic_auroras:
+            x, y = int(aurora["x"]), int(aurora["y"])
+            width = int(aurora["width"] * self.env.zoom_level)
+            height = int(aurora["height"] * self.env.zoom_level)
+            
+            # Skip if off screen
+            if x < -width or x > 1440 + width or y < -height or y > 1080 + height:
+                continue
+            
+            r, g, b, base_alpha = aurora["color"]
+            intensity = aurora["intensity"]
+            wave_offset = aurora["wave_offset"]
+            
+            # Create wavy aurora effect
+            aurora_surface = pygame.Surface((width, height), pygame.SRCALPHA)
+            
+            # Draw vertical aurora strips with wave motion
+            for strip_x in range(0, width, 8):
+                wave_y = int(math.sin(wave_offset + strip_x * 0.05) * 30)
+                strip_height = height + wave_y
+                
+                # Gradient from top to bottom
+                for strip_y in range(max(0, -wave_y), min(height, strip_height)):
+                    if 0 <= strip_y < height:
+                        # Fade towards edges
+                        edge_fade = 1.0 - abs(strip_x - width//2) / (width//2)
+                        edge_fade *= 1.0 - abs(strip_y - height//2) / (height//2)
+                        
+                        alpha = int(base_alpha * intensity * edge_fade)
+                        if alpha > 3:
+                            color = (r, g, b, alpha)
+                            for dx in range(8):
+                                if strip_x + dx < width:
+                                    aurora_surface.set_at((strip_x + dx, strip_y), color)
+            
+            # Blit aurora to main surface
+            self.window.blit(aurora_surface, (x, y))
+
+    def _draw_pulsars(self) -> None:
+        """Draw spectacular pulsing neutron stars."""
+        try:
+            import pygame
+            from pygame import gfxdraw
+        except ImportError:
+            return
+
+        for pulsar in self.env.pulsars:
+            x, y = int(pulsar["x"]), int(pulsar["y"])
+            
+            if 0 <= x <= 1440 and 0 <= y <= 1080:
+                # Pulse calculation
+                pulse_phase = math.sin(self.env.cosmic_time / pulsar["pulse_period"] + pulsar["pulse_offset"])
+                pulse_intensity = (pulse_phase + 1) / 2  # 0 to 1
+                
+                brightness = int(pulsar["brightness"] * pulse_intensity)
+                r, g, b = pulsar["color"]
+                
+                # Draw pulsing core
+                core_size = max(2, int(6 * pulse_intensity * self.env.zoom_level))
+                core_color = (min(255, int(r * pulse_intensity)), 
+                             min(255, int(g * pulse_intensity)), 
+                             min(255, int(b * pulse_intensity)))
+                
+                gfxdraw.filled_circle(self.window, x, y, core_size, core_color)
+                
+                # Draw rotating beam when pulsing
+                if pulse_intensity > 0.7:  # Only when bright
+                    beam_length = int(pulsar["beam_length"] * self.env.zoom_level)
+                    beam_angle = pulsar["beam_angle"]
+                    
+                    # Draw beam as series of fading dots
+                    for r in range(10, beam_length, 15):
+                        beam_x = x + int(r * math.cos(beam_angle))
+                        beam_y = y + int(r * math.sin(beam_angle))
+                        
+                        if 0 <= beam_x <= 1440 and 0 <= beam_y <= 1080:
+                            beam_fade = 1.0 - (r / beam_length)
+                            beam_alpha = int(brightness * beam_fade * 0.8)
+                            if beam_alpha > 10:
+                                beam_color = (beam_alpha, beam_alpha, beam_alpha + 20)
+                                beam_size = max(1, int(3 * beam_fade))
+                                if beam_size > 1:
+                                    gfxdraw.filled_circle(self.window, beam_x, beam_y, beam_size, beam_color)
+                                else:
+                                    self.window.set_at((beam_x, beam_y), beam_color)
+
+    def _draw_shooting_stars(self) -> None:
+        """Draw spectacular shooting stars with trails."""
+        try:
+            import pygame
+            from pygame import gfxdraw
+        except ImportError:
+            return
+
+        for star in self.env.shooting_stars:
+            x, y = int(star["x"]), int(star["y"])
+            
+            if 0 <= x <= 1440 and 0 <= y <= 1080:
+                r, g, b = star["color"]
+                brightness = star["brightness"]
+                tail_length = star["tail_length"]
+                
+                # Calculate direction for tail
+                dx = star["target_x"] - star["x"]
+                dy = star["target_y"] - star["y"]
+                if dx != 0 or dy != 0:
+                    distance = math.sqrt(dx*dx + dy*dy)
+                    tail_dx = -(dx / distance) * 15  # Opposite direction
+                    tail_dy = -(dy / distance) * 15
+                    
+                    # Draw fading tail
+                    for i in range(tail_length):
+                        tail_x = int(x + tail_dx * i / 2)
+                        tail_y = int(y + tail_dy * i / 2)
+                        
+                        if 0 <= tail_x <= 1440 and 0 <= tail_y <= 1080:
+                            fade = 1.0 - (i / tail_length)
+                            tail_brightness = int(brightness * fade)
+                            if tail_brightness > 5:
+                                tail_color = (
+                                    min(255, int(r * fade)),
+                                    min(255, int(g * fade)),
+                                    min(255, int(b * fade))
+                                )
+                                
+                                tail_size = max(1, int(3 * fade))
+                                if tail_size > 1:
+                                    gfxdraw.filled_circle(self.window, tail_x, tail_y, tail_size, tail_color)
+                                else:
+                                    self.window.set_at((tail_x, tail_y), tail_color)
+                
+                # Draw bright star head
+                star_color = (r, g, b)
+                star_size = max(3, int(5 * self.env.zoom_level))
+                gfxdraw.filled_circle(self.window, x, y, star_size, star_color)
+                
+                # Add bright glow
+                glow_color = (r//2, g//2, b//2)
+                gfxdraw.aacircle(self.window, x, y, star_size + 2, glow_color)
 
     def _draw_game_ui(self, agent_pos_2d) -> None:
         """Draw the main game UI elements with adaptive layout and icons."""
@@ -649,53 +802,41 @@ class Renderer:
         except ImportError:
             return
 
-        # Status data with icons
+        # Streamlined essential status only
         status_items = [
             {
                 "icon": "energy",
-                "value": f"{self.env.agent_energy:.0f}/150",
+                "value": f"Energy {self.env.agent_energy:.0f}",
                 "warning": self.env.agent_energy < 30,
                 "color": (255, 100, 100) if self.env.agent_energy < 30 else (100, 255, 100)
             },
             {
                 "icon": "inventory", 
-                "value": f"{self.env.agent_inventory:.0f}/{self.env.max_inventory}",
+                "value": f"Cargo {self.env.agent_inventory:.1f}",
                 "warning": False,
                 "color": (255, 255, 100) if self.env.agent_inventory > 0 else (200, 200, 200)
             },
             {
                 "icon": "mining",
-                "value": f"{cumulative_mining:.1f}",
+                "value": f"Mined {cumulative_mining:.1f}",
                 "warning": False,
                 "color": (100, 255, 100)
             },
             {
-                "icon": "collision",
-                "value": str(self.env.collision_count),
-                "warning": hasattr(self.env, 'last_collision_step') and self.env.last_collision_step == self.env.steps_count,
-                "color": (255, 100, 100) if hasattr(self.env, 'last_collision_step') and self.env.last_collision_step == self.env.steps_count else (200, 200, 200)
-            },
-            {
-                "icon": "step",
-                "value": f"{self.env.steps_count}/{self.env.max_episode_steps}",
-                "warning": False,
-                "color": (200, 200, 255)
-            },
-            {
                 "icon": "asteroid",
-                "value": f"{np.sum(self.env.asteroid_resources >= 0.1)}/{len(self.env.asteroid_positions)}",
-                "warning": False,
+                "value": f"Asteroids {np.sum(self.env.asteroid_resources >= 0.1)}",
+                "warning": np.sum(self.env.asteroid_resources >= 0.1) <= 2,
                 "color": (255, 215, 100)
             }
         ]
 
-        # Calculate adaptive panel size (2 columns, 3 rows)
+        # Calculate streamlined panel size (2 columns, 2 rows - removed redundant info)
         cols = 2
-        rows = 3
-        item_width = 180
-        item_height = 40
-        panel_width = cols * item_width + 40
-        panel_height = rows * item_height + 70
+        rows = 2
+        item_width = 200
+        item_height = 45
+        panel_width = cols * item_width + 50
+        panel_height = rows * item_height + 80
 
         # Create main status panel
         status_bg = pygame.Surface((panel_width, panel_height), pygame.SRCALPHA)
@@ -1127,10 +1268,10 @@ class Renderer:
                 "Press R to restart or ESC to quit"
             ]
 
-            y_offset = 280
+            y_offset = 340
             for line in stats_text:
                 if line == "":
-                    y_offset += 18
+                    y_offset += 22
                     continue
                     
                 color = (255, 255, 100) if "STATISTICS" in line else (255, 255, 255)
@@ -1138,9 +1279,9 @@ class Renderer:
                     color = (200, 200, 255)
                 
                 text_surface = stats_font.render(line, True, color)
-                text_rect = text_surface.get_rect(center=(600, y_offset))
+                text_rect = text_surface.get_rect(center=(720, y_offset))
                 self.window.blit(text_surface, text_rect)
-                y_offset += 35
+                y_offset += 40
 
     def close(self) -> None:
         """Close the rendering window."""

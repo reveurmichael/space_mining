@@ -67,6 +67,9 @@ class SpaceMining(gym.Env):
         self.nebula_clouds = []
         self.distant_galaxies = []
         self.space_dust = []
+        self.shooting_stars = []  # New spectacular feature
+        self.cosmic_auroras = []  # New cosmic auroras
+        self.pulsars = []  # New pulsing neutron stars
         self.cosmic_time = 0.0
         self._initialize_cosmic_background()
         
@@ -735,9 +738,101 @@ class SpaceMining(gym.Env):
                 "speed": np.random.uniform(0.8, 1.5),
                 "drift_x": np.random.uniform(-0.1, 0.1),
                 "drift_y": np.random.uniform(-0.1, 0.1),
-                "type": "coarse"
+                                "type": "coarse"
+             }
+             self.space_dust.append(dust)
+        
+        # Create spectacular shooting stars
+        self.shooting_stars = []
+        for _ in range(3):  # A few occasional shooting stars
+            self._spawn_shooting_star()
+        
+        # Create cosmic auroras (energy fields)
+        self.cosmic_auroras = []
+        for _ in range(6):  # Ethereal energy curtains
+            aurora = {
+                "x": np.random.uniform(-200, 1640),
+                "y": np.random.uniform(-200, 1280),
+                "width": np.random.uniform(150, 400),
+                "height": np.random.uniform(300, 800),
+                "intensity": np.random.uniform(0.3, 0.8),
+                "color": np.random.choice([
+                    (0, 255, 150, 25),    # Green aurora
+                    (150, 100, 255, 20),  # Purple aurora
+                    (255, 150, 100, 25),  # Orange aurora
+                    (100, 200, 255, 20),  # Blue aurora
+                    (255, 100, 200, 25)   # Pink aurora
+                ]),
+                "wave_offset": np.random.uniform(0, 2 * math.pi),
+                "wave_speed": np.random.uniform(0.02, 0.05),
+                "drift_speed": np.random.uniform(0.01, 0.03)
             }
-            self.space_dust.append(dust)
+            self.cosmic_auroras.append(aurora)
+        
+        # Create pulsars (neutron stars)
+        self.pulsars = []
+        for _ in range(4):  # Rare, spectacular pulsing stars
+            pulsar = {
+                "x": np.random.uniform(0, 1440),
+                "y": np.random.uniform(0, 1080),
+                "pulse_period": np.random.uniform(0.5, 2.0),
+                "pulse_offset": np.random.uniform(0, 2 * math.pi),
+                "brightness": np.random.randint(150, 255),
+                "beam_length": np.random.uniform(200, 500),
+                "beam_angle": np.random.uniform(0, 2 * math.pi),
+                "rotation_speed": np.random.uniform(0.005, 0.02),
+                "color": np.random.choice([
+                    (255, 255, 255),  # White pulsar
+                    (200, 255, 255),  # Blue-white
+                    (255, 200, 255)   # Pink pulsar
+                ])
+            }
+                         self.pulsars.append(pulsar)
+
+    def _spawn_shooting_star(self) -> None:
+        """Spawn a spectacular shooting star."""
+        # Random entry point from screen edge
+        side = np.random.choice(['top', 'left', 'right', 'bottom'])
+        
+        if side == 'top':
+            start_x = np.random.uniform(0, 1440)
+            start_y = -50
+            end_x = np.random.uniform(0, 1440)
+            end_y = 1130
+        elif side == 'left':
+            start_x = -50
+            start_y = np.random.uniform(0, 1080)
+            end_x = 1490
+            end_y = np.random.uniform(0, 1080)
+        elif side == 'right':
+            start_x = 1490
+            start_y = np.random.uniform(0, 1080)
+            end_x = -50
+            end_y = np.random.uniform(0, 1080)
+        else:  # bottom
+            start_x = np.random.uniform(0, 1440)
+            start_y = 1130
+            end_x = np.random.uniform(0, 1440)
+            end_y = -50
+        
+        shooting_star = {
+            "x": start_x,
+            "y": start_y,
+            "target_x": end_x,
+            "target_y": end_y,
+            "speed": np.random.uniform(8.0, 15.0),
+            "brightness": np.random.randint(200, 255),
+            "tail_length": np.random.randint(8, 20),
+            "color": np.random.choice([
+                (255, 255, 255),  # White
+                (255, 255, 200),  # Yellow-white
+                (200, 255, 255),  # Blue-white
+                (255, 200, 150)   # Orange-white
+            ]),
+            "lifetime": np.random.uniform(3.0, 6.0),
+            "age": 0.0
+        }
+        self.shooting_stars.append(shooting_star)
 
     def _update_cosmic_background(self) -> None:
         """Update cosmic background elements with parallax and animations."""
@@ -830,6 +925,66 @@ class SpaceMining(gym.Env):
                 dust["y"] = 1095
             elif dust["y"] > 1095:
                 dust["y"] = -15
+        
+        # Update spectacular shooting stars
+        for shooting_star in self.shooting_stars[:]:  # Use slice to allow removal
+            shooting_star["age"] += 0.016
+            
+            # Move towards target
+            dx = shooting_star["target_x"] - shooting_star["x"]
+            dy = shooting_star["target_y"] - shooting_star["y"]
+            distance = math.sqrt(dx*dx + dy*dy)
+            
+            if distance > 0:
+                shooting_star["x"] += (dx / distance) * shooting_star["speed"]
+                shooting_star["y"] += (dy / distance) * shooting_star["speed"]
+            
+            # Remove if lifetime exceeded or reached target
+            if shooting_star["age"] > shooting_star["lifetime"] or distance < 20:
+                self.shooting_stars.remove(shooting_star)
+        
+        # Occasionally spawn new shooting stars
+        if np.random.random() < 0.002:  # Very rare
+            if len(self.shooting_stars) < 5:  # Limit number
+                self._spawn_shooting_star()
+        
+        # Update cosmic auroras
+        for aurora in self.cosmic_auroras:
+            # Slow parallax movement
+            aurora["x"] -= movement[0] * aurora["drift_speed"] * self.zoom_level * 0.5
+            aurora["y"] -= movement[1] * aurora["drift_speed"] * self.zoom_level * 0.5
+            
+            # Update wave animation
+            aurora["wave_offset"] += aurora["wave_speed"]
+            
+            # Wrap around
+            if aurora["x"] < -aurora["width"] - 200:
+                aurora["x"] = 1440 + 200
+            elif aurora["x"] > 1440 + 200:
+                aurora["x"] = -aurora["width"] - 200
+            if aurora["y"] < -aurora["height"] - 200:
+                aurora["y"] = 1080 + 200
+            elif aurora["y"] > 1080 + 200:
+                aurora["y"] = -aurora["height"] - 200
+        
+        # Update pulsars
+        for pulsar in self.pulsars:
+            # Very slow parallax
+            pulsar["x"] -= movement[0] * 0.01 * self.zoom_level
+            pulsar["y"] -= movement[1] * 0.01 * self.zoom_level
+            
+            # Rotate beam
+            pulsar["beam_angle"] += pulsar["rotation_speed"]
+            
+            # Wrap around
+            if pulsar["x"] < -50:
+                pulsar["x"] = 1490
+            elif pulsar["x"] > 1490:
+                pulsar["x"] = -50
+            if pulsar["y"] < -50:
+                pulsar["y"] = 1130
+            elif pulsar["y"] > 1130:
+                pulsar["y"] = -50
 
     def _update_zoom(self) -> None:
         """Update dynamic zoom system."""
