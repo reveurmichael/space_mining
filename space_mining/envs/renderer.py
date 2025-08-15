@@ -48,13 +48,11 @@ class Renderer:
             shake_offset[0] = random.randint(-shake_intensity, shake_intensity)
             shake_offset[1] = random.randint(-shake_intensity, shake_intensity)
 
-        self.window.fill((0, 0, 0))  # Space background (black)
+        self.window.fill((5, 5, 15))  # Deep space background (dark blue-black)
 
         # Helper function to convert 2D coordinates to screen coordinates
         def to_screen(pos, scale=8.0):
             x, y = pos
-            # Center the 80x80 grid in the 800x800 screen
-            # Map 0-80 to 0-800, centered at 400
             screen_x = int(400 + (x - 40) * scale + shake_offset[0])
             screen_y = int(400 + (y - 40) * scale + shake_offset[1])
             return screen_x, screen_y
@@ -64,107 +62,139 @@ class Renderer:
             trail_pos_2d = to_screen(trail_point["pos"])
             alpha = max(0, min(255, trail_point["alpha"]))
             if alpha > 0:
-                # Create a surface for the trail point with alpha
-                trail_surface = pygame.Surface((8, 8), pygame.SRCALPHA)
-                trail_color = (50, 200, 50, alpha)
-                gfxdraw.filled_circle(trail_surface, 4, 4, 3, trail_color)
-                self.window.blit(trail_surface, (trail_pos_2d[0] - 4, trail_pos_2d[1] - 4))
+                trail_surface = pygame.Surface((10, 10), pygame.SRCALPHA)
+                # Always green trail for consistency
+                trail_color = (50, 255, 50, alpha // 2)
+                gfxdraw.filled_circle(trail_surface, 5, 5, 3, trail_color)
+                self.window.blit(trail_surface, (trail_pos_2d[0] - 5, trail_pos_2d[1] - 5))
 
-        # Draw mothership
+        # Draw mothership with consistent blue
         mothership_pos_2d = to_screen(self.env.mothership_pos)
         gfxdraw.filled_circle(
-            self.window, mothership_pos_2d[0], mothership_pos_2d[1], 15, (50, 150, 200)
+            self.window, mothership_pos_2d[0], mothership_pos_2d[1], 16, (30, 120, 200)
         )
         # Add mothership glow effect
-        for i in range(3):
+        for i in range(4):
+            alpha = max(30, 120 - i * 30)
             gfxdraw.aacircle(
                 self.window, 
                 mothership_pos_2d[0], 
                 mothership_pos_2d[1], 
-                15 + i * 2, 
-                (50, 150, 200, 100 - i * 30)
+                16 + i * 3, 
+                (30, 120, 200, alpha)
             )
 
-        # Draw asteroids with health bars
+        # Draw asteroids with fixed yellow color and size-based resource indication
         for i, pos in enumerate(self.env.asteroid_positions):
-            if self.env.asteroid_resources[i] < 0.1:  # Depletion threshold
-                # Draw depleted asteroid as gray cross
+            if self.env.asteroid_resources[i] < 0.1:  # Depleted asteroid
                 asteroid_pos_2d = to_screen(pos)
                 gfxdraw.filled_circle(
                     self.window,
                     asteroid_pos_2d[0],
                     asteroid_pos_2d[1],
                     8,
-                    (100, 100, 100),  # Gray for depleted
+                    (80, 80, 80),  # Gray for depleted
                 )
                 # Draw X mark for depleted asteroid
                 pygame.draw.line(
                     self.window,
                     (150, 150, 150),
-                    (asteroid_pos_2d[0] - 5, asteroid_pos_2d[1] - 5),
-                    (asteroid_pos_2d[0] + 5, asteroid_pos_2d[1] + 5),
-                    2,
+                    (asteroid_pos_2d[0] - 6, asteroid_pos_2d[1] - 6),
+                    (asteroid_pos_2d[0] + 6, asteroid_pos_2d[1] + 6),
+                    3,
                 )
                 pygame.draw.line(
                     self.window,
                     (150, 150, 150),
-                    (asteroid_pos_2d[0] + 5, asteroid_pos_2d[1] - 5),
-                    (asteroid_pos_2d[0] - 5, asteroid_pos_2d[1] + 5),
-                    2,
+                    (asteroid_pos_2d[0] + 6, asteroid_pos_2d[1] - 6),
+                    (asteroid_pos_2d[0] - 6, asteroid_pos_2d[1] + 6),
+                    3,
                 )
                 continue
 
             asteroid_pos_2d = to_screen(pos)
-            size = int(6 + self.env.asteroid_resources[i] / 8)
-            color_intensity = min(255, int(120 + self.env.asteroid_resources[i] * 3))
+            # Size based on resource amount (not color)
+            resource_ratio = self.env.asteroid_resources[i] / 40.0
+            size = int(8 + resource_ratio * 8)  # 8-16 pixels based on resources
+            
+            # Fixed yellow color for all active asteroids
             gfxdraw.filled_circle(
                 self.window,
                 asteroid_pos_2d[0],
                 asteroid_pos_2d[1],
                 size,
-                (color_intensity, color_intensity // 2, 20),
+                (255, 215, 0),  # Golden yellow
             )
 
-            # Draw health bar for asteroid
-            health_ratio = self.env.asteroid_resources[i] / 40.0
-            health_width = int(24 * health_ratio)
-            health_x = asteroid_pos_2d[0] - 12
-            health_y = asteroid_pos_2d[1] - size - 10
+            # Add resource glow for high-value asteroids
+            if resource_ratio > 0.5:
+                pulse = math.sin(self.env.steps_count * 0.15) * 0.3 + 0.7
+                glow_alpha = int(60 * pulse)
+                for j in range(3):
+                    gfxdraw.aacircle(
+                        self.window,
+                        asteroid_pos_2d[0],
+                        asteroid_pos_2d[1],
+                        size + j * 2,
+                        (255, 255, 100, glow_alpha - j * 20)
+                    )
 
-            # Background (dark gray)
-            pygame.draw.rect(self.window, (60, 60, 60), (health_x, health_y, 24, 5))
-            # Health bar (green to red based on remaining resources)
+            # Enhanced health bar
+            health_ratio = resource_ratio
+            health_width = int(28 * health_ratio)
+            health_x = asteroid_pos_2d[0] - 14
+            health_y = asteroid_pos_2d[1] - size - 12
+
+            # Background
+            pygame.draw.rect(self.window, (40, 40, 40), (health_x, health_y, 28, 6))
+            # Health bar with fixed color scheme
             if health_ratio > 0.6:
                 health_color = (0, 255, 0)
             elif health_ratio > 0.3:
                 health_color = (255, 255, 0)
             else:
-                health_color = (255, 0, 0)
-            pygame.draw.rect(
-                self.window, health_color, (health_x, health_y, health_width, 5)
-            )
+                health_color = (255, 100, 0)
+            pygame.draw.rect(self.window, health_color, (health_x, health_y, health_width, 6))
 
-        # Draw obstacles with pulsing effect
+            # Optional: Show resource value as text
+            if size > 12:  # Only for larger asteroids
+                resource_text = f"{self.env.asteroid_resources[i]:.0f}"
+                text_surface = pygame.font.SysFont("Arial", 12).render(resource_text, True, (255, 255, 255))
+                text_rect = text_surface.get_rect(center=(asteroid_pos_2d[0], asteroid_pos_2d[1] + size + 18))
+                self.window.blit(text_surface, text_rect)
+
+        # Draw obstacles with enhanced pulsing effect
         for pos in self.env.obstacle_positions:
             obstacle_pos_2d = to_screen(pos)
-            pulse = int(7 + 2 * math.sin(self.env.steps_count * 0.1))
+            pulse = int(8 + 3 * math.sin(self.env.steps_count * 0.1))
             gfxdraw.filled_circle(
-                self.window, obstacle_pos_2d[0], obstacle_pos_2d[1], pulse, (200, 50, 50)
+                self.window, obstacle_pos_2d[0], obstacle_pos_2d[1], pulse, (220, 50, 50)
             )
-            # Add danger glow
-            gfxdraw.aacircle(
-                self.window, obstacle_pos_2d[0], obstacle_pos_2d[1], pulse + 3, (255, 100, 100)
-            )
+            # Enhanced danger glow
+            for i in range(3):
+                gfxdraw.aacircle(
+                    self.window, obstacle_pos_2d[0], obstacle_pos_2d[1], 
+                    pulse + 2 + i * 2, (255, 100, 100, 100 - i * 30)
+                )
 
-        # Draw agent
+        # Draw agent with FIXED GREEN color
         agent_pos_2d = to_screen(self.env.agent_position)
 
-        # Draw agent body - change color based on state
-        agent_color = (50, 200, 50)  # Default green
-        if hasattr(self.env, "mining_asteroid_id"):
-            agent_color = (255, 165, 0)  # Orange when mining
-        elif self.env.agent_inventory > 0:
-            agent_color = (255, 255, 0)  # Yellow when carrying resources
+        # Always green agent (no color changes for state)
+        agent_color = (50, 255, 50)  # Bright green
+        
+        # Add energy warning halo if low energy
+        if self.env.agent_energy < 30:
+            warning_intensity = int(100 * (1 - self.env.agent_energy / 30.0))
+            warning_pulse = math.sin(self.env.steps_count * 0.3) * 0.5 + 0.5
+            for i in range(3):
+                gfxdraw.aacircle(
+                    self.window,
+                    agent_pos_2d[0],
+                    agent_pos_2d[1],
+                    14 + i * 3,
+                    (255, 0, 0, int(warning_intensity * warning_pulse) - i * 20)
+                )
 
         gfxdraw.filled_circle(
             self.window,
@@ -174,7 +204,7 @@ class Renderer:
             agent_color,
         )
 
-        # Draw white outline
+        # Draw white outline for visibility
         gfxdraw.aacircle(
             self.window,
             agent_pos_2d[0],
@@ -183,19 +213,20 @@ class Renderer:
             (255, 255, 255),
         )
 
-        # Draw animated mining beam
+        # Draw enhanced animated mining beam
         if hasattr(self.env, "mining_asteroid_id"):
             asteroid_pos_2d = to_screen(
                 self.env.asteroid_positions[self.env.mining_asteroid_id]
             )
             
-            # Draw animated dashed mining beam
+            # Enhanced pulsing mining beam
             beam_length = math.sqrt((asteroid_pos_2d[0] - agent_pos_2d[0])**2 + (asteroid_pos_2d[1] - agent_pos_2d[1])**2)
-            num_segments = int(beam_length / 8)
+            num_segments = int(beam_length / 6)
+            beam_intensity = math.sin(self.env.steps_count * 0.4) * 0.3 + 0.7
             
             for i in range(num_segments):
                 t1 = (i + self.env.mining_beam_offset % 1) / num_segments
-                t2 = (i + 0.5 + self.env.mining_beam_offset % 1) / num_segments
+                t2 = (i + 0.4 + self.env.mining_beam_offset % 1) / num_segments
                 
                 if t1 <= 1.0 and t2 <= 1.0:
                     x1 = int(agent_pos_2d[0] + t1 * (asteroid_pos_2d[0] - agent_pos_2d[0]))
@@ -203,168 +234,194 @@ class Renderer:
                     x2 = int(agent_pos_2d[0] + t2 * (asteroid_pos_2d[0] - agent_pos_2d[0]))
                     y2 = int(agent_pos_2d[1] + t2 * (asteroid_pos_2d[1] - agent_pos_2d[1]))
                     
-                    # Alternate colors for energy effect
-                    color = (255, 255, 0) if i % 2 == 0 else (255, 200, 0)
-                    pygame.draw.line(self.window, color, (x1, y1), (x2, y2), 4)
+                    # Enhanced beam colors with intensity variation
+                    if i % 2 == 0:
+                        color = (255, int(255 * beam_intensity), 0)
+                    else:
+                        color = (255, int(200 * beam_intensity), 50)
+                    pygame.draw.line(self.window, color, (x1, y1), (x2, y2), 5)
 
-        # Draw inventory indicator
+        # Draw inventory indicator (size changes, not color)
         if self.env.agent_inventory > 0:
+            inventory_size = int(4 + self.env.agent_inventory / 8)
             gfxdraw.filled_circle(
                 self.window,
                 agent_pos_2d[0],
                 agent_pos_2d[1],
-                int(6 + self.env.agent_inventory / 8),
-                (200, 200, 0),
+                inventory_size,
+                (255, 215, 0),  # Same yellow as asteroids
             )
 
-        # Draw energy bar with better styling
+        # Enhanced energy bar
         energy_ratio = self.env.agent_energy / 150.0
-        energy_width = int(50 * energy_ratio)
-        bar_x = agent_pos_2d[0] - 25
-        bar_y = agent_pos_2d[1] - 25
+        energy_width = int(60 * energy_ratio)
+        bar_x = agent_pos_2d[0] - 30
+        bar_y = agent_pos_2d[1] - 28
         
-        # Background
-        pygame.draw.rect(self.window, (40, 40, 40), (bar_x, bar_y, 50, 6))
-        # Energy bar with color based on level
+        # Background with border
+        pygame.draw.rect(self.window, (20, 20, 20), (bar_x - 2, bar_y - 2, 64, 10))
+        pygame.draw.rect(self.window, (60, 60, 60), (bar_x, bar_y, 60, 6))
+        
+        # Energy bar with enhanced colors
         if energy_ratio > 0.6:
             energy_color = (0, 255, 0)
         elif energy_ratio > 0.3:
             energy_color = (255, 255, 0)
         else:
-            energy_color = (255, 0, 0)
+            energy_color = (255, 50, 50)
         pygame.draw.rect(self.window, energy_color, (bar_x, bar_y, energy_width, 6))
 
-        # Draw observation and mining ranges with better styling
+        # Draw observation and mining ranges
+        obs_radius_px = int(self.env.observation_radius * 8.0)
+        mining_radius_px = int(self.env.mining_range * 8.0)
+        
         gfxdraw.aacircle(
             self.window,
             agent_pos_2d[0],
             agent_pos_2d[1],
-            int(self.env.observation_radius * 8.0),
-            (100, 100, 255),
+            obs_radius_px,
+            (100, 150, 255),
         )
         gfxdraw.aacircle(
             self.window,
             agent_pos_2d[0],
             agent_pos_2d[1],
-            int(self.env.mining_range * 8.0),
+            mining_radius_px,
             (255, 100, 100),
         )
 
         # Draw delivery particles
         for particle in self.env.delivery_particles:
             progress = particle["progress"]
-            # Interpolate position
             current_pos = (
                 particle["start_pos"] + progress * (particle["target_pos"] - particle["start_pos"])
             )
             particle_pos_2d = to_screen(current_pos)
             
-            # Fade out as particles get closer to target
             alpha = int(255 * (1 - progress * 0.7))
             if alpha > 0:
-                # Create glowing particle effect
-                particle_surface = pygame.Surface((12, 12), pygame.SRCALPHA)
+                particle_surface = pygame.Surface((14, 14), pygame.SRCALPHA)
                 glow_color = (255, 255, 0, alpha)
-                gfxdraw.filled_circle(particle_surface, 6, 6, 4, glow_color)
-                gfxdraw.filled_circle(particle_surface, 6, 6, 2, (255, 255, 255, alpha))
-                self.window.blit(particle_surface, (particle_pos_2d[0] - 6, particle_pos_2d[1] - 6))
+                gfxdraw.filled_circle(particle_surface, 7, 7, 5, glow_color)
+                gfxdraw.filled_circle(particle_surface, 7, 7, 3, (255, 255, 255, alpha))
+                self.window.blit(particle_surface, (particle_pos_2d[0] - 7, particle_pos_2d[1] - 7))
 
-        # Draw score popups
+        # Draw score popups with enhanced styling
         for popup in self.env.score_popups:
             popup_pos_2d = to_screen(popup["pos"])
             alpha = max(0, min(255, popup["alpha"]))
             if alpha > 0:
-                # Create text surface with alpha
-                text_surface = self.font.render(popup["text"], True, popup["color"])
+                font_size = 18 if popup["alpha"] > 200 else 16
+                popup_font = pygame.font.SysFont("Arial", font_size, bold=True)
+                text_surface = popup_font.render(popup["text"], True, popup["color"])
                 text_surface.set_alpha(alpha)
+                
+                # Add shadow effect
+                shadow_surface = popup_font.render(popup["text"], True, (0, 0, 0))
+                shadow_surface.set_alpha(alpha // 2)
+                self.window.blit(shadow_surface, (popup_pos_2d[0] - 18, popup_pos_2d[1] - 8))
                 self.window.blit(text_surface, (popup_pos_2d[0] - 20, popup_pos_2d[1] - 10))
 
-        # Draw collision flash overlay
+        # OBSERVATION RANGE DIMMING EFFECT
+        overlay = pygame.Surface((800, 800), pygame.SRCALPHA)
+        overlay.fill((0, 0, 0, 120))  # Semi-transparent black
+        
+        # Create a "visible" hole for observation range
+        pygame.draw.circle(overlay, (0, 0, 0, 0), agent_pos_2d, obs_radius_px)
+        
+        # Apply the dimming overlay
+        self.window.blit(overlay, (0, 0))
+
+        # Draw collision flash overlay (after dimming so it's always visible)
         if self.env.collision_flash_timer > 0:
-            flash_alpha = int(180 * (self.env.collision_flash_timer / 0.3))
+            flash_alpha = int(200 * (self.env.collision_flash_timer / 0.3))
             flash_surface = pygame.Surface((800, 800), pygame.SRCALPHA)
             flash_surface.fill((255, 0, 0, flash_alpha))
             self.window.blit(flash_surface, (0, 0))
 
-        # Display status info on top-left with better styling
+        # Enhanced status panel with better layout
         cumulative_mining = getattr(self.env, "cumulative_mining_amount", 0.0)
+        
+        # Agent state indicator
+        state_indicator = "🔍 EXPLORING"
+        if hasattr(self.env, "mining_asteroid_id"):
+            state_indicator = f"🔨 MINING Asteroid {self.env.mining_asteroid_id}"
+        elif self.env.agent_inventory > 0:
+            state_indicator = f"📦 CARRYING {self.env.agent_inventory:.1f} resources"
+        
         status_text = [
-            f"Energy: {self.env.agent_energy:.0f}/150",
+            f"Energy: {self.env.agent_energy:.0f}/150 {'⚠️' if self.env.agent_energy < 30 else '⚡'}",
             f"Inventory: {self.env.agent_inventory:.0f}/{self.env.max_inventory}",
             f"Total Mined: {cumulative_mining:.1f}",
-            f"Collisions: {self.env.collision_count}",
+            f"Collisions: {self.env.collision_count} {'💥' if hasattr(self.env, 'last_collision_step') and self.env.last_collision_step == self.env.steps_count else ''}",
             f"Step: {self.env.steps_count}/{self.env.max_episode_steps}",
-            (
-                "Asteroids: "
-                f"{np.sum(self.env.asteroid_resources >= 0.1)}/"
-                f"{len(self.env.asteroid_positions)}"
-            ),
+            f"Asteroids: {np.sum(self.env.asteroid_resources >= 0.1)}/{len(self.env.asteroid_positions)}",
+            "",
+            state_indicator
         ]
 
-        if hasattr(self.env, "mining_asteroid_id"):
-            status_text.append(f"🔨 MINING: Asteroid {self.env.mining_asteroid_id}")
-        elif self.env.agent_inventory > 0:
-            status_text.append("📦 CARRYING RESOURCES")
-        else:
-            status_text.append("🔍 EXPLORING")
-
-        if (
-            hasattr(self.env, "last_mining_info")
-            and self.env.last_mining_info.get("step", 0) == self.env.steps_count
-        ):
-            status_text.append(
-                f"⛏️ MINED: {self.env.last_mining_info['extracted']:.1f} from Asteroid {self.env.last_mining_info['asteroid_id']}"
-            )
+        # Add recent events
+        if (hasattr(self.env, "last_mining_info") and self.env.last_mining_info.get("step", 0) == self.env.steps_count):
+            extracted = self.env.last_mining_info['extracted']
+            status_text.append(f"⛏️ Mined {extracted:.1f} resources!")
             if self.env.last_mining_info.get("asteroid_depleted", False):
-                status_text.append("💀 ASTEROID DEPLETED!")
+                status_text.append("💀 Asteroid depleted!")
 
-        if (
-            hasattr(self.env, "last_delivery_info")
-            and self.env.last_delivery_info.get("step", 0) == self.env.steps_count
-        ):
-            status_text.append(f"🚀 DELIVERED: {self.env.last_delivery_info['delivered']:.1f} resources")
-            status_text.append("⚡ FULLY RECHARGED!")
-
-        if (
-            hasattr(self.env, "last_collision_step")
-            and self.env.last_collision_step == self.env.steps_count
-        ):
-            status_text.append("💥 COLLISION DETECTED!")
+        if (hasattr(self.env, "last_delivery_info") and self.env.last_delivery_info.get("step", 0) == self.env.steps_count):
+            delivered = self.env.last_delivery_info['delivered']
+            status_text.append(f"🚀 Delivered {delivered:.1f} resources!")
+            status_text.append("⚡ Fully recharged!")
 
         if hasattr(self.env, "tried_depleted_asteroid") and self.env.tried_depleted_asteroid:
-            status_text.append("⚠️ TRIED TO MINE DEPLETED ASTEROID!")
+            status_text.append("⚠️ Tried mining depleted asteroid!")
 
-        # Render status text with background
-        status_bg = pygame.Surface((300, len(status_text) * 22 + 10), pygame.SRCALPHA)
-        status_bg.fill((0, 0, 0, 180))
-        self.window.blit(status_bg, (5, 5))
+        # Enhanced status panel with better background
+        panel_height = len(status_text) * 24 + 20
+        status_bg = pygame.Surface((350, panel_height), pygame.SRCALPHA)
+        status_bg.fill((0, 0, 0, 200))
+        pygame.draw.rect(status_bg, (50, 50, 50, 100), (0, 0, 350, panel_height), 2)
+        self.window.blit(status_bg, (10, 10))
         
         for i, text in enumerate(status_text):
-            rendered_text = self.font.render(text, True, (255, 255, 255))
-            self.window.blit(rendered_text, (10, 10 + i * 22))
+            color = (255, 255, 255) if text != "" else (200, 200, 200)
+            if "⚠️" in text or "💥" in text:
+                color = (255, 200, 200)
+            elif "✅" in text or "🚀" in text or "⚡" in text:
+                color = (200, 255, 200)
+            
+            rendered_text = self.font.render(text, True, color)
+            self.window.blit(rendered_text, (20, 20 + i * 24))
 
-        # Enhanced Legend with better positioning and styling
+        # Enhanced legend with horizontal layout optimization
         legend_text = [
-            "LEGEND:",
-            "🤖 Green Circle = Agent",
-            "🏭 Blue Circle = Mothership", 
-            "☄️ Red Circles = Obstacles",
-            "🌕 Yellow Circles = Asteroids",
-            "💀 Gray X = Depleted Asteroids",
+            "🎮 GAME LEGEND",
+            "",
+            "🤖 Green Circle = Mining Agent (always green)",
+            "🏭 Blue Circle = Mothership (recharge & delivery)",
+            "🌕 Yellow Circles = Asteroids (size = resources)",
+            "💀 Gray Circle + X = Depleted Asteroids",
+            "☄️ Red Pulsing = Moving Obstacles (danger!)",
+            "",
             "🔵 Blue Ring = Observation Range",
-            "🔴 Red Ring = Mining Range",
-            "⚡ Yellow Beam = Mining Energy",
-            "✨ Yellow Dots = Resource Delivery"
+            "🔴 Red Ring = Mining Range", 
+            "⚡ Yellow Beam = Active Mining Energy",
+            "✨ Yellow Dots = Resource Delivery",
+            "🌑 Dim Area = Outside Observation Range"
         ]
         
-        legend_bg = pygame.Surface((280, len(legend_text) * 20 + 10), pygame.SRCALPHA)
-        legend_bg.fill((0, 0, 0, 180))
-        self.window.blit(legend_bg, (515, 580))
+        legend_height = len(legend_text) * 22 + 20
+        legend_bg = pygame.Surface((400, legend_height), pygame.SRCALPHA)
+        legend_bg.fill((0, 0, 0, 200))
+        pygame.draw.rect(legend_bg, (50, 50, 50, 100), (0, 0, 400, legend_height), 2)
+        self.window.blit(legend_bg, (390, 580 - legend_height))
         
         for i, text in enumerate(legend_text):
-            color = (255, 255, 255) if i == 0 else (200, 200, 200)
-            rendered_text = self.font.render(text, True, color)
-            self.window.blit(rendered_text, (520, 585 + i * 20))
+            if text == "":
+                continue
+            color = (255, 255, 100) if i == 0 else (220, 220, 220)
+            font_to_use = pygame.font.SysFont("Arial", 14, bold=(i == 0))
+            rendered_text = font_to_use.render(text, True, color)
+            self.window.blit(rendered_text, (400, 590 - legend_height + i * 22))
 
         # Update display / timing
         if self.env.render_mode == "human":
