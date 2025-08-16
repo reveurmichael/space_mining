@@ -22,19 +22,9 @@ def test_renderer_cosmic_background():
     env = make_env(render_mode="rgb_array")
     renderer = env.unwrapped.renderer
     
-    # Check cosmic background elements are initialized
+    # Check starfield is initialized
     assert hasattr(renderer, 'starfield_layers')
-    assert hasattr(renderer, 'nebula_clouds')
-    assert hasattr(renderer, 'distant_galaxies')
-    assert hasattr(renderer, 'space_dust')
-    assert hasattr(renderer, 'cosmic_auroras')
-    
-    # Check they contain elements
     assert len(renderer.starfield_layers) > 0
-    assert len(renderer.nebula_clouds) > 0
-    assert len(renderer.distant_galaxies) > 0
-    assert len(renderer.space_dust) > 0
-    assert len(renderer.cosmic_auroras) > 0
     
     env.close()
 

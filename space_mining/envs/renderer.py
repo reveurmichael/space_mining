@@ -120,67 +120,6 @@ class Renderer:
                 elif star["y"] > 1090: 
                     star["y"] = -10
         
-        # Update nebula clouds with gentle movement
-        for nebula in self.nebula_clouds:
-            nebula["x"] -= movement[0] * nebula["speed"] * self.env.zoom_level
-            nebula["y"] -= movement[1] * nebula["speed"] * self.env.zoom_level
-            
-            # Wrap around screen
-            size = nebula["size"]
-            if nebula["x"] < -size:
-                nebula["x"] = 1920 + size
-            elif nebula["x"] > 1920 + size:
-                nebula["x"] = -size
-            if nebula["y"] < -size:
-                nebula["y"] = 1080 + size
-            elif nebula["y"] > 1080 + size:
-                nebula["y"] = -size
-        
-        # Update galaxies with subtle rotation and movement
-        for galaxy in self.distant_galaxies:
-            galaxy["rotation"] += galaxy["rotation_speed"]
-            galaxy["x"] -= movement[0] * galaxy["speed"] * 0.5
-            galaxy["y"] -= movement[1] * galaxy["speed"] * 0.5
-            
-            # Wrap around screen
-            if galaxy["x"] < -galaxy["size"]:
-                galaxy["x"] = 1920 + galaxy["size"]
-            elif galaxy["x"] > 1920 + galaxy["size"]:
-                galaxy["x"] = -galaxy["size"]
-            if galaxy["y"] < -galaxy["size"]:
-                galaxy["y"] = 1080 + galaxy["size"]
-            elif galaxy["y"] > 1080 + galaxy["size"]:
-                galaxy["y"] = -galaxy["size"]
-        
-        # Update atmospheric dust
-        for dust in self.space_dust:
-            dust["x"] += dust["drift_x"]
-            dust["y"] += dust["drift_y"]
-            
-            # Wrap around screen
-            if dust["x"] < 0: 
-                dust["x"] = 1920
-            elif dust["x"] > 1920: 
-                dust["x"] = 0
-            if dust["y"] < 0: 
-                dust["y"] = 1080
-            elif dust["y"] > 1080: 
-                dust["y"] = 0
-        
-        # Update aurora movement
-        for aurora in self.cosmic_auroras:
-            aurora["wave_offset"] += aurora["wave_speed"]
-            
-            # Wrap around screen
-            width, height = aurora["width"], aurora["height"]
-            if aurora["x"] < -width:
-                aurora["x"] = 1920 + width
-            elif aurora["x"] > 1920 + width:
-                aurora["x"] = -width
-            if aurora["y"] < -height:
-                aurora["y"] = 1080 + height
-            elif aurora["y"] > 1080 + height:
-                aurora["y"] = -height
 
     def render(self) -> Optional[np.ndarray]:
         """Render the current state of the environment."""
@@ -1046,41 +985,7 @@ class Renderer:
         # Perfect zoom bounds for cosmic viewing
         self.env.zoom_level = max(0.8, min(1.3, self.env.zoom_level))
 
-    def update_event_timeline(self) -> None:
-        """Update event timeline animations."""
-        # Age all events and remove expired ones
-        for event in self.env.event_timeline[:]:  # Copy list to avoid modification during iteration
-            age = self.env.steps_count - event["step"]
-            if age > event["lifetime"]:
-                self.env.event_timeline.remove(event)
-            else:
-                # Fade out over last 60 steps
-                fade_start = event["lifetime"] - 60
-                if age > fade_start:
-                    fade_progress = (age - fade_start) / 60.0
-                    event["alpha"] = int(255 * (1 - fade_progress))
-                else:
-                    event["alpha"] = 255
 
-    def update_combo_system(self) -> None:
-        """Update combo display animations."""
-        # Fade out combo display
-        if self.env.combo_state["display_timer"] > 0:
-            self.env.combo_state["display_timer"] -= 1
-            
-            # Pulsing effect
-            import math
-            pulse = abs(math.sin(self.env.steps_count * 0.3)) * 0.3 + 0.7
-            self.env.combo_state["combo_alpha"] = int(255 * pulse)
-            
-            if self.env.combo_state["display_timer"] <= 0:
-                self.env.combo_state["combo_alpha"] = 0
-        
-        # Reset combo if too much time has passed
-        if (self.env.steps_count - self.env.combo_state["last_mining_step"]) > self.env.combo_state["combo_window"]:
-            if self.env.combo_state["chain_count"] > 0:
-                self.env.combo_state["chain_count"] = 0
-                self.env.combo_state["display_timer"] = 0
 
     def spawn_delivery_particles(self, start_pos: np.ndarray, target_pos: np.ndarray) -> None:
         """Spawn glowing particles for resource delivery animation."""
