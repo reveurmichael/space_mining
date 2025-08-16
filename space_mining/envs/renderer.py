@@ -32,111 +32,59 @@ class Renderer:
         
         self.cosmic_time = 0.0
         
-        # Create perfect starfield distribution (small stars only)
+        # Only starfield (small stars 1–5 px) with varied slow speeds
         self.starfield_layers = []
         
-        # Layer 1: Distant stars (very slow drift, tiny points)
+        # Layer 1: very slow, tiniest stars
         layer1_stars = []
-        for _ in range(220):
-            star = {
+        for _ in range(320):
+            layer1_stars.append({
                 "x": np.random.uniform(0, 1920),
                 "y": np.random.uniform(0, 1080),
-                "size": 1,
-                "brightness": np.random.randint(15, 50),
-                # Parallax factor base
+                "size": np.random.choice([1, 2], p=[0.9, 0.1]),
+                "brightness": np.random.randint(15, 55),
                 "speed": np.random.uniform(0.003, 0.010),
-                # Independent subtle drift so stars move even if agent is still
                 "drift_x": np.random.uniform(-0.02, 0.02),
                 "drift_y": np.random.uniform(-0.02, 0.02),
                 "color_type": np.random.choice(["white", "blue", "yellow"], p=[0.85, 0.1, 0.05])
-            }
-            layer1_stars.append(star)
+            })
         self.starfield_layers.append(layer1_stars)
         
-        # Layer 2: Closer stars (slow drift, still small points)
+        # Layer 2: slow, small stars
         layer2_stars = []
-        for _ in range(110):
-            star = {
+        for _ in range(240):
+            layer2_stars.append({
                 "x": np.random.uniform(0, 1920),
                 "y": np.random.uniform(0, 1080),
-                "size": np.random.choice([1, 2], p=[0.85, 0.15]),
-                "brightness": np.random.randint(25, 70),
-                # Slightly stronger parallax factor base
-                "speed": np.random.uniform(0.008, 0.016),
-                # Slightly stronger drift for nearer stars
+                "size": np.random.choice([1, 2, 3], p=[0.6, 0.3, 0.1]),
+                "brightness": np.random.randint(25, 80),
+                "speed": np.random.uniform(0.010, 0.025),
                 "drift_x": np.random.uniform(-0.03, 0.03),
                 "drift_y": np.random.uniform(-0.03, 0.03),
                 "color_type": np.random.choice(["white", "blue", "yellow"], p=[0.8, 0.15, 0.05])
-            }
-            layer2_stars.append(star)
+            })
         self.starfield_layers.append(layer2_stars)
         
-        # Create elegant nebula formations
-        self.nebula_clouds = []
-        for _ in range(3):  # Perfect visual balance
-            nebula = {
-                "x": np.random.uniform(-300, 2220),
-                "y": np.random.uniform(-300, 1380),
-                "size": np.random.uniform(500, 900),  # Larger for impact
-                "inner_size": np.random.uniform(120, 280),
-                "color": [
-                    (50, 25, 100, 22),   # Deep cosmic purple
-                    (25, 50, 100, 20),   # Deep space blue  
-                    (100, 25, 70, 24),   # Cosmic magenta
-                ][np.random.randint(0, 3)],
-                "speed": np.random.uniform(0.003, 0.015),
-                "rotation": np.random.uniform(0, 2 * math.pi),
-                "rotation_speed": np.random.uniform(-0.00005, 0.00005)  # Very slow rotation
-            }
-            self.nebula_clouds.append(nebula)
-        
-        # Create distant galaxies for universe scale
-        self.distant_galaxies = []
-        for _ in range(2):  # Perfect cosmic scale
-            galaxy = {
-                "x": np.random.uniform(400, 1520),
-                "y": np.random.uniform(400, 680),
-                "size": np.random.uniform(200, 400),  # Larger for visibility
-                "arms": np.random.randint(3, 5),
-                "core_brightness": np.random.randint(35, 65),
-                "arm_brightness": np.random.randint(15, 40),
-                "rotation": np.random.uniform(0, 2 * math.pi),
-                "rotation_speed": np.random.uniform(-0.00006, 0.00006),
-                "speed": np.random.uniform(0.008, 0.02)
-            }
-            self.distant_galaxies.append(galaxy)
-        
-        # Create subtle atmospheric dust
-        self.space_dust = []
-        for _ in range(100):  # Clean atmospheric effect
-            dust = {
+        # Layer 3: a bit faster, still small (up to 5 px)
+        layer3_stars = []
+        for _ in range(160):
+            layer3_stars.append({
                 "x": np.random.uniform(0, 1920),
                 "y": np.random.uniform(0, 1080),
-                "size": np.random.uniform(0.5, 1.3),
-                "brightness": np.random.randint(8, 25),
-                "speed": np.random.uniform(0.04, 0.12),
-                "drift_x": np.random.uniform(-0.02, 0.02),
-                "drift_y": np.random.uniform(-0.02, 0.02)
-            }
-            self.space_dust.append(dust)
+                "size": np.random.choice([2, 3, 4, 5], p=[0.5, 0.3, 0.15, 0.05]),
+                "brightness": np.random.randint(35, 110),
+                "speed": np.random.uniform(0.020, 0.050),
+                "drift_x": np.random.uniform(-0.05, 0.05),
+                "drift_y": np.random.uniform(-0.05, 0.05),
+                "color_type": np.random.choice(["white", "blue", "yellow"], p=[0.75, 0.2, 0.05])
+            })
+        self.starfield_layers.append(layer3_stars)
         
-        # Create one elegant aurora for cosmic magic
+        # Remove other cosmic elements per request
+        self.nebula_clouds = []
+        self.distant_galaxies = []
+        self.space_dust = []
         self.cosmic_auroras = []
-        aurora = {
-            "x": np.random.uniform(-200, 2120),
-            "y": np.random.uniform(-200, 1280),
-            "width": np.random.uniform(400, 800),  # Larger for majesty
-            "height": np.random.uniform(600, 1000),
-            "intensity": np.random.uniform(0.08, 0.2),  # Very subtle
-            "color": [
-                (0, 120, 50, 10),    # Gentle green
-                (50, 90, 120, 8),    # Soft blue
-                (120, 50, 90, 12),   # Soft pink
-            ][np.random.randint(0, 3)],
-            "wave_offset": np.random.uniform(0, 2 * math.pi),
-            "wave_speed": np.random.uniform(0.003, 0.008)  # Very gentle
-        }
-        self.cosmic_auroras.append(aurora)
 
     def _update_cosmic_background(self) -> None:
         """Update cosmic background elements with optimized parallax for 1920x1080."""
@@ -280,12 +228,8 @@ class Renderer:
         # Perfect cosmic void - maximum atmospheric depth
         self.window.fill((0, 0, 3))  # Pure deep space
 
-        # Draw cosmic elements in perfect order for maximum beauty
-        self._draw_starfield()      # Foundation stars for depth
-        self._draw_nebulae()        # Atmospheric cosmic gas  
-        self._draw_galaxies()       # Universe scale formations
-        self._draw_space_dust()     # Subtle atmospheric particles
-        self._draw_auroras()        # Cosmic energy magic
+        # Draw starfield only
+        self._draw_starfield()
 
         # Perfect coordinate transformation for 1920x1080 cosmic immersion  
         def to_screen(pos, scale=10.0):  # Perfect scale for cosmic viewing
@@ -646,141 +590,13 @@ class Renderer:
                         glow = (*[c//4 for c in color], 35)
                         gfxdraw.filled_circle(self.window, x, y, size, glow)
 
-    def _draw_nebulae(self) -> None:
-        """Draw elegant cosmic nebula formations."""
-        try:
-            import pygame
-            from pygame import gfxdraw
-        except ImportError:
-            return
-            
-        for nebula in self.nebula_clouds:
-            if not (-500 <= nebula["x"] <= 2420 and -500 <= nebula["y"] <= 1580):
-                continue
-                
-            size = int(nebula["size"])
-            surface = pygame.Surface((size * 2, size * 2), pygame.SRCALPHA)
-            center = size
-            
-            # Perfect gradient layers
-            for i in range(0, size, max(1, size//8)):
-                radius = size - i
-                if radius > 0:
-                    alpha = int(nebula["color"][3] * (radius / size) * 0.25)
-                    if alpha > 1:
-                        color = (*nebula["color"][:3], alpha)
-                        gfxdraw.filled_circle(surface, center, center, radius, color)
-            
-            # Bright core
-            inner = int(nebula["inner_size"])
-            if inner > 0:
-                core_color = (*nebula["color"][:3], int(nebula["color"][3] * 0.4))
-                gfxdraw.filled_circle(surface, center, center, inner, core_color)
-            
-            # Perfect blending
-            rect = surface.get_rect(center=(int(nebula["x"]), int(nebula["y"])))
-            self.window.blit(surface, rect, special_flags=pygame.BLEND_ADD)
+    # Nebula drawing intentionally removed (scope simplified to starfield)
 
-    def _draw_galaxies(self) -> None:
-        """Draw majestic spiral galaxies."""
-        try:
-            import pygame
-            from pygame import gfxdraw
-            import math
-        except ImportError:
-            return
-            
-        for galaxy in self.distant_galaxies:
-            if not (0 <= galaxy["x"] <= 1920 and 0 <= galaxy["y"] <= 1080):
-                continue
-                
-            core_x, core_y = int(galaxy["x"]), int(galaxy["y"])
-            
-            # Bright galaxy core
-            core_size = max(3, int(galaxy["size"] * 0.1))
-            core_color = (galaxy["core_brightness"], galaxy["core_brightness"], galaxy["core_brightness"])
-            gfxdraw.filled_circle(self.window, core_x, core_y, core_size, core_color)
-            
-            # Beautiful spiral arms
-            for arm in range(galaxy["arms"]):
-                arm_angle = galaxy["rotation"] + (arm * 2 * math.pi / galaxy["arms"])
-                
-                for distance in range(core_size * 4, int(galaxy["size"]), 12):
-                    spiral_angle = arm_angle + distance * 0.01
-                    x_offset = distance * math.cos(spiral_angle)
-                    y_offset = distance * math.sin(spiral_angle)
-                    
-                    arm_x = core_x + int(x_offset)
-                    arm_y = core_y + int(y_offset)
-                    
-                    if 0 <= arm_x < 1920 and 0 <= arm_y < 1080:
-                        fade = max(0.1, 1 - distance / galaxy["size"])
-                        brightness = int(galaxy["arm_brightness"] * fade)
-                        if brightness > 2:
-                            color = (brightness, brightness, brightness + 2)
-                            gfxdraw.pixel(self.window, arm_x, arm_y, color)
+    # Galaxy drawing intentionally removed (scope simplified to starfield)
 
-    def _draw_space_dust(self) -> None:
-        """Draw subtle atmospheric dust."""
-        try:
-            import pygame
-            from pygame import gfxdraw
-        except ImportError:
-            return
-            
-        for dust in self.space_dust:
-            if not (0 <= dust["x"] <= 1920 and 0 <= dust["y"] <= 1080):
-                continue
-                
-            x, y = int(dust["x"]), int(dust["y"])
-            brightness = dust["brightness"]
-            size = max(1, int(dust["size"]))
-            
-            color = (brightness, brightness, brightness + 1)
-            
-            if size == 1:
-                gfxdraw.pixel(self.window, x, y, color)
-            else:
-                gfxdraw.filled_circle(self.window, x, y, size, color)
+    # Space dust drawing intentionally removed (scope simplified to starfield)
 
-    def _draw_auroras(self) -> None:
-        """Draw elegant cosmic aurora."""
-        try:
-            import pygame
-            import math
-        except ImportError:
-            return
-            
-        for aurora in self.cosmic_auroras:
-            if not (-600 <= aurora["x"] <= 2520 and -600 <= aurora["y"] <= 1680):
-                continue
-                
-            width, height = int(aurora["width"]), int(aurora["height"])
-            surface = pygame.Surface((width, height), pygame.SRCALPHA)
-            
-            # Simple elegant bands
-            bands = 3
-            for band in range(bands):
-                band_x = int((band / bands) * width)
-                band_width = max(1, width // bands)
-                
-                wave_offset = math.sin(aurora["wave_offset"] + band * 0.4) * 8
-                
-                for y in range(height):
-                    wave_x = band_x + int(wave_offset * math.sin(y * 0.008))
-                    intensity = aurora["intensity"] * math.sin(y / height * math.pi) * 0.6
-                    alpha = int(aurora["color"][3] * intensity)
-                    
-                    if alpha > 0 and 0 <= wave_x < width:
-                        color = (*aurora["color"][:3], alpha)
-                        for dx in range(band_width):
-                            if wave_x + dx < width:
-                                try:
-                                    surface.set_at((wave_x + dx, y), color)
-                                except IndexError:
-                                    continue
-            
-            self.window.blit(surface, (int(aurora["x"]), int(aurora["y"])), special_flags=pygame.BLEND_ADD)
+    # Aurora drawing intentionally removed (scope simplified to starfield)
 
 
 
