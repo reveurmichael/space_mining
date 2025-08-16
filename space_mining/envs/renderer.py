@@ -524,7 +524,7 @@ class Renderer:
 
         # OBSERVATION RANGE DIMMING EFFECT
         overlay = pygame.Surface((1920, 1200), pygame.SRCALPHA)
-        overlay.fill((0, 0, 0, 80))  # Even less dimming for spectacular cosmic view
+        overlay.fill((0, 0, 0, 128))  # 50% darkness outside observation circle
         
         # Create a "visible" hole for observation range
         pygame.draw.circle(overlay, (0, 0, 0, 0), agent_pos_2d, obs_radius_px)
@@ -960,43 +960,6 @@ class Renderer:
             pygame.draw.rect(surface, color, (x+3, y+3, 14, 14))
             gfxdraw.filled_circle(surface, x+10, y+10, 5, (0, 0, 0, 0))
 
-    def _draw_timeline_icon(self, surface, event_type, x, y) -> None:
-        """Draw small icons for timeline events."""
-        try:
-            import pygame
-            from pygame import gfxdraw
-        except ImportError:
-            return
-
-        if event_type == "mining":
-            # Small pickaxe
-            color = (255, 255, 0)
-            pygame.draw.line(surface, color, (x+2, y+15), (x+14, y+3), 2)
-            pygame.draw.rect(surface, color, (x+11, y+1, 4, 3))
-            
-        elif event_type == "delivery":
-            # Small arrow pointing up
-            color = (0, 255, 0)
-            points = [(x+8, y+2), (x+12, y+8), (x+10, y+8), (x+10, y+16), (x+6, y+16), (x+6, y+8), (x+4, y+8)]
-            pygame.draw.polygon(surface, color, points)
-            
-        elif event_type == "collision":
-            # Warning symbol
-            color = (255, 100, 100)
-            gfxdraw.filled_circle(surface, x+8, y+10, 7, color)
-            font = pygame.font.SysFont("Arial", 10, bold=True)
-            text = font.render("!", True, (0, 0, 0))
-            surface.blit(text, (x+5, y+4))
-            
-        elif event_type == "combo":
-            # Star/burst symbol
-            color = (255, 200, 0)
-            center_x, center_y = x+8, y+10
-            for i in range(8):
-                angle = i * 45 * 3.14159 / 180
-                end_x = center_x + 6 * math.cos(angle)
-                end_y = center_y + 6 * math.sin(angle)
-                pygame.draw.line(surface, color, (center_x, center_y), (end_x, end_y), 2)
 
     def _draw_game_over_screen(self) -> None:
         """Draw the game over/success screen with final statistics."""
