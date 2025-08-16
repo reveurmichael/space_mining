@@ -32,50 +32,44 @@ class Renderer:
         
         self.cosmic_time = 0.0
         
-        # Create perfect starfield distribution
+        # Create perfect starfield distribution (small stars only)
         self.starfield_layers = []
         
-        # Layer 1: Distant stars (cosmic depth)
+        # Layer 1: Distant stars (very slow drift, tiny points)
         layer1_stars = []
-        for _ in range(180):  # Optimal count for depth
+        for _ in range(220):
             star = {
                 "x": np.random.uniform(0, 1920),
                 "y": np.random.uniform(0, 1080),
                 "size": 1,
                 "brightness": np.random.randint(15, 50),
-                "speed": 0.01,  # Very slow for distance
+                # Parallax factor base
+                "speed": np.random.uniform(0.003, 0.010),
+                # Independent subtle drift so stars move even if agent is still
+                "drift_x": np.random.uniform(-0.02, 0.02),
+                "drift_y": np.random.uniform(-0.02, 0.02),
                 "color_type": np.random.choice(["white", "blue", "yellow"], p=[0.85, 0.1, 0.05])
             }
             layer1_stars.append(star)
         self.starfield_layers.append(layer1_stars)
         
-        # Layer 2: Medium stars (atmospheric depth)
+        # Layer 2: Closer stars (slow drift, still small points)
         layer2_stars = []
-        for _ in range(90):  # Balanced count
+        for _ in range(110):
             star = {
                 "x": np.random.uniform(0, 1920),
                 "y": np.random.uniform(0, 1080),
-                "size": np.random.choice([1, 2], p=[0.8, 0.2]),
-                "brightness": np.random.randint(30, 80),
-                "speed": 0.06,
-                "color_type": np.random.choice(["white", "blue", "yellow"], p=[0.75, 0.2, 0.05])
+                "size": np.random.choice([1, 2], p=[0.85, 0.15]),
+                "brightness": np.random.randint(25, 70),
+                # Slightly stronger parallax factor base
+                "speed": np.random.uniform(0.008, 0.016),
+                # Slightly stronger drift for nearer stars
+                "drift_x": np.random.uniform(-0.03, 0.03),
+                "drift_y": np.random.uniform(-0.03, 0.03),
+                "color_type": np.random.choice(["white", "blue", "yellow"], p=[0.8, 0.15, 0.05])
             }
             layer2_stars.append(star)
         self.starfield_layers.append(layer2_stars)
-        
-        # Layer 3: Bright stars (cosmic jewels)
-        layer3_stars = []
-        for _ in range(40):  # Select bright focal points
-            star = {
-                "x": np.random.uniform(0, 1920),
-                "y": np.random.uniform(0, 1080),
-                "size": np.random.choice([2, 3], p=[0.7, 0.3]),
-                "brightness": np.random.randint(50, 110),
-                "speed": 0.12,
-                "color_type": np.random.choice(["white", "blue", "yellow"], p=[0.6, 0.3, 0.1])
-            }
-            layer3_stars.append(star)
-        self.starfield_layers.append(layer3_stars)
         
         # Create elegant nebula formations
         self.nebula_clouds = []
@@ -156,13 +150,17 @@ class Renderer:
             movement = self.env.agent_position - self.prev_agent_position
         self.prev_agent_position = self.env.agent_position.copy()
         
-        # Update stars with optimized parallax
+        # Update stars with optimized parallax + independent drift
         for layer_idx, layer in enumerate(self.starfield_layers):
             for star in layer:
-                # Subtle parallax effect based on layer
-                parallax_factor = star["speed"] * self.env.zoom_level * (layer_idx + 1) * 0.5
+                # Subtle parallax based on layer
+                parallax_factor = star.get("speed", 0.006) * self.env.zoom_level * (0.4 + 0.3 * layer_idx)
                 star["x"] -= movement[0] * parallax_factor
                 star["y"] -= movement[1] * parallax_factor
+                
+                # Independent very-slow drift
+                star["x"] += star.get("drift_x", 0.0)
+                star["y"] += star.get("drift_y", 0.0)
                 
                 # Wrap around screen with proper bounds for 1920x1080
                 if star["x"] < -10: 
@@ -178,7 +176,6 @@ class Renderer:
         for nebula in self.nebula_clouds:
             nebula["x"] -= movement[0] * nebula["speed"] * self.env.zoom_level
             nebula["y"] -= movement[1] * nebula["speed"] * self.env.zoom_level
-            nebula["rotation"] += nebula["rotation_speed"]
             
             # Wrap around screen
             size = nebula["size"]
@@ -191,11 +188,11 @@ class Renderer:
             elif nebula["y"] > 1080 + size:
                 nebula["y"] = -size
         
-        # Update distant galaxies with slow drift
+        # Update galaxies with subtle rotation and movement
         for galaxy in self.distant_galaxies:
-            galaxy["x"] -= movement[0] * galaxy["speed"] * self.env.zoom_level * 0.3
-            galaxy["y"] -= movement[1] * galaxy["speed"] * self.env.zoom_level * 0.3
             galaxy["rotation"] += galaxy["rotation_speed"]
+            galaxy["x"] -= movement[0] * galaxy["speed"] * 0.5
+            galaxy["y"] -= movement[1] * galaxy["speed"] * 0.5
             
             # Wrap around screen
             if galaxy["x"] < -galaxy["size"]:
@@ -207,10 +204,8 @@ class Renderer:
             elif galaxy["y"] > 1080 + galaxy["size"]:
                 galaxy["y"] = -galaxy["size"]
         
-        # Update space dust with natural drift
+        # Update atmospheric dust
         for dust in self.space_dust:
-            dust["x"] -= movement[0] * dust["speed"] * self.env.zoom_level * 2
-            dust["y"] -= movement[1] * dust["speed"] * self.env.zoom_level * 2
             dust["x"] += dust["drift_x"]
             dust["y"] += dust["drift_y"]
             
@@ -224,10 +219,8 @@ class Renderer:
             elif dust["y"] > 1080: 
                 dust["y"] = 0
         
-        # Update cosmic auroras with gentle wave motion
+        # Update aurora movement
         for aurora in self.cosmic_auroras:
-            aurora["x"] -= movement[0] * 0.05 * self.env.zoom_level
-            aurora["y"] -= movement[1] * 0.05 * self.env.zoom_level
             aurora["wave_offset"] += aurora["wave_speed"]
             
             # Wrap around screen
