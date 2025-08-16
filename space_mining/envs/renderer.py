@@ -859,12 +859,27 @@ class Renderer:
             }
         ]
 
+        # Score key for left panel (compact, two-column if narrow width is insufficient)
+        score_key_items = [
+            {"label": "+X green", "color": (0, 255, 0)},
+            {"label": "+X yellow", "color": (255, 255, 0)},
+            {"label": "+X blue", "color": (100, 150, 255)},
+            {"label": "-X red", "color": (255, 80, 80)}
+        ]
+
         # Layout: vertical stack on left
         item_width = 220
         item_height = 42
         padding = 12
         panel_width = item_width + padding * 2
-        panel_height = len(status_items) * item_height + 60
+
+        # Calculate height with score key section
+        title_height = 24
+        items_height = len(status_items) * item_height
+        score_gap = 10
+        score_row_h = 22
+        score_rows = len(score_key_items)
+        panel_height = title_height + items_height + score_gap + score_rows * score_row_h + 24
 
         # Create main status panel
         status_bg = pygame.Surface((panel_width, panel_height), pygame.SRCALPHA)
@@ -891,6 +906,23 @@ class Renderer:
             value_font = pygame.font.SysFont("Arial", 14, bold=item["warning"])
             value_surface = value_font.render(item["value"], True, item["color"])
             status_bg.blit(value_surface, (icon_x + 36, y + 8))
+
+        # Score key header
+        section_top = 36 + len(status_items) * item_height + score_gap
+        header_font = pygame.font.SysFont("Arial", 13, bold=True)
+        header_surface = header_font.render("SCORE KEY", True, (200, 220, 255))
+        status_bg.blit(header_surface, (padding, section_top))
+
+        # Score key items (compact chips)
+        y = section_top + 18
+        chip_w, chip_h = 18, 10
+        text_font = pygame.font.SysFont("Arial", 12)
+        for item in score_key_items:
+            pygame.draw.rect(status_bg, item["color"], (padding + 2, y + 4, chip_w, chip_h))
+            pygame.draw.rect(status_bg, (40, 40, 40), (padding + 2, y + 4, chip_w, chip_h), 1)
+            label_surface = text_font.render(item["label"], True, (220, 220, 220))
+            status_bg.blit(label_surface, (padding + 2 + chip_w + 8, y + 2))
+            y += score_row_h
 
         # Blit to left edge (15 px margin)
         self.window.blit(status_bg, (15, 15))
@@ -970,12 +1002,28 @@ class Renderer:
             {"icon": "trail", "text": "Agent Trail", "color": (50, 255, 50)}
         ]
 
-        # Vertical legend layout (one item per row)
+        # Score popup color key (integrated into the legend panel)
+        score_key_items = [
+            {"text": "+X in green → Delivered resources to base", "color": (0, 255, 0)},
+            {"text": "+X in yellow → Mining an asteroid", "color": (255, 255, 0)},
+            {"text": "+X in blue → Energy recharge", "color": (100, 150, 255)},
+            {"text": "Negative numbers in red → Penalties", "color": (255, 80, 80)}
+        ]
+
+        # Layout metrics
         item_height = 34
         item_width = 240
         padding = 12
+        score_header_height = 20
+        score_item_height = 26
+        score_section_gap = 10
+
         panel_width = item_width + padding * 2
-        panel_height = len(legend_items) * item_height + 48
+        panel_height = (
+            len(legend_items) * item_height + 48
+            + score_section_gap + score_header_height
+            + len(score_key_items) * score_item_height
+        )
 
         # Create legend background
         legend_bg = pygame.Surface((panel_width, panel_height), pygame.SRCALPHA)
@@ -988,7 +1036,7 @@ class Renderer:
         title_rect = title_surface.get_rect(center=(panel_width // 2, 18))
         legend_bg.blit(title_surface, title_rect)
 
-        # Draw items top-to-bottom inside the panel
+        # Draw standard legend items (icons)
         for i, item in enumerate(legend_items):
             y = 36 + i * item_height
             x = padding
@@ -1000,6 +1048,31 @@ class Renderer:
             text_font = pygame.font.SysFont("Arial", 13)
             text_surface = text_font.render(item["text"], True, (220, 220, 220))
             legend_bg.blit(text_surface, (x + 36, y + 6))
+
+        # Score section separator and header
+        section_top = 36 + len(legend_items) * item_height + score_section_gap
+        pygame.draw.line(legend_bg, (80, 80, 100), (padding, section_top - 4), (panel_width - padding, section_top - 4), 1)
+
+        score_title_font = pygame.font.SysFont("Arial", 14, bold=True)
+        score_title_surface = score_title_font.render("SCORE KEY", True, (200, 220, 255))
+        score_title_rect = score_title_surface.get_rect(midleft=(padding, section_top))
+        legend_bg.blit(score_title_surface, score_title_rect)
+
+        # Draw score color key items
+        start_y = section_top + score_header_height
+        for i, item in enumerate(score_key_items):
+            y = start_y + i * score_item_height
+            x = padding
+
+            # Color chip
+            chip_rect = pygame.Rect(x + 4, y + 5, 20, 12)
+            pygame.draw.rect(legend_bg, item["color"], chip_rect)
+            pygame.draw.rect(legend_bg, (40, 40, 40), chip_rect, 1)
+
+            # Description text
+            text_font = pygame.font.SysFont("Arial", 12)
+            text_surface = text_font.render(item["text"], True, (220, 220, 220))
+            legend_bg.blit(text_surface, (x + 30, y + 4))
 
         # Position legend bottom-right with safe margins for 1080p board
         margin = 18
