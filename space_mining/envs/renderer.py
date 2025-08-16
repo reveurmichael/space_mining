@@ -602,11 +602,6 @@ class Renderer:
             flash_surface.fill((255, 0, 0, flash_alpha))
             self.window.blit(flash_surface, (0, 0))
 
-        # Draw floating event timeline
-        self._draw_floating_timeline()
-
-        # Draw combo display
-        self._draw_combo_display()
 
         # Draw game UI if not in game over state
         if not self.env.game_over_state["active"]:
@@ -828,7 +823,7 @@ class Renderer:
         self._draw_adaptive_legend()
 
     def _draw_adaptive_status_panel(self, state_text, state_color, cumulative_mining) -> None:
-        """Draw an adaptive status panel with icons and multi-column layout."""
+        """Draw an adaptive status panel with icons stacked vertically on the left."""
         try:
             import pygame
             import numpy as np
@@ -836,7 +831,7 @@ class Renderer:
         except ImportError:
             return
 
-        # Streamlined essential status only
+        # Streamlined essential status only (same items)
         status_items = [
             {
                 "icon": "energy",
@@ -845,7 +840,7 @@ class Renderer:
                 "color": (255, 100, 100) if self.env.agent_energy < 30 else (100, 255, 100)
             },
             {
-                "icon": "inventory", 
+                "icon": "inventory",
                 "value": f"Cargo {self.env.agent_inventory:.1f}",
                 "warning": False,
                 "color": (255, 255, 100) if self.env.agent_inventory > 0 else (200, 200, 200)
@@ -864,42 +859,40 @@ class Renderer:
             }
         ]
 
-        # Calculate streamlined panel size (2 columns, 2 rows - removed redundant info)
-        cols = 2
-        rows = 2
-        item_width = 200
-        item_height = 45
-        panel_width = cols * item_width + 50
-        panel_height = rows * item_height + 80
+        # Layout: vertical stack on left
+        item_width = 220
+        item_height = 42
+        padding = 12
+        panel_width = item_width + padding * 2
+        panel_height = len(status_items) * item_height + 60
 
         # Create main status panel
         status_bg = pygame.Surface((panel_width, panel_height), pygame.SRCALPHA)
-        status_bg.fill((0, 0, 0, 220))
-        pygame.draw.rect(status_bg, (60, 60, 80), (0, 0, panel_width, panel_height), 3)
+        status_bg.fill((0, 0, 0, 200))
+        pygame.draw.rect(status_bg, (60, 60, 80), (0, 0, panel_width, panel_height), 2)
 
-        # Title with state
-        title_font = pygame.font.SysFont("Arial", 16, bold=True)
+        # Title with state (kept compact)
+        title_font = pygame.font.SysFont("Arial", 14, bold=True)
         title_surface = title_font.render(state_text, True, state_color)
-        title_rect = title_surface.get_rect(center=(panel_width // 2, 20))
+        title_rect = title_surface.get_rect(center=(panel_width // 2, 18))
         status_bg.blit(title_surface, title_rect)
 
-        # Draw status items in grid
+        # Draw status items vertically
         for i, item in enumerate(status_items):
-            row = i // cols
-            col = i % cols
-            x = 15 + col * item_width
-            y = 40 + row * item_height
+            y = 36 + i * item_height
+            x = padding
 
-            # Draw icon
-            icon_x = x + 5
-            icon_y = y + 5
+            # Icon
+            icon_x = x
+            icon_y = y + 6
             self._draw_status_icon(status_bg, item["icon"], icon_x, icon_y, item["warning"])
 
-            # Draw value text
-            value_font = pygame.font.SysFont("Arial", 16, bold=item["warning"])
+            # Text
+            value_font = pygame.font.SysFont("Arial", 14, bold=item["warning"])
             value_surface = value_font.render(item["value"], True, item["color"])
-            status_bg.blit(value_surface, (x + 35, y + 10))
+            status_bg.blit(value_surface, (icon_x + 36, y + 8))
 
+        # Blit to left edge (15 px margin)
         self.window.blit(status_bg, (15, 15))
 
     def _draw_status_icon(self, surface, icon_type, x, y, warning=False) -> None:
@@ -959,7 +952,7 @@ class Renderer:
 
 
     def _draw_adaptive_legend(self) -> None:
-        """Draw an adaptive legend with icons and optimized layout."""
+        """Draw an adaptive legend — vertical, right-anchored to avoid overflow."""
         try:
             import pygame
             from pygame import gfxdraw
@@ -967,60 +960,51 @@ class Renderer:
         except ImportError:
             return
 
-        # Legend items with visual icons
         legend_items = [
             {"icon": "agent", "text": "Mining Agent", "color": (50, 255, 50)},
             {"icon": "mothership", "text": "Mothership", "color": (30, 120, 200)},
             {"icon": "asteroid", "text": "Asteroids", "color": (255, 215, 0)},
             {"icon": "obstacle", "text": "Obstacles", "color": (220, 50, 50)},
-            {"icon": "depleted", "text": "Depleted", "color": (100, 100, 100)},
             {"icon": "obs_range", "text": "View Range", "color": (100, 150, 255)},
             {"icon": "mine_range", "text": "Mine Range", "color": (255, 100, 100)},
-            {"icon": "safe_zone", "text": "Safe Zone", "color": (30, 120, 255)},
-            {"icon": "energy_beam", "text": "Mining", "color": (255, 255, 0)},
-            {"icon": "particles", "text": "Delivery", "color": (255, 255, 0)},
-            {"icon": "trail", "text": "Agent Trail", "color": (50, 255, 50)},
-            {"icon": "dim_area", "text": "Dim Area", "color": (50, 50, 50)}
+            {"icon": "trail", "text": "Agent Trail", "color": (50, 255, 50)}
         ]
 
-        # Calculate adaptive layout (6 columns for ultra-wide screen)
-        cols = 6
-        item_width = 180
-        item_height = 36
-        panel_width = cols * item_width + 60
-        panel_height = len(legend_items) // cols * item_height + 120
-        if len(legend_items) % cols != 0:
-            panel_height += item_height
+        # Vertical legend layout (one item per row)
+        item_height = 34
+        item_width = 240
+        padding = 12
+        panel_width = item_width + padding * 2
+        panel_height = len(legend_items) * item_height + 48
 
         # Create legend background
         legend_bg = pygame.Surface((panel_width, panel_height), pygame.SRCALPHA)
-        legend_bg.fill((0, 0, 0, 220))
-        pygame.draw.rect(legend_bg, (60, 60, 80), (0, 0, panel_width, panel_height), 3)
+        legend_bg.fill((0, 0, 0, 200))
+        pygame.draw.rect(legend_bg, (60, 60, 80), (0, 0, panel_width, panel_height), 2)
 
         # Title
-        title_font = pygame.font.SysFont("Arial", 18, bold=True)
-        title_surface = title_font.render("GAME LEGEND", True, (255, 255, 150))
-        title_rect = title_surface.get_rect(center=(panel_width // 2, 25))
+        title_font = pygame.font.SysFont("Arial", 16, bold=True)
+        title_surface = title_font.render("LEGEND", True, (255, 255, 150))
+        title_rect = title_surface.get_rect(center=(panel_width // 2, 18))
         legend_bg.blit(title_surface, title_rect)
 
-        # Draw legend items in grid
+        # Draw items top-to-bottom inside the panel
         for i, item in enumerate(legend_items):
-            row = i // cols
-            col = i % cols
-            x = 15 + col * item_width
-            y = 50 + row * item_height
+            y = 36 + i * item_height
+            x = padding
 
-            # Draw icon
-            self._draw_legend_icon(legend_bg, item["icon"], x + 8, y + 4, item["color"])
+            # icon at left of row
+            self._draw_legend_icon(legend_bg, item["icon"], x + 4, y + 4, item["color"])
 
-            # Draw text
+            # text
             text_font = pygame.font.SysFont("Arial", 13)
             text_surface = text_font.render(item["text"], True, (220, 220, 220))
-            legend_bg.blit(text_surface, (x + 35, y + 7))
+            legend_bg.blit(text_surface, (x + 36, y + 6))
 
-        # Position legend for ultra-wide screen
-        legend_x = 1920 - panel_width - 25
-        legend_y = 1200 - panel_height - 25
+        # Position legend bottom-right with safe margins for 1080p board
+        margin = 18
+        legend_x = 1920 - panel_width - margin
+        legend_y = 1080 - panel_height - margin
         self.window.blit(legend_bg, (legend_x, legend_y))
 
     def _draw_legend_icon(self, surface, icon_type, x, y, color) -> None:
@@ -1094,71 +1078,6 @@ class Renderer:
             pygame.draw.rect(surface, color, (x+3, y+3, 14, 14))
             gfxdraw.filled_circle(surface, x+10, y+10, 5, (0, 0, 0, 0))
 
-    def _draw_floating_timeline(self) -> None:
-        """Draw the floating event timeline at the top of the screen."""
-        try:
-            import pygame
-            from pygame import gfxdraw
-        except ImportError:
-            return
-
-        if not self.env.event_timeline:
-            return
-
-        # Timeline positioning for ultra-wide screen
-        timeline_y = 25
-        card_width = 200
-        card_height = 45
-        card_spacing = 18
-        start_x = (1920 - (len(self.env.event_timeline) * (card_width + card_spacing) - card_spacing)) // 2
-
-        for i, event in enumerate(self.env.event_timeline):
-            x = start_x + i * (card_width + card_spacing)
-            y = timeline_y
-            
-            # Create micro-card
-            alpha = max(50, min(255, event["alpha"]))
-            
-            # Card background with transparency
-            card_surface = pygame.Surface((card_width, card_height), pygame.SRCALPHA)
-            
-            # Background color based on event type
-            if event["type"] == "mining":
-                bg_color = (40, 80, 40, alpha)
-                border_color = (*event["color"][:3], alpha)
-            elif event["type"] == "delivery":
-                bg_color = (40, 60, 80, alpha)
-                border_color = (*event["color"][:3], alpha)
-            elif event["type"] == "collision":
-                bg_color = (80, 40, 40, alpha)
-                border_color = (*event["color"][:3], alpha)
-            elif event["type"] == "combo":
-                bg_color = (80, 60, 20, alpha)
-                border_color = (*event["color"][:3], alpha)
-            else:
-                bg_color = (60, 60, 60, alpha)
-                border_color = (200, 200, 200, alpha)
-            
-            # Draw card background
-            card_surface.fill(bg_color)
-            pygame.draw.rect(card_surface, border_color, (0, 0, card_width, card_height), 2)
-            
-            # Add icon based on event type
-            self._draw_timeline_icon(card_surface, event["type"], 8, 5)
-            
-            # Add text
-            font = pygame.font.SysFont("Arial", 11, bold=True)
-            text_surface = font.render(event["text"], True, (*event["color"][:3], alpha))
-            
-            # Position text to the right of icon
-            text_rect = text_surface.get_rect()
-            text_x = 28
-            text_y = (card_height - text_rect.height) // 2
-            card_surface.blit(text_surface, (text_x, text_y))
-            
-            # Blit card to main window
-            self.window.blit(card_surface, (x, y))
-
     def _draw_timeline_icon(self, surface, event_type, x, y) -> None:
         """Draw small icons for timeline events."""
         try:
@@ -1196,66 +1115,6 @@ class Renderer:
                 end_x = center_x + 6 * math.cos(angle)
                 end_y = center_y + 6 * math.sin(angle)
                 pygame.draw.line(surface, color, (center_x, center_y), (end_x, end_y), 2)
-
-    def _draw_combo_display(self) -> None:
-        """Draw the combo multiplier display."""
-        try:
-            import pygame
-            from pygame import gfxdraw
-            import math
-        except ImportError:
-            return
-
-        if self.env.combo_state["display_timer"] <= 0 or self.env.combo_state["chain_count"] < 2:
-            return
-
-        # Position combo display for ultra-wide screen
-        combo_x = 960  # Center of ultra-wide screen
-        combo_y = 160
-
-        # Create pulsing combo badge
-        alpha = self.env.combo_state["combo_alpha"]
-        combo_text = f"x{self.env.combo_state['chain_count']} COMBO!"
-        
-        # Large, bold font for combo
-        combo_font = pygame.font.SysFont("Arial", 40, bold=True)
-        text_surface = combo_font.render(combo_text, True, (255, 200, 0))
-        text_rect = text_surface.get_rect()
-        
-        # Background badge
-        badge_width = text_rect.width + 40
-        badge_height = text_rect.height + 20
-        badge_surface = pygame.Surface((badge_width, badge_height), pygame.SRCALPHA)
-        
-        # Gradient background effect
-        badge_surface.fill((80, 60, 0, alpha))
-        pygame.draw.rect(badge_surface, (255, 200, 0), (0, 0, badge_width, badge_height), 3)
-        
-        # Add sparkle effects around badge
-        for i in range(8):
-            angle = i * 45 + self.env.steps_count * 5  # Rotating sparkles
-            sparkle_x = combo_x + 50 * math.cos(math.radians(angle))
-            sparkle_y = combo_y + 30 * math.sin(math.radians(angle))
-            sparkle_color = (255, 255, 100, alpha // 2)
-            
-            sparkle_surface = pygame.Surface((6, 6), pygame.SRCALPHA)
-            gfxdraw.filled_circle(sparkle_surface, 3, 3, 2, sparkle_color)
-            self.window.blit(sparkle_surface, (int(sparkle_x) - 3, int(sparkle_y) - 3))
-        
-        # Position and draw badge
-        badge_x = combo_x - badge_width // 2
-        badge_y = combo_y - badge_height // 2
-        
-        # Set alpha for the text
-        text_surface.set_alpha(alpha)
-        
-        # Draw badge background
-        self.window.blit(badge_surface, (badge_x, badge_y))
-        
-        # Draw combo text
-        text_x = badge_x + (badge_width - text_rect.width) // 2
-        text_y = badge_y + (badge_height - text_rect.height) // 2
-        self.window.blit(text_surface, (text_x, text_y))
 
     def _draw_game_over_screen(self) -> None:
         """Draw the game over/success screen with final statistics."""
@@ -1398,45 +1257,6 @@ class Renderer:
         }
         self.env.score_popups.append(popup)
 
-    def add_timeline_event(self, event_type: str, text: str, color: tuple) -> None:
-        """Add an event to the floating timeline."""
-        event = {
-            "type": event_type,
-            "text": text,
-            "color": color,
-            "step": self.env.steps_count,
-            "alpha": 255,
-            "lifetime": 300  # Steps before fading
-        }
-        
-        # Add to front of timeline
-        self.env.event_timeline.insert(0, event)
-        
-        # Keep only the last N events
-        if len(self.env.event_timeline) > self.env.max_timeline_events:
-            self.env.event_timeline = self.env.event_timeline[:self.env.max_timeline_events]
-
-    def process_mining_combo(self) -> None:
-        """Process mining combo chain detection."""
-        current_step = self.env.steps_count
-        
-        # Check if this mining action extends a combo
-        if (current_step - self.env.combo_state["last_mining_step"]) <= self.env.combo_state["combo_window"]:
-            self.env.combo_state["chain_count"] += 1
-        else:
-            self.env.combo_state["chain_count"] = 1
-        
-        self.env.combo_state["last_mining_step"] = current_step
-        
-        # Show combo if we have 2 or more
-        if self.env.combo_state["chain_count"] >= 2:
-            self.env.combo_state["display_timer"] = 120  # Show for 4 seconds at 30fps
-            self.env.combo_state["combo_alpha"] = 255
-            
-            # Add special combo timeline event
-            combo_text = f"x{self.env.combo_state['chain_count']} COMBO!"
-            self.add_timeline_event("combo", combo_text, (255, 200, 0))
-
     def update_animations(self) -> None:
         """Update all animation states."""
         # Update agent trail
@@ -1471,11 +1291,6 @@ class Renderer:
         # Update mining beam animation
         self.env.mining_beam_offset += 0.2
 
-        # Update event timeline
-        self.update_event_timeline()
-
-        # Update combo system
-        self.update_combo_system()
 
     def trigger_game_over(self, success: bool) -> None:
         """Trigger game over screen with final statistics."""
