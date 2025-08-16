@@ -22,19 +22,9 @@ def test_renderer_cosmic_background():
     env = make_env(render_mode="rgb_array")
     renderer = env.unwrapped.renderer
     
-    # Check cosmic background elements are initialized
+    # Check starfield is initialized
     assert hasattr(renderer, 'starfield_layers')
-    assert hasattr(renderer, 'nebula_clouds')
-    assert hasattr(renderer, 'distant_galaxies')
-    assert hasattr(renderer, 'space_dust')
-    assert hasattr(renderer, 'cosmic_auroras')
-    
-    # Check they contain elements
     assert len(renderer.starfield_layers) > 0
-    assert len(renderer.nebula_clouds) > 0
-    assert len(renderer.distant_galaxies) > 0
-    assert len(renderer.space_dust) > 0
-    assert len(renderer.cosmic_auroras) > 0
     
     env.close()
 
@@ -47,12 +37,8 @@ def test_renderer_visual_effects_methods():
     # Test that all moved visualization methods exist
     methods_to_test = [
         'update_zoom',
-        'update_event_timeline', 
-        'update_combo_system',
         'spawn_delivery_particles',
         'add_score_popup',
-        'add_timeline_event',
-        'process_mining_combo',
         'update_animations',
         'trigger_game_over'
     ]
@@ -91,11 +77,6 @@ def test_renderer_animation_systems():
     renderer = env.unwrapped.renderer
     env.reset()
     
-    # Test event timeline
-    renderer.add_timeline_event("test", "Test Event", (255, 255, 255))
-    assert len(env.unwrapped.event_timeline) == 1
-    assert env.unwrapped.event_timeline[0]["text"] == "Test Event"
-    
     # Test score popup
     test_pos = np.array([10.0, 10.0])
     renderer.add_score_popup("+10", test_pos, (255, 255, 0))
@@ -111,29 +92,6 @@ def test_renderer_animation_systems():
     env.close()
 
 
-def test_renderer_combo_system():
-    """Test combo system functionality."""
-    env = make_env(render_mode="rgb_array")
-    renderer = env.unwrapped.renderer
-    env.reset()
-    
-    # Set up combo state
-    env.unwrapped.combo_state["last_mining_step"] = env.unwrapped.steps_count
-    
-    # Test processing combo
-    renderer.process_mining_combo()
-    assert env.unwrapped.combo_state["chain_count"] >= 1
-    
-    # Test another combo in sequence
-    env.unwrapped.steps_count += 10  # Small time gap
-    renderer.process_mining_combo()
-    assert env.unwrapped.combo_state["chain_count"] >= 2
-    
-    # Test combo display is triggered for 2+ combos
-    if env.unwrapped.combo_state["chain_count"] >= 2:
-        assert env.unwrapped.combo_state["display_timer"] > 0
-    
-    env.close()
 
 
 def test_renderer_game_over_trigger():
@@ -198,7 +156,6 @@ def test_renderer_visual_elements():
     
     # Add some visual elements
     renderer = env.unwrapped.renderer
-    renderer.add_timeline_event("mining", "+5.0", (255, 255, 0))
     renderer.add_score_popup("+10", np.array([20.0, 20.0]), (0, 255, 0))
     
     # Render frame with visual elements

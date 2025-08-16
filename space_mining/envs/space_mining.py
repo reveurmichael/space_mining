@@ -78,18 +78,10 @@ class SpaceMining(gym.Env):
             "success": False
         }
         
-        # Floating event timeline
+        # Remove timeline/combo visual systems
         self.event_timeline = []
-        self.max_timeline_events = 5
-        
-        # Score combo system
-        self.combo_state = {
-            "chain_count": 0,
-            "last_mining_step": 0,
-            "combo_window": 50,
-            "display_timer": 0,
-            "combo_alpha": 0
-        }
+        self.max_timeline_events = 0
+        self.combo_state = {"chain_count": 0, "last_mining_step": 0, "combo_window": 0, "display_timer": 0, "combo_alpha": 0}
 
         self.action_space: spaces.Box = spaces.Box(
             low=np.array([-1.0, -1.0, 0.0]),
@@ -138,15 +130,9 @@ class SpaceMining(gym.Env):
             "success": False
         }
 
-        # Reset event timeline and combo system
+        # Reset (timeline/combo disabled)
         self.event_timeline = []
-        self.combo_state = {
-            "chain_count": 0,
-            "last_mining_step": 0,
-            "combo_window": 50,
-            "display_timer": 0,
-            "combo_alpha": 0
-        }
+        self.combo_state = {"chain_count": 0, "last_mining_step": 0, "combo_window": 0, "display_timer": 0, "combo_alpha": 0}
 
         self.agent_position = self.np_random.uniform(low=0, high=self.grid_size, size=(2,))
         self.agent_velocity = np.zeros(2, dtype=np.float32)
@@ -263,8 +249,6 @@ class SpaceMining(gym.Env):
                 # Trigger collision effects
                 self.collision_flash_timer = 0.3  # Flash for 0.3 seconds
                 self.screen_shake_timer = 0.2  # Shake for 0.2 seconds
-                # Add to event timeline
-                self.renderer.add_timeline_event("collision", "Collision!", (255, 100, 100))
                 to_obstacle = self.agent_position - obstacle_pos
                 if np.linalg.norm(to_obstacle) > 0:
                     to_obstacle = to_obstacle / np.linalg.norm(to_obstacle)
@@ -310,10 +294,6 @@ class SpaceMining(gym.Env):
                         reward += max_possible * 8.0
                         # Add score popup for mining
                         self.renderer.add_score_popup(f"+{max_possible:.1f}", asteroid_pos.copy(), (255, 255, 0))
-                        # Add to event timeline
-                        self.renderer.add_timeline_event("mining", f"+{max_possible:.1f}", (255, 255, 0))
-                        # Update combo system
-                        self.renderer.process_mining_combo()
                         mined_something = True
                         self.agent_velocity *= 0.8
                         break
@@ -341,8 +321,6 @@ class SpaceMining(gym.Env):
             self.renderer.spawn_delivery_particles(self.agent_position.copy(), self.mothership_pos.copy())
             # Add score popup for delivery
             self.renderer.add_score_popup(f"+{delivered_amount:.1f}", self.agent_position.copy(), (0, 255, 0))
-            # Add to event timeline
-            self.renderer.add_timeline_event("delivery", f"Delivered +{delivered_amount:.1f}", (0, 255, 0))
             if not hasattr(self, "last_delivery_info"):
                 self.last_delivery_info = {}
             energy_recharged = 150.0 - self.agent_energy

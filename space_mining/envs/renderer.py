@@ -32,117 +32,59 @@ class Renderer:
         
         self.cosmic_time = 0.0
         
-        # Create perfect starfield distribution
+        # Only starfield (small stars 1–5 px) with varied slow speeds
         self.starfield_layers = []
         
-        # Layer 1: Distant stars (cosmic depth)
+        # Layer 1: very slow, tiniest stars
         layer1_stars = []
-        for _ in range(180):  # Optimal count for depth
-            star = {
+        for _ in range(320):
+            layer1_stars.append({
                 "x": np.random.uniform(0, 1920),
                 "y": np.random.uniform(0, 1080),
-                "size": 1,
-                "brightness": np.random.randint(15, 50),
-                "speed": 0.01,  # Very slow for distance
+                "size": np.random.choice([1, 2], p=[0.9, 0.1]),
+                "brightness": np.random.randint(15, 55),
+                "speed": np.random.uniform(0.003, 0.010),
+                "drift_x": np.random.uniform(-0.02, 0.02),
+                "drift_y": np.random.uniform(-0.02, 0.02),
                 "color_type": np.random.choice(["white", "blue", "yellow"], p=[0.85, 0.1, 0.05])
-            }
-            layer1_stars.append(star)
+            })
         self.starfield_layers.append(layer1_stars)
         
-        # Layer 2: Medium stars (atmospheric depth)
+        # Layer 2: slow, small stars
         layer2_stars = []
-        for _ in range(90):  # Balanced count
-            star = {
+        for _ in range(240):
+            layer2_stars.append({
                 "x": np.random.uniform(0, 1920),
                 "y": np.random.uniform(0, 1080),
-                "size": np.random.choice([1, 2], p=[0.8, 0.2]),
-                "brightness": np.random.randint(30, 80),
-                "speed": 0.06,
-                "color_type": np.random.choice(["white", "blue", "yellow"], p=[0.75, 0.2, 0.05])
-            }
-            layer2_stars.append(star)
+                "size": np.random.choice([1, 2, 3], p=[0.6, 0.3, 0.1]),
+                "brightness": np.random.randint(25, 80),
+                "speed": np.random.uniform(0.010, 0.025),
+                "drift_x": np.random.uniform(-0.03, 0.03),
+                "drift_y": np.random.uniform(-0.03, 0.03),
+                "color_type": np.random.choice(["white", "blue", "yellow"], p=[0.8, 0.15, 0.05])
+            })
         self.starfield_layers.append(layer2_stars)
         
-        # Layer 3: Bright stars (cosmic jewels)
+        # Layer 3: a bit faster, still small (up to 5 px)
         layer3_stars = []
-        for _ in range(40):  # Select bright focal points
-            star = {
+        for _ in range(160):
+            layer3_stars.append({
                 "x": np.random.uniform(0, 1920),
                 "y": np.random.uniform(0, 1080),
-                "size": np.random.choice([2, 3], p=[0.7, 0.3]),
-                "brightness": np.random.randint(50, 110),
-                "speed": 0.12,
-                "color_type": np.random.choice(["white", "blue", "yellow"], p=[0.6, 0.3, 0.1])
-            }
-            layer3_stars.append(star)
+                "size": np.random.choice([2, 3, 4, 5], p=[0.5, 0.3, 0.15, 0.05]),
+                "brightness": np.random.randint(35, 110),
+                "speed": np.random.uniform(0.020, 0.050),
+                "drift_x": np.random.uniform(-0.05, 0.05),
+                "drift_y": np.random.uniform(-0.05, 0.05),
+                "color_type": np.random.choice(["white", "blue", "yellow"], p=[0.75, 0.2, 0.05])
+            })
         self.starfield_layers.append(layer3_stars)
         
-        # Create elegant nebula formations
+        # Remove other cosmic elements per request
         self.nebula_clouds = []
-        for _ in range(3):  # Perfect visual balance
-            nebula = {
-                "x": np.random.uniform(-300, 2220),
-                "y": np.random.uniform(-300, 1380),
-                "size": np.random.uniform(500, 900),  # Larger for impact
-                "inner_size": np.random.uniform(120, 280),
-                "color": [
-                    (50, 25, 100, 22),   # Deep cosmic purple
-                    (25, 50, 100, 20),   # Deep space blue  
-                    (100, 25, 70, 24),   # Cosmic magenta
-                ][np.random.randint(0, 3)],
-                "speed": np.random.uniform(0.003, 0.015),
-                "rotation": np.random.uniform(0, 2 * math.pi),
-                "rotation_speed": np.random.uniform(-0.00005, 0.00005)  # Very slow rotation
-            }
-            self.nebula_clouds.append(nebula)
-        
-        # Create distant galaxies for universe scale
         self.distant_galaxies = []
-        for _ in range(2):  # Perfect cosmic scale
-            galaxy = {
-                "x": np.random.uniform(400, 1520),
-                "y": np.random.uniform(400, 680),
-                "size": np.random.uniform(200, 400),  # Larger for visibility
-                "arms": np.random.randint(3, 5),
-                "core_brightness": np.random.randint(35, 65),
-                "arm_brightness": np.random.randint(15, 40),
-                "rotation": np.random.uniform(0, 2 * math.pi),
-                "rotation_speed": np.random.uniform(-0.00006, 0.00006),
-                "speed": np.random.uniform(0.008, 0.02)
-            }
-            self.distant_galaxies.append(galaxy)
-        
-        # Create subtle atmospheric dust
         self.space_dust = []
-        for _ in range(100):  # Clean atmospheric effect
-            dust = {
-                "x": np.random.uniform(0, 1920),
-                "y": np.random.uniform(0, 1080),
-                "size": np.random.uniform(0.5, 1.3),
-                "brightness": np.random.randint(8, 25),
-                "speed": np.random.uniform(0.04, 0.12),
-                "drift_x": np.random.uniform(-0.02, 0.02),
-                "drift_y": np.random.uniform(-0.02, 0.02)
-            }
-            self.space_dust.append(dust)
-        
-        # Create one elegant aurora for cosmic magic
         self.cosmic_auroras = []
-        aurora = {
-            "x": np.random.uniform(-200, 2120),
-            "y": np.random.uniform(-200, 1280),
-            "width": np.random.uniform(400, 800),  # Larger for majesty
-            "height": np.random.uniform(600, 1000),
-            "intensity": np.random.uniform(0.08, 0.2),  # Very subtle
-            "color": [
-                (0, 120, 50, 10),    # Gentle green
-                (50, 90, 120, 8),    # Soft blue
-                (120, 50, 90, 12),   # Soft pink
-            ][np.random.randint(0, 3)],
-            "wave_offset": np.random.uniform(0, 2 * math.pi),
-            "wave_speed": np.random.uniform(0.003, 0.008)  # Very gentle
-        }
-        self.cosmic_auroras.append(aurora)
 
     def _update_cosmic_background(self) -> None:
         """Update cosmic background elements with optimized parallax for 1920x1080."""
@@ -156,13 +98,17 @@ class Renderer:
             movement = self.env.agent_position - self.prev_agent_position
         self.prev_agent_position = self.env.agent_position.copy()
         
-        # Update stars with optimized parallax
+        # Update stars with optimized parallax + independent drift
         for layer_idx, layer in enumerate(self.starfield_layers):
             for star in layer:
-                # Subtle parallax effect based on layer
-                parallax_factor = star["speed"] * self.env.zoom_level * (layer_idx + 1) * 0.5
+                # Subtle parallax based on layer
+                parallax_factor = star.get("speed", 0.006) * self.env.zoom_level * (0.4 + 0.3 * layer_idx)
                 star["x"] -= movement[0] * parallax_factor
                 star["y"] -= movement[1] * parallax_factor
+                
+                # Independent very-slow drift
+                star["x"] += star.get("drift_x", 0.0)
+                star["y"] += star.get("drift_y", 0.0)
                 
                 # Wrap around screen with proper bounds for 1920x1080
                 if star["x"] < -10: 
@@ -174,72 +120,6 @@ class Renderer:
                 elif star["y"] > 1090: 
                     star["y"] = -10
         
-        # Update nebula clouds with gentle movement
-        for nebula in self.nebula_clouds:
-            nebula["x"] -= movement[0] * nebula["speed"] * self.env.zoom_level
-            nebula["y"] -= movement[1] * nebula["speed"] * self.env.zoom_level
-            nebula["rotation"] += nebula["rotation_speed"]
-            
-            # Wrap around screen
-            size = nebula["size"]
-            if nebula["x"] < -size:
-                nebula["x"] = 1920 + size
-            elif nebula["x"] > 1920 + size:
-                nebula["x"] = -size
-            if nebula["y"] < -size:
-                nebula["y"] = 1080 + size
-            elif nebula["y"] > 1080 + size:
-                nebula["y"] = -size
-        
-        # Update distant galaxies with slow drift
-        for galaxy in self.distant_galaxies:
-            galaxy["x"] -= movement[0] * galaxy["speed"] * self.env.zoom_level * 0.3
-            galaxy["y"] -= movement[1] * galaxy["speed"] * self.env.zoom_level * 0.3
-            galaxy["rotation"] += galaxy["rotation_speed"]
-            
-            # Wrap around screen
-            if galaxy["x"] < -galaxy["size"]:
-                galaxy["x"] = 1920 + galaxy["size"]
-            elif galaxy["x"] > 1920 + galaxy["size"]:
-                galaxy["x"] = -galaxy["size"]
-            if galaxy["y"] < -galaxy["size"]:
-                galaxy["y"] = 1080 + galaxy["size"]
-            elif galaxy["y"] > 1080 + galaxy["size"]:
-                galaxy["y"] = -galaxy["size"]
-        
-        # Update space dust with natural drift
-        for dust in self.space_dust:
-            dust["x"] -= movement[0] * dust["speed"] * self.env.zoom_level * 2
-            dust["y"] -= movement[1] * dust["speed"] * self.env.zoom_level * 2
-            dust["x"] += dust["drift_x"]
-            dust["y"] += dust["drift_y"]
-            
-            # Wrap around screen
-            if dust["x"] < 0: 
-                dust["x"] = 1920
-            elif dust["x"] > 1920: 
-                dust["x"] = 0
-            if dust["y"] < 0: 
-                dust["y"] = 1080
-            elif dust["y"] > 1080: 
-                dust["y"] = 0
-        
-        # Update cosmic auroras with gentle wave motion
-        for aurora in self.cosmic_auroras:
-            aurora["x"] -= movement[0] * 0.05 * self.env.zoom_level
-            aurora["y"] -= movement[1] * 0.05 * self.env.zoom_level
-            aurora["wave_offset"] += aurora["wave_speed"]
-            
-            # Wrap around screen
-            width, height = aurora["width"], aurora["height"]
-            if aurora["x"] < -width:
-                aurora["x"] = 1920 + width
-            elif aurora["x"] > 1920 + width:
-                aurora["x"] = -width
-            if aurora["y"] < -height:
-                aurora["y"] = 1080 + height
-            elif aurora["y"] > 1080 + height:
-                aurora["y"] = -height
 
     def render(self) -> Optional[np.ndarray]:
         """Render the current state of the environment."""
@@ -287,12 +167,8 @@ class Renderer:
         # Perfect cosmic void - maximum atmospheric depth
         self.window.fill((0, 0, 3))  # Pure deep space
 
-        # Draw cosmic elements in perfect order for maximum beauty
-        self._draw_starfield()      # Foundation stars for depth
-        self._draw_nebulae()        # Atmospheric cosmic gas  
-        self._draw_galaxies()       # Universe scale formations
-        self._draw_space_dust()     # Subtle atmospheric particles
-        self._draw_auroras()        # Cosmic energy magic
+        # Draw starfield only
+        self._draw_starfield()
 
         # Perfect coordinate transformation for 1920x1080 cosmic immersion  
         def to_screen(pos, scale=10.0):  # Perfect scale for cosmic viewing
@@ -587,7 +463,7 @@ class Renderer:
 
         # OBSERVATION RANGE DIMMING EFFECT
         overlay = pygame.Surface((1920, 1200), pygame.SRCALPHA)
-        overlay.fill((0, 0, 0, 80))  # Even less dimming for spectacular cosmic view
+        overlay.fill((0, 0, 0, 128))  # 50% darkness outside observation circle
         
         # Create a "visible" hole for observation range
         pygame.draw.circle(overlay, (0, 0, 0, 0), agent_pos_2d, obs_radius_px)
@@ -602,11 +478,6 @@ class Renderer:
             flash_surface.fill((255, 0, 0, flash_alpha))
             self.window.blit(flash_surface, (0, 0))
 
-        # Draw floating event timeline
-        self._draw_floating_timeline()
-
-        # Draw combo display
-        self._draw_combo_display()
 
         # Draw game UI if not in game over state
         if not self.env.game_over_state["active"]:
@@ -658,141 +529,13 @@ class Renderer:
                         glow = (*[c//4 for c in color], 35)
                         gfxdraw.filled_circle(self.window, x, y, size, glow)
 
-    def _draw_nebulae(self) -> None:
-        """Draw elegant cosmic nebula formations."""
-        try:
-            import pygame
-            from pygame import gfxdraw
-        except ImportError:
-            return
-            
-        for nebula in self.nebula_clouds:
-            if not (-500 <= nebula["x"] <= 2420 and -500 <= nebula["y"] <= 1580):
-                continue
-                
-            size = int(nebula["size"])
-            surface = pygame.Surface((size * 2, size * 2), pygame.SRCALPHA)
-            center = size
-            
-            # Perfect gradient layers
-            for i in range(0, size, max(1, size//8)):
-                radius = size - i
-                if radius > 0:
-                    alpha = int(nebula["color"][3] * (radius / size) * 0.25)
-                    if alpha > 1:
-                        color = (*nebula["color"][:3], alpha)
-                        gfxdraw.filled_circle(surface, center, center, radius, color)
-            
-            # Bright core
-            inner = int(nebula["inner_size"])
-            if inner > 0:
-                core_color = (*nebula["color"][:3], int(nebula["color"][3] * 0.4))
-                gfxdraw.filled_circle(surface, center, center, inner, core_color)
-            
-            # Perfect blending
-            rect = surface.get_rect(center=(int(nebula["x"]), int(nebula["y"])))
-            self.window.blit(surface, rect, special_flags=pygame.BLEND_ADD)
+    # Nebula drawing intentionally removed (scope simplified to starfield)
 
-    def _draw_galaxies(self) -> None:
-        """Draw majestic spiral galaxies."""
-        try:
-            import pygame
-            from pygame import gfxdraw
-            import math
-        except ImportError:
-            return
-            
-        for galaxy in self.distant_galaxies:
-            if not (0 <= galaxy["x"] <= 1920 and 0 <= galaxy["y"] <= 1080):
-                continue
-                
-            core_x, core_y = int(galaxy["x"]), int(galaxy["y"])
-            
-            # Bright galaxy core
-            core_size = max(3, int(galaxy["size"] * 0.1))
-            core_color = (galaxy["core_brightness"], galaxy["core_brightness"], galaxy["core_brightness"])
-            gfxdraw.filled_circle(self.window, core_x, core_y, core_size, core_color)
-            
-            # Beautiful spiral arms
-            for arm in range(galaxy["arms"]):
-                arm_angle = galaxy["rotation"] + (arm * 2 * math.pi / galaxy["arms"])
-                
-                for distance in range(core_size * 4, int(galaxy["size"]), 12):
-                    spiral_angle = arm_angle + distance * 0.01
-                    x_offset = distance * math.cos(spiral_angle)
-                    y_offset = distance * math.sin(spiral_angle)
-                    
-                    arm_x = core_x + int(x_offset)
-                    arm_y = core_y + int(y_offset)
-                    
-                    if 0 <= arm_x < 1920 and 0 <= arm_y < 1080:
-                        fade = max(0.1, 1 - distance / galaxy["size"])
-                        brightness = int(galaxy["arm_brightness"] * fade)
-                        if brightness > 2:
-                            color = (brightness, brightness, brightness + 2)
-                            gfxdraw.pixel(self.window, arm_x, arm_y, color)
+    # Galaxy drawing intentionally removed (scope simplified to starfield)
 
-    def _draw_space_dust(self) -> None:
-        """Draw subtle atmospheric dust."""
-        try:
-            import pygame
-            from pygame import gfxdraw
-        except ImportError:
-            return
-            
-        for dust in self.space_dust:
-            if not (0 <= dust["x"] <= 1920 and 0 <= dust["y"] <= 1080):
-                continue
-                
-            x, y = int(dust["x"]), int(dust["y"])
-            brightness = dust["brightness"]
-            size = max(1, int(dust["size"]))
-            
-            color = (brightness, brightness, brightness + 1)
-            
-            if size == 1:
-                gfxdraw.pixel(self.window, x, y, color)
-            else:
-                gfxdraw.filled_circle(self.window, x, y, size, color)
+    # Space dust drawing intentionally removed (scope simplified to starfield)
 
-    def _draw_auroras(self) -> None:
-        """Draw elegant cosmic aurora."""
-        try:
-            import pygame
-            import math
-        except ImportError:
-            return
-            
-        for aurora in self.cosmic_auroras:
-            if not (-600 <= aurora["x"] <= 2520 and -600 <= aurora["y"] <= 1680):
-                continue
-                
-            width, height = int(aurora["width"]), int(aurora["height"])
-            surface = pygame.Surface((width, height), pygame.SRCALPHA)
-            
-            # Simple elegant bands
-            bands = 3
-            for band in range(bands):
-                band_x = int((band / bands) * width)
-                band_width = max(1, width // bands)
-                
-                wave_offset = math.sin(aurora["wave_offset"] + band * 0.4) * 8
-                
-                for y in range(height):
-                    wave_x = band_x + int(wave_offset * math.sin(y * 0.008))
-                    intensity = aurora["intensity"] * math.sin(y / height * math.pi) * 0.6
-                    alpha = int(aurora["color"][3] * intensity)
-                    
-                    if alpha > 0 and 0 <= wave_x < width:
-                        color = (*aurora["color"][:3], alpha)
-                        for dx in range(band_width):
-                            if wave_x + dx < width:
-                                try:
-                                    surface.set_at((wave_x + dx, y), color)
-                                except IndexError:
-                                    continue
-            
-            self.window.blit(surface, (int(aurora["x"]), int(aurora["y"])), special_flags=pygame.BLEND_ADD)
+    # Aurora drawing intentionally removed (scope simplified to starfield)
 
 
 
@@ -828,7 +571,7 @@ class Renderer:
         self._draw_adaptive_legend()
 
     def _draw_adaptive_status_panel(self, state_text, state_color, cumulative_mining) -> None:
-        """Draw an adaptive status panel with icons and multi-column layout."""
+        """Draw an adaptive status panel with icons stacked vertically on the left."""
         try:
             import pygame
             import numpy as np
@@ -836,7 +579,7 @@ class Renderer:
         except ImportError:
             return
 
-        # Streamlined essential status only
+        # Streamlined essential status only (same items)
         status_items = [
             {
                 "icon": "energy",
@@ -845,7 +588,7 @@ class Renderer:
                 "color": (255, 100, 100) if self.env.agent_energy < 30 else (100, 255, 100)
             },
             {
-                "icon": "inventory", 
+                "icon": "inventory",
                 "value": f"Cargo {self.env.agent_inventory:.1f}",
                 "warning": False,
                 "color": (255, 255, 100) if self.env.agent_inventory > 0 else (200, 200, 200)
@@ -864,42 +607,72 @@ class Renderer:
             }
         ]
 
-        # Calculate streamlined panel size (2 columns, 2 rows - removed redundant info)
-        cols = 2
-        rows = 2
-        item_width = 200
-        item_height = 45
-        panel_width = cols * item_width + 50
-        panel_height = rows * item_height + 80
+        # Score key for left panel (compact, two-column if narrow width is insufficient)
+        score_key_items = [
+            {"label": "+X green", "color": (0, 255, 0)},
+            {"label": "+X yellow", "color": (255, 255, 0)},
+            {"label": "+X blue", "color": (100, 150, 255)},
+            {"label": "-X red", "color": (255, 80, 80)}
+        ]
+
+        # Layout: vertical stack on left
+        item_width = 220
+        item_height = 42
+        padding = 12
+        panel_width = item_width + padding * 2
+
+        # Calculate height with score key section
+        title_height = 24
+        items_height = len(status_items) * item_height
+        score_gap = 10
+        score_row_h = 22
+        score_rows = len(score_key_items)
+        panel_height = title_height + items_height + score_gap + score_rows * score_row_h + 24
 
         # Create main status panel
         status_bg = pygame.Surface((panel_width, panel_height), pygame.SRCALPHA)
-        status_bg.fill((0, 0, 0, 220))
-        pygame.draw.rect(status_bg, (60, 60, 80), (0, 0, panel_width, panel_height), 3)
+        status_bg.fill((0, 0, 0, 200))
+        pygame.draw.rect(status_bg, (60, 60, 80), (0, 0, panel_width, panel_height), 2)
 
-        # Title with state
-        title_font = pygame.font.SysFont("Arial", 16, bold=True)
+        # Title with state (kept compact)
+        title_font = pygame.font.SysFont("Arial", 14, bold=True)
         title_surface = title_font.render(state_text, True, state_color)
-        title_rect = title_surface.get_rect(center=(panel_width // 2, 20))
+        title_rect = title_surface.get_rect(center=(panel_width // 2, 18))
         status_bg.blit(title_surface, title_rect)
 
-        # Draw status items in grid
+        # Draw status items vertically
         for i, item in enumerate(status_items):
-            row = i // cols
-            col = i % cols
-            x = 15 + col * item_width
-            y = 40 + row * item_height
+            y = 36 + i * item_height
+            x = padding
 
-            # Draw icon
-            icon_x = x + 5
-            icon_y = y + 5
+            # Icon
+            icon_x = x
+            icon_y = y + 6
             self._draw_status_icon(status_bg, item["icon"], icon_x, icon_y, item["warning"])
 
-            # Draw value text
-            value_font = pygame.font.SysFont("Arial", 16, bold=item["warning"])
+            # Text
+            value_font = pygame.font.SysFont("Arial", 14, bold=item["warning"])
             value_surface = value_font.render(item["value"], True, item["color"])
-            status_bg.blit(value_surface, (x + 35, y + 10))
+            status_bg.blit(value_surface, (icon_x + 36, y + 8))
 
+        # Score key header
+        section_top = 36 + len(status_items) * item_height + score_gap
+        header_font = pygame.font.SysFont("Arial", 13, bold=True)
+        header_surface = header_font.render("SCORE KEY", True, (200, 220, 255))
+        status_bg.blit(header_surface, (padding, section_top))
+
+        # Score key items (compact chips)
+        y = section_top + 18
+        chip_w, chip_h = 18, 10
+        text_font = pygame.font.SysFont("Arial", 12)
+        for item in score_key_items:
+            pygame.draw.rect(status_bg, item["color"], (padding + 2, y + 4, chip_w, chip_h))
+            pygame.draw.rect(status_bg, (40, 40, 40), (padding + 2, y + 4, chip_w, chip_h), 1)
+            label_surface = text_font.render(item["label"], True, (220, 220, 220))
+            status_bg.blit(label_surface, (padding + 2 + chip_w + 8, y + 2))
+            y += score_row_h
+
+        # Blit to left edge (15 px margin)
         self.window.blit(status_bg, (15, 15))
 
     def _draw_status_icon(self, surface, icon_type, x, y, warning=False) -> None:
@@ -959,7 +732,7 @@ class Renderer:
 
 
     def _draw_adaptive_legend(self) -> None:
-        """Draw an adaptive legend with icons and optimized layout."""
+        """Draw an adaptive legend — vertical, right-anchored to avoid overflow."""
         try:
             import pygame
             from pygame import gfxdraw
@@ -967,60 +740,92 @@ class Renderer:
         except ImportError:
             return
 
-        # Legend items with visual icons
         legend_items = [
             {"icon": "agent", "text": "Mining Agent", "color": (50, 255, 50)},
             {"icon": "mothership", "text": "Mothership", "color": (30, 120, 200)},
             {"icon": "asteroid", "text": "Asteroids", "color": (255, 215, 0)},
             {"icon": "obstacle", "text": "Obstacles", "color": (220, 50, 50)},
-            {"icon": "depleted", "text": "Depleted", "color": (100, 100, 100)},
             {"icon": "obs_range", "text": "View Range", "color": (100, 150, 255)},
             {"icon": "mine_range", "text": "Mine Range", "color": (255, 100, 100)},
-            {"icon": "safe_zone", "text": "Safe Zone", "color": (30, 120, 255)},
-            {"icon": "energy_beam", "text": "Mining", "color": (255, 255, 0)},
-            {"icon": "particles", "text": "Delivery", "color": (255, 255, 0)},
-            {"icon": "trail", "text": "Agent Trail", "color": (50, 255, 50)},
-            {"icon": "dim_area", "text": "Dim Area", "color": (50, 50, 50)}
+            {"icon": "trail", "text": "Agent Trail", "color": (50, 255, 50)}
         ]
 
-        # Calculate adaptive layout (6 columns for ultra-wide screen)
-        cols = 6
-        item_width = 180
-        item_height = 36
-        panel_width = cols * item_width + 60
-        panel_height = len(legend_items) // cols * item_height + 120
-        if len(legend_items) % cols != 0:
-            panel_height += item_height
+        # Score popup color key (integrated into the legend panel)
+        score_key_items = [
+            {"text": "+X in green → Delivered resources to base", "color": (0, 255, 0)},
+            {"text": "+X in yellow → Mining an asteroid", "color": (255, 255, 0)},
+            {"text": "+X in blue → Energy recharge", "color": (100, 150, 255)},
+            {"text": "Negative numbers in red → Penalties", "color": (255, 80, 80)}
+        ]
+
+        # Layout metrics
+        item_height = 34
+        item_width = 240
+        padding = 12
+        score_header_height = 20
+        score_item_height = 26
+        score_section_gap = 10
+
+        panel_width = item_width + padding * 2
+        panel_height = (
+            len(legend_items) * item_height + 48
+            + score_section_gap + score_header_height
+            + len(score_key_items) * score_item_height
+        )
 
         # Create legend background
         legend_bg = pygame.Surface((panel_width, panel_height), pygame.SRCALPHA)
-        legend_bg.fill((0, 0, 0, 220))
-        pygame.draw.rect(legend_bg, (60, 60, 80), (0, 0, panel_width, panel_height), 3)
+        legend_bg.fill((0, 0, 0, 200))
+        pygame.draw.rect(legend_bg, (60, 60, 80), (0, 0, panel_width, panel_height), 2)
 
         # Title
-        title_font = pygame.font.SysFont("Arial", 18, bold=True)
-        title_surface = title_font.render("GAME LEGEND", True, (255, 255, 150))
-        title_rect = title_surface.get_rect(center=(panel_width // 2, 25))
+        title_font = pygame.font.SysFont("Arial", 16, bold=True)
+        title_surface = title_font.render("LEGEND", True, (255, 255, 150))
+        title_rect = title_surface.get_rect(center=(panel_width // 2, 18))
         legend_bg.blit(title_surface, title_rect)
 
-        # Draw legend items in grid
+        # Draw standard legend items (icons)
         for i, item in enumerate(legend_items):
-            row = i // cols
-            col = i % cols
-            x = 15 + col * item_width
-            y = 50 + row * item_height
+            y = 36 + i * item_height
+            x = padding
 
-            # Draw icon
-            self._draw_legend_icon(legend_bg, item["icon"], x + 8, y + 4, item["color"])
+            # icon at left of row
+            self._draw_legend_icon(legend_bg, item["icon"], x + 4, y + 4, item["color"])
 
-            # Draw text
+            # text
             text_font = pygame.font.SysFont("Arial", 13)
             text_surface = text_font.render(item["text"], True, (220, 220, 220))
-            legend_bg.blit(text_surface, (x + 35, y + 7))
+            legend_bg.blit(text_surface, (x + 36, y + 6))
 
-        # Position legend for ultra-wide screen
-        legend_x = 1920 - panel_width - 25
-        legend_y = 1200 - panel_height - 25
+        # Score section separator and header
+        section_top = 36 + len(legend_items) * item_height + score_section_gap
+        pygame.draw.line(legend_bg, (80, 80, 100), (padding, section_top - 4), (panel_width - padding, section_top - 4), 1)
+
+        score_title_font = pygame.font.SysFont("Arial", 14, bold=True)
+        score_title_surface = score_title_font.render("SCORE KEY", True, (200, 220, 255))
+        score_title_rect = score_title_surface.get_rect(midleft=(padding, section_top))
+        legend_bg.blit(score_title_surface, score_title_rect)
+
+        # Draw score color key items
+        start_y = section_top + score_header_height
+        for i, item in enumerate(score_key_items):
+            y = start_y + i * score_item_height
+            x = padding
+
+            # Color chip
+            chip_rect = pygame.Rect(x + 4, y + 5, 20, 12)
+            pygame.draw.rect(legend_bg, item["color"], chip_rect)
+            pygame.draw.rect(legend_bg, (40, 40, 40), chip_rect, 1)
+
+            # Description text
+            text_font = pygame.font.SysFont("Arial", 12)
+            text_surface = text_font.render(item["text"], True, (220, 220, 220))
+            legend_bg.blit(text_surface, (x + 30, y + 4))
+
+        # Position legend bottom-right with safe margins for 1080p board
+        margin = 18
+        legend_x = 1920 - panel_width - margin
+        legend_y = 1080 - panel_height - margin
         self.window.blit(legend_bg, (legend_x, legend_y))
 
     def _draw_legend_icon(self, surface, icon_type, x, y, color) -> None:
@@ -1094,168 +899,6 @@ class Renderer:
             pygame.draw.rect(surface, color, (x+3, y+3, 14, 14))
             gfxdraw.filled_circle(surface, x+10, y+10, 5, (0, 0, 0, 0))
 
-    def _draw_floating_timeline(self) -> None:
-        """Draw the floating event timeline at the top of the screen."""
-        try:
-            import pygame
-            from pygame import gfxdraw
-        except ImportError:
-            return
-
-        if not self.env.event_timeline:
-            return
-
-        # Timeline positioning for ultra-wide screen
-        timeline_y = 25
-        card_width = 200
-        card_height = 45
-        card_spacing = 18
-        start_x = (1920 - (len(self.env.event_timeline) * (card_width + card_spacing) - card_spacing)) // 2
-
-        for i, event in enumerate(self.env.event_timeline):
-            x = start_x + i * (card_width + card_spacing)
-            y = timeline_y
-            
-            # Create micro-card
-            alpha = max(50, min(255, event["alpha"]))
-            
-            # Card background with transparency
-            card_surface = pygame.Surface((card_width, card_height), pygame.SRCALPHA)
-            
-            # Background color based on event type
-            if event["type"] == "mining":
-                bg_color = (40, 80, 40, alpha)
-                border_color = (*event["color"][:3], alpha)
-            elif event["type"] == "delivery":
-                bg_color = (40, 60, 80, alpha)
-                border_color = (*event["color"][:3], alpha)
-            elif event["type"] == "collision":
-                bg_color = (80, 40, 40, alpha)
-                border_color = (*event["color"][:3], alpha)
-            elif event["type"] == "combo":
-                bg_color = (80, 60, 20, alpha)
-                border_color = (*event["color"][:3], alpha)
-            else:
-                bg_color = (60, 60, 60, alpha)
-                border_color = (200, 200, 200, alpha)
-            
-            # Draw card background
-            card_surface.fill(bg_color)
-            pygame.draw.rect(card_surface, border_color, (0, 0, card_width, card_height), 2)
-            
-            # Add icon based on event type
-            self._draw_timeline_icon(card_surface, event["type"], 8, 5)
-            
-            # Add text
-            font = pygame.font.SysFont("Arial", 11, bold=True)
-            text_surface = font.render(event["text"], True, (*event["color"][:3], alpha))
-            
-            # Position text to the right of icon
-            text_rect = text_surface.get_rect()
-            text_x = 28
-            text_y = (card_height - text_rect.height) // 2
-            card_surface.blit(text_surface, (text_x, text_y))
-            
-            # Blit card to main window
-            self.window.blit(card_surface, (x, y))
-
-    def _draw_timeline_icon(self, surface, event_type, x, y) -> None:
-        """Draw small icons for timeline events."""
-        try:
-            import pygame
-            from pygame import gfxdraw
-        except ImportError:
-            return
-
-        if event_type == "mining":
-            # Small pickaxe
-            color = (255, 255, 0)
-            pygame.draw.line(surface, color, (x+2, y+15), (x+14, y+3), 2)
-            pygame.draw.rect(surface, color, (x+11, y+1, 4, 3))
-            
-        elif event_type == "delivery":
-            # Small arrow pointing up
-            color = (0, 255, 0)
-            points = [(x+8, y+2), (x+12, y+8), (x+10, y+8), (x+10, y+16), (x+6, y+16), (x+6, y+8), (x+4, y+8)]
-            pygame.draw.polygon(surface, color, points)
-            
-        elif event_type == "collision":
-            # Warning symbol
-            color = (255, 100, 100)
-            gfxdraw.filled_circle(surface, x+8, y+10, 7, color)
-            font = pygame.font.SysFont("Arial", 10, bold=True)
-            text = font.render("!", True, (0, 0, 0))
-            surface.blit(text, (x+5, y+4))
-            
-        elif event_type == "combo":
-            # Star/burst symbol
-            color = (255, 200, 0)
-            center_x, center_y = x+8, y+10
-            for i in range(8):
-                angle = i * 45 * 3.14159 / 180
-                end_x = center_x + 6 * math.cos(angle)
-                end_y = center_y + 6 * math.sin(angle)
-                pygame.draw.line(surface, color, (center_x, center_y), (end_x, end_y), 2)
-
-    def _draw_combo_display(self) -> None:
-        """Draw the combo multiplier display."""
-        try:
-            import pygame
-            from pygame import gfxdraw
-            import math
-        except ImportError:
-            return
-
-        if self.env.combo_state["display_timer"] <= 0 or self.env.combo_state["chain_count"] < 2:
-            return
-
-        # Position combo display for ultra-wide screen
-        combo_x = 960  # Center of ultra-wide screen
-        combo_y = 160
-
-        # Create pulsing combo badge
-        alpha = self.env.combo_state["combo_alpha"]
-        combo_text = f"x{self.env.combo_state['chain_count']} COMBO!"
-        
-        # Large, bold font for combo
-        combo_font = pygame.font.SysFont("Arial", 40, bold=True)
-        text_surface = combo_font.render(combo_text, True, (255, 200, 0))
-        text_rect = text_surface.get_rect()
-        
-        # Background badge
-        badge_width = text_rect.width + 40
-        badge_height = text_rect.height + 20
-        badge_surface = pygame.Surface((badge_width, badge_height), pygame.SRCALPHA)
-        
-        # Gradient background effect
-        badge_surface.fill((80, 60, 0, alpha))
-        pygame.draw.rect(badge_surface, (255, 200, 0), (0, 0, badge_width, badge_height), 3)
-        
-        # Add sparkle effects around badge
-        for i in range(8):
-            angle = i * 45 + self.env.steps_count * 5  # Rotating sparkles
-            sparkle_x = combo_x + 50 * math.cos(math.radians(angle))
-            sparkle_y = combo_y + 30 * math.sin(math.radians(angle))
-            sparkle_color = (255, 255, 100, alpha // 2)
-            
-            sparkle_surface = pygame.Surface((6, 6), pygame.SRCALPHA)
-            gfxdraw.filled_circle(sparkle_surface, 3, 3, 2, sparkle_color)
-            self.window.blit(sparkle_surface, (int(sparkle_x) - 3, int(sparkle_y) - 3))
-        
-        # Position and draw badge
-        badge_x = combo_x - badge_width // 2
-        badge_y = combo_y - badge_height // 2
-        
-        # Set alpha for the text
-        text_surface.set_alpha(alpha)
-        
-        # Draw badge background
-        self.window.blit(badge_surface, (badge_x, badge_y))
-        
-        # Draw combo text
-        text_x = badge_x + (badge_width - text_rect.width) // 2
-        text_y = badge_y + (badge_height - text_rect.height) // 2
-        self.window.blit(text_surface, (text_x, text_y))
 
     def _draw_game_over_screen(self) -> None:
         """Draw the game over/success screen with final statistics."""
@@ -1342,41 +985,7 @@ class Renderer:
         # Perfect zoom bounds for cosmic viewing
         self.env.zoom_level = max(0.8, min(1.3, self.env.zoom_level))
 
-    def update_event_timeline(self) -> None:
-        """Update event timeline animations."""
-        # Age all events and remove expired ones
-        for event in self.env.event_timeline[:]:  # Copy list to avoid modification during iteration
-            age = self.env.steps_count - event["step"]
-            if age > event["lifetime"]:
-                self.env.event_timeline.remove(event)
-            else:
-                # Fade out over last 60 steps
-                fade_start = event["lifetime"] - 60
-                if age > fade_start:
-                    fade_progress = (age - fade_start) / 60.0
-                    event["alpha"] = int(255 * (1 - fade_progress))
-                else:
-                    event["alpha"] = 255
 
-    def update_combo_system(self) -> None:
-        """Update combo display animations."""
-        # Fade out combo display
-        if self.env.combo_state["display_timer"] > 0:
-            self.env.combo_state["display_timer"] -= 1
-            
-            # Pulsing effect
-            import math
-            pulse = abs(math.sin(self.env.steps_count * 0.3)) * 0.3 + 0.7
-            self.env.combo_state["combo_alpha"] = int(255 * pulse)
-            
-            if self.env.combo_state["display_timer"] <= 0:
-                self.env.combo_state["combo_alpha"] = 0
-        
-        # Reset combo if too much time has passed
-        if (self.env.steps_count - self.env.combo_state["last_mining_step"]) > self.env.combo_state["combo_window"]:
-            if self.env.combo_state["chain_count"] > 0:
-                self.env.combo_state["chain_count"] = 0
-                self.env.combo_state["display_timer"] = 0
 
     def spawn_delivery_particles(self, start_pos: np.ndarray, target_pos: np.ndarray) -> None:
         """Spawn glowing particles for resource delivery animation."""
@@ -1397,45 +1006,6 @@ class Renderer:
             "color": color
         }
         self.env.score_popups.append(popup)
-
-    def add_timeline_event(self, event_type: str, text: str, color: tuple) -> None:
-        """Add an event to the floating timeline."""
-        event = {
-            "type": event_type,
-            "text": text,
-            "color": color,
-            "step": self.env.steps_count,
-            "alpha": 255,
-            "lifetime": 300  # Steps before fading
-        }
-        
-        # Add to front of timeline
-        self.env.event_timeline.insert(0, event)
-        
-        # Keep only the last N events
-        if len(self.env.event_timeline) > self.env.max_timeline_events:
-            self.env.event_timeline = self.env.event_timeline[:self.env.max_timeline_events]
-
-    def process_mining_combo(self) -> None:
-        """Process mining combo chain detection."""
-        current_step = self.env.steps_count
-        
-        # Check if this mining action extends a combo
-        if (current_step - self.env.combo_state["last_mining_step"]) <= self.env.combo_state["combo_window"]:
-            self.env.combo_state["chain_count"] += 1
-        else:
-            self.env.combo_state["chain_count"] = 1
-        
-        self.env.combo_state["last_mining_step"] = current_step
-        
-        # Show combo if we have 2 or more
-        if self.env.combo_state["chain_count"] >= 2:
-            self.env.combo_state["display_timer"] = 120  # Show for 4 seconds at 30fps
-            self.env.combo_state["combo_alpha"] = 255
-            
-            # Add special combo timeline event
-            combo_text = f"x{self.env.combo_state['chain_count']} COMBO!"
-            self.add_timeline_event("combo", combo_text, (255, 200, 0))
 
     def update_animations(self) -> None:
         """Update all animation states."""
@@ -1471,11 +1041,6 @@ class Renderer:
         # Update mining beam animation
         self.env.mining_beam_offset += 0.2
 
-        # Update event timeline
-        self.update_event_timeline()
-
-        # Update combo system
-        self.update_combo_system()
 
     def trigger_game_over(self, success: bool) -> None:
         """Trigger game over screen with final statistics."""
