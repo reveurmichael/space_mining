@@ -36,7 +36,8 @@ def test_complete_model_to_gif_workflow(shared_test_model, tmp_path):
     
     # Verify trajectory was generated
     assert len(frames) > 0
-    assert len(frames) <= 10
+    # generate_trajectory produces num_steps + 1 frames (initial frame + step frames)
+    assert len(frames) <= 11
     
     # Step 2: Create GIF from trajectory
     gif_path = tmp_path / "agent_behavior.gif"
