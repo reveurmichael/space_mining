@@ -607,14 +607,6 @@ class Renderer:
             }
         ]
 
-        # Score key for left panel (compact, two-column if narrow width is insufficient)
-        score_key_items = [
-            {"label": "+X green", "color": (0, 255, 0)},
-            {"label": "+X yellow", "color": (255, 255, 0)},
-            {"label": "+X blue", "color": (100, 150, 255)},
-            {"label": "-X red", "color": (255, 80, 80)}
-        ]
-
         # Layout: vertical stack on left
         item_width = 220
         item_height = 42
@@ -626,8 +618,7 @@ class Renderer:
         items_height = len(status_items) * item_height
         score_gap = 10
         score_row_h = 22
-        score_rows = len(score_key_items)
-        panel_height = title_height + items_height + score_gap + score_rows * score_row_h + 24
+        panel_height = title_height + items_height + score_gap + score_row_h + 24
 
         # Create main status panel
         status_bg = pygame.Surface((panel_width, panel_height), pygame.SRCALPHA)
@@ -654,23 +645,6 @@ class Renderer:
             value_font = pygame.font.SysFont("Arial", 14, bold=item["warning"])
             value_surface = value_font.render(item["value"], True, item["color"])
             status_bg.blit(value_surface, (icon_x + 36, y + 8))
-
-        # Score key header
-        section_top = 36 + len(status_items) * item_height + score_gap
-        header_font = pygame.font.SysFont("Arial", 13, bold=True)
-        header_surface = header_font.render("SCORE KEY", True, (200, 220, 255))
-        status_bg.blit(header_surface, (padding, section_top))
-
-        # Score key items (compact chips)
-        y = section_top + 18
-        chip_w, chip_h = 18, 10
-        text_font = pygame.font.SysFont("Arial", 12)
-        for item in score_key_items:
-            pygame.draw.rect(status_bg, item["color"], (padding + 2, y + 4, chip_w, chip_h))
-            pygame.draw.rect(status_bg, (40, 40, 40), (padding + 2, y + 4, chip_w, chip_h), 1)
-            label_surface = text_font.render(item["label"], True, (220, 220, 220))
-            status_bg.blit(label_surface, (padding + 2 + chip_w + 8, y + 2))
-            y += score_row_h
 
         # Blit to left edge (15 px margin)
         self.window.blit(status_bg, (15, 15))
@@ -752,10 +726,10 @@ class Renderer:
 
         # Score popup color key (integrated into the legend panel)
         score_key_items = [
-            {"text": "+X in green → Delivered resources to base", "color": (0, 255, 0)},
-            {"text": "+X in yellow → Mining an asteroid", "color": (255, 255, 0)},
-            {"text": "+X in blue → Energy recharge", "color": (100, 150, 255)},
-            {"text": "Negative numbers in red → Penalties", "color": (255, 80, 80)}
+            {"text": "+X → Delivered resources to base", "color": (0, 255, 0)},
+            {"text": "+X → Mining an asteroid", "color": (255, 255, 0)},
+            {"text": "+X → Energy recharge", "color": (100, 150, 255)},
+            {"text": "-X → Penalties", "color": (255, 80, 80)}
         ]
 
         # Layout metrics
