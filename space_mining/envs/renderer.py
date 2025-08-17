@@ -576,84 +576,77 @@ class Renderer:
         except ImportError:
             return
 
-        # Compute additional metrics
+        # Compute metrics
         fitness = self.env.compute_fitness_score()
-        speed = np.linalg.norm(self.env.agent_velocity)
-        vx, vy = self.env.agent_velocity
-        heading = 0.0
-        if speed > 1e-4:
-            heading = math.degrees(math.atan2(vy, vx)) % 360
+        speed = float(np.linalg.norm(self.env.agent_velocity))
+        vx, vy = float(self.env.agent_velocity[0]), float(self.env.agent_velocity[1])
+        heading = (math.degrees(math.atan2(vy, vx)) % 360) if speed > 1e-4 else 0.0
+        dist_to_mothership = float(np.linalg.norm(self.env.agent_position - self.env.mothership_pos))
 
-        dist_to_mothership = np.linalg.norm(self.env.agent_position - self.env.mothership_pos)
-        nearest_id = None
-        nearest_dist = float("inf")
-        nearest_res = 0.0
-        for i, pos in enumerate(self.env.asteroid_positions):
-            if self.env.asteroid_resources[i] < 0.1:
-                continue
-            d = np.linalg.norm(self.env.agent_position - pos)
-            if d < nearest_dist:
-                nearest_dist = d
-                nearest_id = i
-                nearest_res = self.env.asteroid_resources[i]
+        # Mining status
+        if hasattr(self.env, "mining_asteroid_id") and self.env.mining_asteroid_id is not None:
+            mining_status = f"Mining Asteroid {self.env.mining_asteroid_id}"
+        else:
+            mining_status = "Idle (Not Mining)"
 
-        # Streamlined essential status with additional metrics
+        # Compact values
+        energy_pct = int(self.env.agent_energy / 150.0 * 100)
+        inv = self.env.agent_inventory
+        inv_max = getattr(self.env, "max_inventory", 100)
+
+        # Build items (ordered) with verbose and clear labels
         status_items = [
-            {"icon": "step", "value": f"Steps {self.env.steps_count}", "warning": False, "color": (200, 200, 255)},
-            {"icon": "energy", "value": f"Energy {self.env.agent_energy:.0f} ({self.env.agent_energy/150.0*100:.0f}%)", "warning": self.env.agent_energy < 30, "color": (255, 100, 100) if self.env.agent_energy < 30 else (100, 255, 100)},
-            {"icon": "inventory", "value": f"Inv {self.env.agent_inventory:.1f}/{self.env.max_inventory}", "warning": False, "color": (255, 255, 100) if self.env.agent_inventory > 0 else (200, 200, 200)},
-            {"icon": "mining", "value": f"Total Mined {cumulative_mining:.1f}", "warning": False, "color": (100, 255, 100)},
-            {"icon": "delivery", "value": f"Delivered {getattr(self.env, 'delivery_count', 0)}x", "warning": False, "color": (0, 255, 0)},
-            {"icon": "asteroid", "value": f"Asteroids {np.sum(self.env.asteroid_resources >= 0.1)}", "warning": np.sum(self.env.asteroid_resources >= 0.1) <= 2, "color": (255, 215, 100)},
-            {"icon": "mothership", "value": f"Dist to Base {dist_to_mothership:.1f}", "warning": False, "color": (30, 120, 200)},
-            {"icon": "score", "value": f"Fitness {fitness:.1f}", "warning": False, "color": (255, 215, 100)},
-            {"icon": "velocity", "value": f"Speed {speed:.2f} (vx:{vx:.2f}, vy:{vy:.2f})", "warning": False, "color": (180, 180, 255)},
-            {"icon": "angle", "value": f"Heading {heading:.0f}°", "warning": False, "color": (180, 180, 255)},
-            {"icon": "collision", "value": f"Collisions {self.env.collision_count}", "warning": self.env.collision_count > 0, "color": (255, 100, 100) if self.env.collision_count > 0 else (200, 200, 200)}
+            {"icon": "step", "value": f"Step Count: {self.env.steps_count} of {self.env.max_episode_steps}", "warning": False, "color": (200, 200, 255)},
+            {"icon": "energy", "value": f"Energy Level: {int(self.env.agent_energy)}/150 ({energy_pct}%)", "warning": energy_pct < 30, "color": (255, 100, 100) if energy_pct < 30 else (100, 255, 100)},
+            {"icon": "inventory", "value": f"Inventory: {inv:.1f} of {inv_max} Capacity", "warning": False, "color": (255, 255, 100) if inv > 0 else (180, 180, 180)},
+            {"icon": "mining", "value": f"Mining Status: {mining_status}", "warning": False, "color": (255, 255, 100)},
+            {"icon": "delivery", "value": f"Resources Delivered: {getattr(self.env, 'delivery_count', 0)} Times", "warning": False, "color": (0, 255, 0)},
+            {"icon": "score", "value": f"Fitness Score: {fitness:.1f}", "warning": False, "color": (255, 215, 100)},
+            {"icon": "velocity", "value": f"Current Speed: {speed:.2f}", "warning": False, "color": (180, 180, 255)},
+            {"icon": "angle", "value": f"Heading Direction: {heading:.0f} Degrees", "warning": False, "color": (180, 180, 255)},
+            {"icon": "mothership", "value": f"Distance to Mothership: {dist_to_mothership:.1f}", "warning": False, "color": (30, 120, 200)},
+            {"icon": "collision", "value": f"Collisions Occurred: {self.env.collision_count}", "warning": self.env.collision_count > 0, "color": (255, 100, 100) if self.env.collision_count > 0 else (200, 200, 200)},
+            {"icon": "action", "value": f"Last Action: ({self.env.last_action[0]:.2f}, {self.env.last_action[1]:.2f}, {'Mine' if self.env.last_action[2]>0.5 else 'No Mine'})", "warning": False, "color": (200, 200, 200)},
         ]
 
-        if hasattr(self.env, 'last_action'):
-            last_action_str = f"Action ({self.env.last_action[0]:.2f}, {self.env.last_action[1]:.2f}, {'Mine' if self.env.last_action[2] > 0.5 else 'NoMine'})"
-            status_items.append({"icon": "action", "value": last_action_str, "warning": False, "color": (200, 200, 200)})
-
-        # Layout: vertical stack on left
-        item_width = 260
-        item_height = 30
-        padding = 10
+        # Layout: vertical stack on left, less compact for clarity
+        item_width = 320
+        item_height = 38
+        padding = 14
         panel_width = item_width + padding * 2
 
         # Calculate height with score key section
-        title_height = 24
+        title_height = 30
         items_height = len(status_items) * item_height
-        score_gap = 10
-        score_row_h = 22
-        panel_height = title_height + items_height + score_gap + score_row_h + 24
+        score_gap = 14
+        score_row_h = 26
+        panel_height = title_height + items_height + score_gap + score_row_h + 30
 
         # Create main status panel
         status_bg = pygame.Surface((panel_width, panel_height), pygame.SRCALPHA)
         status_bg.fill((0, 0, 0, 200))
         pygame.draw.rect(status_bg, (60, 60, 80), (0, 0, panel_width, panel_height), 2)
 
-        # Title with state (kept compact)
-        title_font = pygame.font.SysFont("Arial", 14, bold=True)
+        # Title with state (larger for clarity)
+        title_font = pygame.font.SysFont("Arial", 18, bold=True)
         title_surface = title_font.render(state_text, True, state_color)
-        title_rect = title_surface.get_rect(center=(panel_width // 2, 18))
+        title_rect = title_surface.get_rect(center=(panel_width // 2, 22))
         status_bg.blit(title_surface, title_rect)
 
         # Draw status items vertically
         for i, item in enumerate(status_items):
-            y = 36 + i * item_height
+            y = 44 + i * item_height
             x = padding
 
             # Icon
             icon_x = x
-            icon_y = y + 3
+            icon_y = y + 8
             self._draw_status_icon(status_bg, item["icon"], icon_x, icon_y, item["warning"])
 
             # Text
-            value_font = pygame.font.SysFont("Arial", 12, bold=item["warning"])
+            value_font = pygame.font.SysFont("Arial", 16, bold=item["warning"])
             value_surface = value_font.render(item["value"], True, item["color"])
-            status_bg.blit(value_surface, (icon_x + 30, y + 5))
+            status_bg.blit(value_surface, (icon_x + 38, y + 10))
 
         # Blit to left edge (15 px margin)
         self.window.blit(status_bg, (15, 15))
