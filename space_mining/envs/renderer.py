@@ -752,27 +752,27 @@ class Renderer:
 
         legend_items = [
             {"icon": "agent", "text": "Mining Agent", "color": (50, 255, 50)},
-            {"icon": "mothership", "text": "Mothership", "color": (30, 120, 200)},
-            {"icon": "asteroid", "text": "Asteroids", "color": (255, 215, 0)},
-            {"icon": "obstacle", "text": "Obstacles", "color": (220, 50, 50)},
-            {"icon": "obs_range", "text": "View Range", "color": (100, 150, 255)},
-            {"icon": "mine_range", "text": "Mine Range", "color": (255, 100, 100)}
+            {"icon": "mothership", "text": "Mothership Base", "color": (30, 120, 200)},
+            {"icon": "asteroid", "text": "Resource Asteroids", "color": (255, 215, 0)},
+            {"icon": "obstacle", "text": "Hazardous Obstacles", "color": (220, 50, 50)},
+            {"icon": "obs_range", "text": "Observation Range", "color": (100, 150, 255)},
+            {"icon": "mine_range", "text": "Mining Range", "color": (255, 100, 100)}
         ]
 
         # Score popup color key (integrated into the legend panel)
         score_key_items = [
-            {"text": "+X → Delivered resources to base", "color": (0, 255, 0)},
-            {"text": "+X → Mining an asteroid", "color": (255, 255, 0)},
-            {"text": "+X → Energy recharge", "color": (100, 150, 255)}
+            {"text": "+X: Resources Delivered to Base", "color": (0, 255, 0)},
+            {"text": "+X: Mining Resources from Asteroid", "color": (255, 255, 0)},
+            {"text": "+X: Energy Recharge at Base", "color": (100, 150, 255)}
         ]
 
         # Layout metrics
-        item_height = 34
-        item_width = 240
-        padding = 12
-        score_header_height = 20
-        score_item_height = 26
-        score_section_gap = 10
+        item_height = 38
+        item_width = 300
+        padding = 16
+        score_header_height = 24
+        score_item_height = 30
+        score_section_gap = 12
 
         panel_width = item_width + padding * 2
         panel_height = (
@@ -787,31 +787,30 @@ class Renderer:
         pygame.draw.rect(legend_bg, (60, 60, 80), (0, 0, panel_width, panel_height), 2)
 
         # Title
-        title_font = pygame.font.SysFont("Arial", 16, bold=True)
+        title_font = pygame.font.SysFont("Arial", 18, bold=True)
         title_surface = title_font.render("LEGEND", True, (255, 255, 150))
-        title_rect = title_surface.get_rect(center=(panel_width // 2, 18))
+        title_rect = title_surface.get_rect(center=(panel_width // 2, 22))
         legend_bg.blit(title_surface, title_rect)
 
         # Draw standard legend items (icons)
         for i, item in enumerate(legend_items):
-            y = 36 + i * item_height
+            y = 44 + i * item_height
             x = padding
 
             # icon at left of row
-            self._draw_legend_icon(legend_bg, item["icon"], x + 4, y + 4, item["color"])
+            self._draw_legend_icon(legend_bg, item["icon"], x + 4, y + 8, item["color"])
 
             # text
-            text_font = pygame.font.SysFont("Arial", 13)
+            text_font = pygame.font.SysFont("Arial", 16)
             text_surface = text_font.render(item["text"], True, (220, 220, 220))
-            legend_bg.blit(text_surface, (x + 36, y + 6))
+            legend_bg.blit(text_surface, (x + 38, y + 10))
 
-        # Score section separator and header
-        section_top = 36 + len(legend_items) * item_height + score_section_gap
-        pygame.draw.line(legend_bg, (80, 80, 100), (padding, section_top - 4), (panel_width - padding, section_top - 4), 1)
+        # Score section header (without separator line)
+        section_top = 44 + len(legend_items) * item_height + score_section_gap
 
-        score_title_font = pygame.font.SysFont("Arial", 14, bold=True)
+        score_title_font = pygame.font.SysFont("Arial", 16, bold=True)
         score_title_surface = score_title_font.render("SCORE KEY", True, (200, 220, 255))
-        score_title_rect = score_title_surface.get_rect(midleft=(padding, section_top))
+        score_title_rect = score_title_surface.get_rect(center=(panel_width // 2, section_top))
         legend_bg.blit(score_title_surface, score_title_rect)
 
         # Draw score color key items
@@ -821,17 +820,17 @@ class Renderer:
             x = padding
 
             # Color chip
-            chip_rect = pygame.Rect(x + 4, y + 5, 20, 12)
+            chip_rect = pygame.Rect(x + 4, y + 7, 24, 16)
             pygame.draw.rect(legend_bg, item["color"], chip_rect)
             pygame.draw.rect(legend_bg, (40, 40, 40), chip_rect, 1)
 
             # Description text
-            text_font = pygame.font.SysFont("Arial", 12)
+            text_font = pygame.font.SysFont("Arial", 14)
             text_surface = text_font.render(item["text"], True, (220, 220, 220))
-            legend_bg.blit(text_surface, (x + 30, y + 4))
+            legend_bg.blit(text_surface, (x + 34, y + 6))
 
         # Position legend bottom-right with safe margins for 1080p board
-        margin = 18
+        margin = 20
         legend_x = 1920 - panel_width - margin
         legend_y = 1080 - panel_height - margin
         self.window.blit(legend_bg, (legend_x, legend_y))
