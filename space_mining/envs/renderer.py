@@ -463,7 +463,7 @@ class Renderer:
 
         # OBSERVATION RANGE DIMMING EFFECT
         overlay = pygame.Surface((1920, 1200), pygame.SRCALPHA)
-        overlay.fill((0, 0, 0, 128))  # 50% darkness outside observation circle
+        overlay.fill((0, 0, 0, 160))  # 160/255 darkness outside observation circle
         
         # Create a "visible" hole for observation range
         pygame.draw.circle(overlay, (0, 0, 0, 0), agent_pos_2d, obs_radius_px)
