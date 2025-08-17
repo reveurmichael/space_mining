@@ -113,6 +113,8 @@ class SpaceMining(gym.Env):
 
         self.steps_count = 0
         self.collision_count = 0
+        self.delivery_count = 0
+        self.last_action = np.zeros(3, dtype=np.float32)
 
         # Reset animation data structures
         self.delivery_particles = []
@@ -171,6 +173,7 @@ class SpaceMining(gym.Env):
 
     def step(self, action: np.ndarray) -> Tuple[np.ndarray, float, bool, bool, Dict[str, Any]]:
         self.steps_count += 1
+        self.last_action = action.copy()
 
         required_attrs = ("agent_position", "agent_velocity", "asteroid_positions", "asteroid_resources")
         if not all(hasattr(self, attr) for attr in required_attrs):
@@ -317,6 +320,7 @@ class SpaceMining(gym.Env):
         if distance_to_mothership < 12.0 and self.agent_inventory > 0:
             delivered_amount = self.agent_inventory
             reward += delivered_amount * 12.0
+            self.delivery_count = getattr(self, "delivery_count", 0) + 1
             # Spawn delivery particles
             self.renderer.spawn_delivery_particles(self.agent_position.copy(), self.mothership_pos.copy())
             # Add score popup for delivery

@@ -43,9 +43,10 @@ class Renderer:
                 "y": np.random.uniform(0, 1080),
                 "size": np.random.choice([1, 2], p=[0.9, 0.1]),
                 "brightness": np.random.randint(15, 55),
-                "speed": np.random.uniform(0.003, 0.010),
-                "drift_x": np.random.uniform(-0.02, 0.02),
-                "drift_y": np.random.uniform(-0.02, 0.02),
+                "speed": np.random.uniform(0.01, 0.03),  # Increased speed
+                "burst_speed": np.random.uniform(0.05, 0.1) if np.random.random() < 0.1 else 0.0,  # Occasional burst
+                "drift_x": np.random.uniform(-0.05, 0.05),
+                "drift_y": np.random.uniform(-0.05, 0.05),
                 "color_type": np.random.choice(["white", "blue", "yellow"], p=[0.85, 0.1, 0.05])
             })
         self.starfield_layers.append(layer1_stars)
@@ -58,9 +59,10 @@ class Renderer:
                 "y": np.random.uniform(0, 1080),
                 "size": np.random.choice([1, 2, 3], p=[0.6, 0.3, 0.1]),
                 "brightness": np.random.randint(25, 80),
-                "speed": np.random.uniform(0.010, 0.025),
-                "drift_x": np.random.uniform(-0.03, 0.03),
-                "drift_y": np.random.uniform(-0.03, 0.03),
+                "speed": np.random.uniform(0.03, 0.06),  # Increased speed
+                "burst_speed": np.random.uniform(0.1, 0.2) if np.random.random() < 0.15 else 0.0,  # Occasional burst
+                "drift_x": np.random.uniform(-0.07, 0.07),
+                "drift_y": np.random.uniform(-0.07, 0.07),
                 "color_type": np.random.choice(["white", "blue", "yellow"], p=[0.8, 0.15, 0.05])
             })
         self.starfield_layers.append(layer2_stars)
@@ -73,9 +75,10 @@ class Renderer:
                 "y": np.random.uniform(0, 1080),
                 "size": np.random.choice([2, 3, 4, 5], p=[0.5, 0.3, 0.15, 0.05]),
                 "brightness": np.random.randint(35, 110),
-                "speed": np.random.uniform(0.020, 0.050),
-                "drift_x": np.random.uniform(-0.05, 0.05),
-                "drift_y": np.random.uniform(-0.05, 0.05),
+                "speed": np.random.uniform(0.05, 0.1),  # Increased speed
+                "burst_speed": np.random.uniform(0.2, 0.3) if np.random.random() < 0.2 else 0.0,  # Occasional burst
+                "drift_x": np.random.uniform(-0.1, 0.1),
+                "drift_y": np.random.uniform(-0.1, 0.1),
                 "color_type": np.random.choice(["white", "blue", "yellow"], p=[0.75, 0.2, 0.05])
             })
         self.starfield_layers.append(layer3_stars)
@@ -102,7 +105,10 @@ class Renderer:
         for layer_idx, layer in enumerate(self.starfield_layers):
             for star in layer:
                 # Subtle parallax based on layer
-                parallax_factor = star.get("speed", 0.006) * self.env.zoom_level * (0.4 + 0.3 * layer_idx)
+                current_speed = star.get("speed", 0.006)
+                if star.get("burst_speed", 0.0) > 0 and np.random.random() < 0.05:  # 5% chance to trigger burst
+                    current_speed += star.get("burst_speed", 0.0)
+                parallax_factor = current_speed * self.env.zoom_level * (0.4 + 0.3 * layer_idx)
                 star["x"] -= movement[0] * parallax_factor
                 star["y"] -= movement[1] * parallax_factor
                 
@@ -566,41 +572,54 @@ class Renderer:
             import pygame
             import numpy as np
             from pygame import gfxdraw
+            import math
         except ImportError:
             return
 
-        # Streamlined essential status only (same items)
+        # Compute additional metrics
+        fitness = self.env.compute_fitness_score()
+        speed = np.linalg.norm(self.env.agent_velocity)
+        vx, vy = self.env.agent_velocity
+        heading = 0.0
+        if speed > 1e-4:
+            heading = math.degrees(math.atan2(vy, vx)) % 360
+
+        dist_to_mothership = np.linalg.norm(self.env.agent_position - self.env.mothership_pos)
+        nearest_id = None
+        nearest_dist = float("inf")
+        nearest_res = 0.0
+        for i, pos in enumerate(self.env.asteroid_positions):
+            if self.env.asteroid_resources[i] < 0.1:
+                continue
+            d = np.linalg.norm(self.env.agent_position - pos)
+            if d < nearest_dist:
+                nearest_dist = d
+                nearest_id = i
+                nearest_res = self.env.asteroid_resources[i]
+
+        # Streamlined essential status with additional metrics
         status_items = [
-            {
-                "icon": "energy",
-                "value": f"Energy {self.env.agent_energy:.0f}",
-                "warning": self.env.agent_energy < 30,
-                "color": (255, 100, 100) if self.env.agent_energy < 30 else (100, 255, 100)
-            },
-            {
-                "icon": "inventory",
-                "value": f"Cargo {self.env.agent_inventory:.1f}",
-                "warning": False,
-                "color": (255, 255, 100) if self.env.agent_inventory > 0 else (200, 200, 200)
-            },
-            {
-                "icon": "mining",
-                "value": f"Mined {cumulative_mining:.1f}",
-                "warning": False,
-                "color": (100, 255, 100)
-            },
-            {
-                "icon": "asteroid",
-                "value": f"Asteroids {np.sum(self.env.asteroid_resources >= 0.1)}",
-                "warning": np.sum(self.env.asteroid_resources >= 0.1) <= 2,
-                "color": (255, 215, 100)
-            }
+            {"icon": "step", "value": f"Steps {self.env.steps_count}", "warning": False, "color": (200, 200, 255)},
+            {"icon": "energy", "value": f"Energy {self.env.agent_energy:.0f} ({self.env.agent_energy/150.0*100:.0f}%)", "warning": self.env.agent_energy < 30, "color": (255, 100, 100) if self.env.agent_energy < 30 else (100, 255, 100)},
+            {"icon": "inventory", "value": f"Inv {self.env.agent_inventory:.1f}/{self.env.max_inventory}", "warning": False, "color": (255, 255, 100) if self.env.agent_inventory > 0 else (200, 200, 200)},
+            {"icon": "mining", "value": f"Total Mined {cumulative_mining:.1f}", "warning": False, "color": (100, 255, 100)},
+            {"icon": "delivery", "value": f"Delivered {getattr(self.env, 'delivery_count', 0)}x", "warning": False, "color": (0, 255, 0)},
+            {"icon": "asteroid", "value": f"Asteroids {np.sum(self.env.asteroid_resources >= 0.1)}", "warning": np.sum(self.env.asteroid_resources >= 0.1) <= 2, "color": (255, 215, 100)},
+            {"icon": "mothership", "value": f"Dist to Base {dist_to_mothership:.1f}", "warning": False, "color": (30, 120, 200)},
+            {"icon": "score", "value": f"Fitness {fitness:.1f}", "warning": False, "color": (255, 215, 100)},
+            {"icon": "velocity", "value": f"Speed {speed:.2f} (vx:{vx:.2f}, vy:{vy:.2f})", "warning": False, "color": (180, 180, 255)},
+            {"icon": "angle", "value": f"Heading {heading:.0f}°", "warning": False, "color": (180, 180, 255)},
+            {"icon": "collision", "value": f"Collisions {self.env.collision_count}", "warning": self.env.collision_count > 0, "color": (255, 100, 100) if self.env.collision_count > 0 else (200, 200, 200)}
         ]
 
+        if hasattr(self.env, 'last_action'):
+            last_action_str = f"Action ({self.env.last_action[0]:.2f}, {self.env.last_action[1]:.2f}, {'Mine' if self.env.last_action[2] > 0.5 else 'NoMine'})"
+            status_items.append({"icon": "action", "value": last_action_str, "warning": False, "color": (200, 200, 200)})
+
         # Layout: vertical stack on left
-        item_width = 220
-        item_height = 42
-        padding = 12
+        item_width = 260
+        item_height = 30
+        padding = 10
         panel_width = item_width + padding * 2
 
         # Calculate height with score key section
@@ -628,13 +647,13 @@ class Renderer:
 
             # Icon
             icon_x = x
-            icon_y = y + 6
+            icon_y = y + 3
             self._draw_status_icon(status_bg, item["icon"], icon_x, icon_y, item["warning"])
 
             # Text
-            value_font = pygame.font.SysFont("Arial", 14, bold=item["warning"])
+            value_font = pygame.font.SysFont("Arial", 12, bold=item["warning"])
             value_surface = value_font.render(item["value"], True, item["color"])
-            status_bg.blit(value_surface, (icon_x + 36, y + 8))
+            status_bg.blit(value_surface, (icon_x + 30, y + 5))
 
         # Blit to left edge (15 px margin)
         self.window.blit(status_bg, (15, 15))
@@ -693,6 +712,40 @@ class Renderer:
             points = [(x+10, y+2), (x+16, y+6), (x+15, y+14), (x+8, y+17), (x+3, y+12), (x+4, y+5)]
             pygame.draw.polygon(surface, color, points, 2)
 
+        elif icon_type == "mothership":
+            # Mothership icon
+            color = warning_color or (30, 120, 200)
+            gfxdraw.filled_circle(surface, x+10, y+10, 8, color)
+
+        elif icon_type == "delivery":
+            # Delivery icon
+            color = warning_color or (0, 255, 0)
+            pygame.draw.rect(surface, color, (x+3, y+5, 14, 10), 2)
+            pygame.draw.line(surface, color, (x+3, y+10), (x+17, y+10), 2)
+
+        elif icon_type == "score":
+            # Score icon
+            color = warning_color or (255, 215, 100)
+            pygame.draw.polygon(surface, color, [(x+10, y+2), (x+18, y+18), (x+2, y+18)], 2)
+
+        elif icon_type == "velocity":
+            # Velocity icon (arrow)
+            color = warning_color or (180, 180, 255)
+            pygame.draw.line(surface, color, (x+5, y+10), (x+15, y+10), 2)
+            pygame.draw.line(surface, color, (x+12, y+7), (x+15, y+10), 2)
+            pygame.draw.line(surface, color, (x+12, y+13), (x+15, y+10), 2)
+
+        elif icon_type == "angle":
+            # Heading icon (compass)
+            color = warning_color or (180, 180, 255)
+            gfxdraw.aacircle(surface, x+10, y+10, 8, color)
+            pygame.draw.line(surface, color, (x+10, y+2), (x+10, y+10), 2)
+
+        elif icon_type == "action":
+            # Action icon (controller)
+            color = warning_color or (200, 200, 200)
+            pygame.draw.rect(surface, color, (x+2, y+6, 16, 8), 2)
+            pygame.draw.rect(surface, color, (x+12, y+2, 4, 4), 2)
 
 
     def _draw_adaptive_legend(self) -> None:
