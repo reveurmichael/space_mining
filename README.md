@@ -117,7 +117,7 @@ For detailed installation instructions and troubleshooting, see [Installation Gu
   ```
 - Train a PPO agent:
   ```bash
-  python -m space_mining.agents.train_ppo --total-timesteps 10000000 --output-dir runs/ppo
+  python -m space_mining.agents.train_ppo --total-timesteps 5000000 --output-dir runs/ppo
   ```
 - Or load a pre-trained model from Hugging Face and render a GIF (no training):
   ```python

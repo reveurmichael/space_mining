@@ -1179,7 +1179,7 @@ for _ in range(1000):
 def main() -> None:
     # Train with configuration
     model = train_ppo(
-        total_timesteps=10_000_000,
+        total_timesteps=5_000_000,
         output_dir="runs/ppo_research",
         track_wandb=True,
         wandb_project_name="space-mining-research",
@@ -1198,7 +1198,7 @@ if __name__ == "__main__":
         <p class="muted">Create demonstration GIFs from trained models for research analysis.</p>
         <pre class="line-numbers"><code class="language-bash"># Train PPO Agent
 python -m space_mining.agents.train_ppo \
-  --total-timesteps 10000000 --output-dir runs/ppo --checkpoint-freq 100000 --eval-freq 200000
+  --total-timesteps 5000000 --output-dir runs/ppo --checkpoint-freq 100000 --eval-freq 200000
 
 # Render a GIF
 python -m space_mining.scripts.make_gif \

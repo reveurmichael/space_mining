@@ -46,7 +46,7 @@ from space_mining import make_env
 n_envs = 8
 env = SubprocVecEnv([lambda: make_env() for _ in range(n_envs)])
 model = PPO('MlpPolicy', env, verbose=1)
-model.learn(total_timesteps=10_000_000)
+model.learn(total_timesteps=5_000_000)
 ```
 
 - More recipes (callbacks, checkpoints, HF loading, GIFs): see `examples.md`.

@@ -281,7 +281,7 @@ def evaluate_trained_ppo(
 
 def train_ppo(
     output_dir: str = "./runs/ppo",
-    total_timesteps: int = 10_000_000,
+    total_timesteps: int = 5_000_000,
     learning_rate: float = 0.0003,
     n_steps: int = 2048,
     batch_size: int = 64,
@@ -474,7 +474,7 @@ def main() -> None:
         "--total-timesteps",
         dest="total_timesteps",
         type=int,
-        default=10_000_000,
+        default=5_000_000,
         help="Total number of timesteps to train for",
     )
     

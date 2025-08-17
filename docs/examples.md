@@ -105,7 +105,7 @@ env.close()
 ### 3.2 Use the built-in training helper
 - CLI:
 ```bash
-python -m space_mining.agents.train_ppo --total-timesteps 10000000 --output-dir runs/ppo
+python -m space_mining.agents.train_ppo --total-timesteps 5000000 --output-dir runs/ppo
 ```
   - Use hyphenated flags only (e.g., `--total-timesteps`).
 
@@ -113,7 +113,7 @@ python -m space_mining.agents.train_ppo --total-timesteps 10000000 --output-dir 
 ```python
 from space_mining.agents.train_ppo import train_ppo
 
-model = train_ppo(total_timesteps=10_000_000, output_dir='runs/ppo', device='cpu')
+model = train_ppo(total_timesteps=5_000_000, output_dir='runs/ppo', device='cpu')
 ```
 
 
@@ -164,7 +164,7 @@ from space_mining import make_env
 n_envs = 8
 env = SubprocVecEnv([lambda: make_env() for _ in range(n_envs)])
 model = PPO('MlpPolicy', env, verbose=1)
-model.learn(total_timesteps=10_000_000)
+model.learn(total_timesteps=5_000_000)
 ```
 
 
@@ -198,7 +198,7 @@ checkpoint = CheckpointCallback(save_freq=10_000, save_path='runs/ppo/', name_pr
 eval_cb = EvalCallback(eval_env, best_model_save_path='runs/best/', log_path='runs/logs/', eval_freq=5_000,
                        deterministic=True, render=False)
 
-model.learn(total_timesteps=10_000_000, callback=[checkpoint, eval_cb])
+model.learn(total_timesteps=5_000_000, callback=[checkpoint, eval_cb])
 ```
 
 

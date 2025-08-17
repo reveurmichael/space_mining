@@ -16,5 +16,5 @@ Secrets/Variables required:
 
 ## Local Reproduction
 - Install dependencies: `pip install -r requirements.txt`
-- Train: `python -m space_mining.agents.train_ppo --total-timesteps 10000000 --output-dir runs/ppo`
+- Train: `python -m space_mining.agents.train_ppo --total-timesteps 5000000 --output-dir runs/ppo`
 - Generate GIF: `python space_mining/scripts/make_gif.py --checkpoint runs/ppo/final_model.zip --output output_gif/agent.gif --steps 800 --fps 20`

@@ -19,7 +19,7 @@ def main() -> None:
     - Adjust `total_timesteps` and `output_dir` as needed for your experiments.
     - See the documentation for CLI equivalents and advanced settings.
     """
-    train_ppo(total_timesteps=10_000_000, output_dir="runs/ppo")
+    train_ppo(total_timesteps=5_000_000, output_dir="runs/ppo")
 
 
 if __name__ == "__main__":

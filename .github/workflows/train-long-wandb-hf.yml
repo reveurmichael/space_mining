@@ -6,7 +6,7 @@ on:
       total_timesteps:
         description: "Number of timesteps to train"
         required: false
-        default: "10000000"
+        default: "5000000"
         type: string
       checkpoint_freq:
         description: "Checkpoint save frequency"
