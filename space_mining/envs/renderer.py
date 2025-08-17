@@ -178,16 +178,6 @@ class Renderer:
             screen_y = int(540 + (y - 40) * zoom_scale + shake_offset[1])  # Perfect center
             return screen_x, screen_y
 
-        # Draw agent trail first (behind everything)
-        for trail_point in self.env.agent_trail:
-            trail_pos_2d = to_screen(trail_point["pos"])
-            alpha = max(0, min(255, trail_point["alpha"]))
-            if alpha > 0:
-                trail_surface = pygame.Surface((10, 10), pygame.SRCALPHA)
-                trail_color = (50, 255, 50, alpha // 2)
-                gfxdraw.filled_circle(trail_surface, 5, 5, 3, trail_color)
-                self.window.blit(trail_surface, (trail_pos_2d[0] - 5, trail_pos_2d[1] - 5))
-
         # Draw mothership with safe zone aura
         mothership_pos_2d = to_screen(self.env.mothership_pos)
         
@@ -720,16 +710,14 @@ class Renderer:
             {"icon": "asteroid", "text": "Asteroids", "color": (255, 215, 0)},
             {"icon": "obstacle", "text": "Obstacles", "color": (220, 50, 50)},
             {"icon": "obs_range", "text": "View Range", "color": (100, 150, 255)},
-            {"icon": "mine_range", "text": "Mine Range", "color": (255, 100, 100)},
-            {"icon": "trail", "text": "Agent Trail", "color": (50, 255, 50)}
+            {"icon": "mine_range", "text": "Mine Range", "color": (255, 100, 100)}
         ]
 
         # Score popup color key (integrated into the legend panel)
         score_key_items = [
             {"text": "+X → Delivered resources to base", "color": (0, 255, 0)},
             {"text": "+X → Mining an asteroid", "color": (255, 255, 0)},
-            {"text": "+X → Energy recharge", "color": (100, 150, 255)},
-            {"text": "-X → Penalties", "color": (255, 80, 80)}
+            {"text": "+X → Energy recharge", "color": (100, 150, 255)}
         ]
 
         # Layout metrics
@@ -983,14 +971,6 @@ class Renderer:
 
     def update_animations(self) -> None:
         """Update all animation states."""
-        # Update agent trail
-        self.env.agent_trail.append({"pos": self.env.agent_position.copy(), "alpha": 255})
-        # Fade existing trail points
-        for trail_point in self.env.agent_trail:
-            trail_point["alpha"] -= 15
-        # Remove faded trail points
-        self.env.agent_trail = [p for p in self.env.agent_trail if p["alpha"] > 0]
-
         # Update delivery particles
         for particle in self.env.delivery_particles:
             particle["progress"] += 0.05
