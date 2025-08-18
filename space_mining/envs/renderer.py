@@ -586,13 +586,13 @@ class Renderer:
         # Agent state indicator (avoiding 'Exploring' to prevent RL terminology confusion)
         if hasattr(self.env, "mining_asteroid_id") and self.env.mining_asteroid_id is not None:
             agent_state = f"Mining A{self.env.mining_asteroid_id}"
-            state_color = (255, 255, 100)
+            state_color = (255, 255, 100)  # Bright Yellow for Mining
         elif self.env.agent_inventory > 0:
             agent_state = f"Carrying {self.env.agent_inventory:.0f}"
-            state_color = (255, 255, 0)
+            state_color = (255, 200, 0)    # Orange for Carrying
         else:
             agent_state = "Navigating"
-            state_color = (200, 200, 255)
+            state_color = (135, 206, 250)  # Sky Blue for Navigating
 
         # Compact values
         energy_pct = int(self.env.agent_energy / 150.0 * 100)
@@ -602,21 +602,21 @@ class Renderer:
         remaining_asteroids = np.sum(self.env.asteroid_resources >= 0.1) if hasattr(self.env, 'asteroid_resources') else 0
         total_mined = cumulative_mining if cumulative_mining > 0 else 0.0
 
-        # Build items (ordered) with clear, informative labels
+        # Build items (ordered) with clear, informative labels and diversified colors
         status_items = [
-            {"icon": "step", "value": f"Step Count: {self.env.steps_count} of {self.env.max_episode_steps}", "warning": False, "color": (200, 200, 255)},
-            {"icon": "energy", "value": f"Energy Level: {int(self.env.agent_energy)}/150 ({energy_pct}%)", "warning": energy_pct < 30, "color": (255, 100, 100) if energy_pct < 30 else (100, 255, 100)},
-            {"icon": "inventory", "value": f"Inventory: {inv:.1f} of {inv_max} Capacity", "warning": False, "color": (255, 255, 100) if inv > 0 else (180, 180, 180)},
-            {"icon": "mining", "value": f"Agent State: {agent_state}", "warning": False, "color": state_color},
-            {"icon": "delivery", "value": f"Deliveries Made: {getattr(self.env, 'delivery_count', 0)}", "warning": False, "color": (0, 255, 0)},
-            {"icon": "mining", "value": f"Total Resources Mined: {total_mined:.1f}", "warning": False, "color": (100, 255, 100)},
-            {"icon": "score", "value": f"Fitness Score: {fitness:.1f}", "warning": False, "color": (255, 215, 100)},
-            {"icon": "velocity", "value": f"Speed X: {vx:.2f}, Speed Y: {vy:.2f}", "warning": False, "color": (180, 180, 255)},
-            {"icon": "angle", "value": f"Heading Direction: {heading:.0f} Degrees", "warning": False, "color": (180, 180, 255)},
-            {"icon": "mothership", "value": f"Distance to Mothership: {dist_to_mothership:.1f}", "warning": False, "color": (30, 120, 200)},
-            {"icon": "collision", "value": f"Collisions: {self.env.collision_count}", "warning": self.env.collision_count > 0, "color": (255, 100, 100) if self.env.collision_count > 0 else (200, 200, 200)},
-            {"icon": "action", "value": f"Action: ({self.env.last_action[0]:.2f}, {self.env.last_action[1]:.2f}, {'Mining' if self.env.last_action[2]>0.5 else 'Not Mining'})", "warning": False, "color": (200, 200, 200)},
-            {"icon": "asteroid", "value": f"Asteroids Remaining: {remaining_asteroids} of {total_asteroids}", "warning": remaining_asteroids <= 2, "color": (255, 215, 100)}
+            {"icon": "step", "value": f"Step Count: {self.env.steps_count} of {self.env.max_episode_steps}", "warning": False, "color": (176, 196, 222)},  # Light Steel Blue
+            {"icon": "energy", "value": f"Energy Level: {int(self.env.agent_energy)}/150 ({energy_pct}%)", "warning": energy_pct < 30, "color": (255, 100, 100) if energy_pct < 30 else (100, 255, 100)},  # Red if low, Green if high
+            {"icon": "inventory", "value": f"Inventory: {inv:.1f} of {inv_max} Capacity", "warning": False, "color": (255, 215, 0) if inv > 0 else (180, 180, 180)},  # Yellow if carrying, Gray if empty
+            {"icon": "mining", "value": f"Agent State: {agent_state}", "warning": False, "color": state_color},  # Dynamic based on state
+            {"icon": "delivery", "value": f"Deliveries Made: {getattr(self.env, 'delivery_count', 0)}", "warning": False, "color": (50, 205, 50)},  # Lime Green
+            {"icon": "mining", "value": f"Total Resources Mined: {total_mined:.1f}", "warning": False, "color": (100, 255, 200)},  # Mint Green
+            {"icon": "score", "value": f"Fitness Score: {fitness:.1f}", "warning": False, "color": (255, 215, 100)},  # Gold Yellow
+            {"icon": "velocity", "value": f"Speed X: {vx:.2f}, Speed Y: {vy:.2f}", "warning": False, "color": (100, 200, 255)},  # Light Blue
+            {"icon": "angle", "value": f"Heading Direction: {heading:.0f} Degrees", "warning": False, "color": (135, 206, 235)},  # Sky Blue
+            {"icon": "mothership", "value": f"Distance to Mothership: {dist_to_mothership:.1f}", "warning": False, "color": (100, 150, 255)},  # Soft Blue
+            {"icon": "collision", "value": f"Collisions: {self.env.collision_count}", "warning": self.env.collision_count > 0, "color": (255, 100, 100) if self.env.collision_count > 0 else (200, 200, 200)},  # Red if collisions, Gray if none
+            {"icon": "asteroid", "value": f"Asteroids Remaining: {remaining_asteroids} of {total_asteroids}", "warning": remaining_asteroids <= 2, "color": (255, 215, 0) if remaining_asteroids > 2 else (255, 150, 0)},  # Yellow, darker if low
+            {"icon": "action", "value": f"Action: ({self.env.last_action[0]:.2f}, {self.env.last_action[1]:.2f}, {'Mining' if self.env.last_action[2]>0.5 else 'Not Mining'})", "warning": False, "color": (200, 180, 255)}  # Light Purple
         ]
 
         # Layout: vertical stack on left, less compact for clarity
