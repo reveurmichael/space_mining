@@ -43,10 +43,10 @@ class Renderer:
                 "y": np.random.uniform(0, 1080),
                 "size": np.random.choice([1, 2], p=[0.9, 0.1]),
                 "brightness": np.random.randint(15, 55),
-                "speed": np.random.uniform(0.01, 0.03),  # Increased speed
-                "burst_speed": np.random.uniform(0.05, 0.1) if np.random.random() < 0.1 else 0.0,  # Occasional burst
-                "drift_x": np.random.uniform(-0.05, 0.05),
-                "drift_y": np.random.uniform(-0.05, 0.05),
+                "speed": np.random.uniform(0.05, 0.1),  # Significantly increased speed
+                "burst_speed": np.random.uniform(0.2, 0.3) if np.random.random() < 0.2 else 0.0,  # Higher burst chance and speed
+                "drift_x": np.random.uniform(-0.1, 0.1),
+                "drift_y": np.random.uniform(-0.1, 0.1),
                 "color_type": np.random.choice(["white", "blue", "yellow"], p=[0.85, 0.1, 0.05])
             })
         self.starfield_layers.append(layer1_stars)
@@ -59,10 +59,10 @@ class Renderer:
                 "y": np.random.uniform(0, 1080),
                 "size": np.random.choice([1, 2, 3], p=[0.6, 0.3, 0.1]),
                 "brightness": np.random.randint(25, 80),
-                "speed": np.random.uniform(0.03, 0.06),  # Increased speed
-                "burst_speed": np.random.uniform(0.1, 0.2) if np.random.random() < 0.15 else 0.0,  # Occasional burst
-                "drift_x": np.random.uniform(-0.07, 0.07),
-                "drift_y": np.random.uniform(-0.07, 0.07),
+                "speed": np.random.uniform(0.1, 0.2),  # Significantly increased speed
+                "burst_speed": np.random.uniform(0.3, 0.5) if np.random.random() < 0.3 else 0.0,  # Higher burst chance and speed
+                "drift_x": np.random.uniform(-0.15, 0.15),
+                "drift_y": np.random.uniform(-0.15, 0.15),
                 "color_type": np.random.choice(["white", "blue", "yellow"], p=[0.8, 0.15, 0.05])
             })
         self.starfield_layers.append(layer2_stars)
@@ -75,10 +75,10 @@ class Renderer:
                 "y": np.random.uniform(0, 1080),
                 "size": np.random.choice([2, 3, 4, 5], p=[0.5, 0.3, 0.15, 0.05]),
                 "brightness": np.random.randint(35, 110),
-                "speed": np.random.uniform(0.05, 0.1),  # Increased speed
-                "burst_speed": np.random.uniform(0.2, 0.3) if np.random.random() < 0.2 else 0.0,  # Occasional burst
-                "drift_x": np.random.uniform(-0.1, 0.1),
-                "drift_y": np.random.uniform(-0.1, 0.1),
+                "speed": np.random.uniform(0.2, 0.4),  # Significantly increased speed
+                "burst_speed": np.random.uniform(0.5, 0.8) if np.random.random() < 0.4 else 0.0,  # Higher burst chance and speed
+                "drift_x": np.random.uniform(-0.2, 0.2),
+                "drift_y": np.random.uniform(-0.2, 0.2),
                 "color_type": np.random.choice(["white", "blue", "yellow"], p=[0.75, 0.2, 0.05])
             })
         self.starfield_layers.append(layer3_stars)
@@ -106,7 +106,7 @@ class Renderer:
             for star in layer:
                 # Subtle parallax based on layer
                 current_speed = star.get("speed", 0.006)
-                if star.get("burst_speed", 0.0) > 0 and np.random.random() < 0.05:  # 5% chance to trigger burst
+                if star.get("burst_speed", 0.0) > 0 and np.random.random() < 0.1:  # Increased burst trigger chance to 10%
                     current_speed += star.get("burst_speed", 0.0)
                 parallax_factor = current_speed * self.env.zoom_level * (0.4 + 0.3 * layer_idx)
                 star["x"] -= movement[0] * parallax_factor
@@ -583,30 +583,40 @@ class Renderer:
         heading = (math.degrees(math.atan2(vy, vx)) % 360) if speed > 1e-4 else 0.0
         dist_to_mothership = float(np.linalg.norm(self.env.agent_position - self.env.mothership_pos))
 
-        # Mining status
+        # Agent state indicator (avoiding 'Exploring' to prevent RL terminology confusion)
         if hasattr(self.env, "mining_asteroid_id") and self.env.mining_asteroid_id is not None:
-            mining_status = f"Mining Asteroid {self.env.mining_asteroid_id}"
+            agent_state = f"Mining A{self.env.mining_asteroid_id}"
+            state_color = (255, 255, 100)
+        elif self.env.agent_inventory > 0:
+            agent_state = f"Carrying {self.env.agent_inventory:.0f}"
+            state_color = (255, 255, 0)
         else:
-            mining_status = "Idle (Not Mining)"
+            agent_state = "Navigating"
+            state_color = (200, 200, 255)
 
         # Compact values
         energy_pct = int(self.env.agent_energy / 150.0 * 100)
         inv = self.env.agent_inventory
         inv_max = getattr(self.env, "max_inventory", 100)
+        total_asteroids = len(self.env.asteroid_positions) if hasattr(self.env, 'asteroid_positions') else 0
+        remaining_asteroids = np.sum(self.env.asteroid_resources >= 0.1) if hasattr(self.env, 'asteroid_resources') else 0
+        total_mined = cumulative_mining if cumulative_mining > 0 else 0.0
 
-        # Build items (ordered) with verbose and clear labels
+        # Build items (ordered) with clear, informative labels
         status_items = [
             {"icon": "step", "value": f"Step Count: {self.env.steps_count} of {self.env.max_episode_steps}", "warning": False, "color": (200, 200, 255)},
             {"icon": "energy", "value": f"Energy Level: {int(self.env.agent_energy)}/150 ({energy_pct}%)", "warning": energy_pct < 30, "color": (255, 100, 100) if energy_pct < 30 else (100, 255, 100)},
             {"icon": "inventory", "value": f"Inventory: {inv:.1f} of {inv_max} Capacity", "warning": False, "color": (255, 255, 100) if inv > 0 else (180, 180, 180)},
-            {"icon": "mining", "value": f"Mining Status: {mining_status}", "warning": False, "color": (255, 255, 100)},
-            {"icon": "delivery", "value": f"Resources Delivered: {getattr(self.env, 'delivery_count', 0)} Times", "warning": False, "color": (0, 255, 0)},
+            {"icon": "mining", "value": f"Agent State: {agent_state}", "warning": False, "color": state_color},
+            {"icon": "delivery", "value": f"Deliveries Made: {getattr(self.env, 'delivery_count', 0)}", "warning": False, "color": (0, 255, 0)},
+            {"icon": "mining", "value": f"Total Resources Mined: {total_mined:.1f}", "warning": False, "color": (100, 255, 100)},
             {"icon": "score", "value": f"Fitness Score: {fitness:.1f}", "warning": False, "color": (255, 215, 100)},
-            {"icon": "velocity", "value": f"Current Speed: {speed:.2f}", "warning": False, "color": (180, 180, 255)},
+            {"icon": "velocity", "value": f"Speed X: {vx:.2f}, Speed Y: {vy:.2f}", "warning": False, "color": (180, 180, 255)},
             {"icon": "angle", "value": f"Heading Direction: {heading:.0f} Degrees", "warning": False, "color": (180, 180, 255)},
             {"icon": "mothership", "value": f"Distance to Mothership: {dist_to_mothership:.1f}", "warning": False, "color": (30, 120, 200)},
-            {"icon": "collision", "value": f"Collisions Occurred: {self.env.collision_count}", "warning": self.env.collision_count > 0, "color": (255, 100, 100) if self.env.collision_count > 0 else (200, 200, 200)},
-            {"icon": "action", "value": f"Last Action: ({self.env.last_action[0]:.2f}, {self.env.last_action[1]:.2f}, {'Mine' if self.env.last_action[2]>0.5 else 'No Mine'})", "warning": False, "color": (200, 200, 200)},
+            {"icon": "collision", "value": f"Collisions: {self.env.collision_count}", "warning": self.env.collision_count > 0, "color": (255, 100, 100) if self.env.collision_count > 0 else (200, 200, 200)},
+            {"icon": "action", "value": f"Action: ({self.env.last_action[0]:.2f}, {self.env.last_action[1]:.2f}, {'Mining' if self.env.last_action[2]>0.5 else 'Not Mining'})", "warning": False, "color": (200, 200, 200)},
+            {"icon": "asteroid", "value": f"Asteroids Remaining: {remaining_asteroids} of {total_asteroids}", "warning": remaining_asteroids <= 2, "color": (255, 215, 100)}
         ]
 
         # Layout: vertical stack on left, less compact for clarity
@@ -627,9 +637,9 @@ class Renderer:
         status_bg.fill((0, 0, 0, 200))
         pygame.draw.rect(status_bg, (60, 60, 80), (0, 0, panel_width, panel_height), 2)
 
-        # Title with state (larger for clarity)
+        # Title (fixed as 'STATUS' for clarity)
         title_font = pygame.font.SysFont("Arial", 18, bold=True)
-        title_surface = title_font.render(state_text, True, state_color)
+        title_surface = title_font.render("STATUS", True, (255, 255, 255))
         title_rect = title_surface.get_rect(center=(panel_width // 2, 22))
         status_bg.blit(title_surface, title_rect)
 
