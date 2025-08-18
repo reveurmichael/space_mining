@@ -549,19 +549,17 @@ class Renderer:
 
         # Enhanced status panel with adaptive layout
         cumulative_mining = getattr(self.env, "cumulative_mining_amount", 0.0)
-        
-        # Agent state indicator
-        state_text = "EXPLORING"
+
+        # Agent state color (avoid RL-term 'Explore/Exploring' in UI)
+        # Title should be static and simple for clarity
         state_color = (200, 200, 255)
-        if hasattr(self.env, "mining_asteroid_id"):
-            state_text = f"MINING A{self.env.mining_asteroid_id}"
+        if hasattr(self.env, "mining_asteroid_id") and self.env.mining_asteroid_id is not None:
             state_color = (255, 255, 100)
         elif self.env.agent_inventory > 0:
-            state_text = f"CARRYING {self.env.agent_inventory:.0f}"
             state_color = (255, 255, 0)
-        
-        # Create adaptive status panel with icons
-        self._draw_adaptive_status_panel(state_text, state_color, cumulative_mining)
+
+        # Create adaptive status panel with a static title
+        self._draw_adaptive_status_panel("STATUS", state_color, cumulative_mining)
         
         # Create adaptive legend with icons
         self._draw_adaptive_legend()
@@ -580,33 +578,42 @@ class Renderer:
         fitness = self.env.compute_fitness_score()
         speed = float(np.linalg.norm(self.env.agent_velocity))
         vx, vy = float(self.env.agent_velocity[0]), float(self.env.agent_velocity[1])
-        heading = (math.degrees(math.atan2(vy, vx)) % 360) if speed > 1e-4 else 0.0
+        # Heading in degrees; if nearly stationary, show N/A later
+        heading = (math.degrees(math.atan2(vy, vx)) % 360) if speed > 1e-4 else None
         dist_to_mothership = float(np.linalg.norm(self.env.agent_position - self.env.mothership_pos))
 
-        # Mining status
+        # Simple state label without using 'Explore/Exploring'
         if hasattr(self.env, "mining_asteroid_id") and self.env.mining_asteroid_id is not None:
-            mining_status = f"Mining Asteroid {self.env.mining_asteroid_id}"
+            state_label = f"Mining A{self.env.mining_asteroid_id}"
+            mining_status = f"Active (A{self.env.mining_asteroid_id})"
+        elif self.env.agent_inventory > 0:
+            state_label = f"Carrying {self.env.agent_inventory:.0f}"
+            mining_status = "Not mining"
         else:
-            mining_status = "Idle (Not Mining)"
+            state_label = "Searching"
+            mining_status = "Not mining"
 
         # Compact values
         energy_pct = int(self.env.agent_energy / 150.0 * 100)
         inv = self.env.agent_inventory
         inv_max = getattr(self.env, "max_inventory", 100)
 
-        # Build items (ordered) with verbose and clear labels
+        # Build items (ordered) with clear, concise labels
         status_items = [
+            {"icon": "state", "value": f"State: {state_label}", "warning": False, "color": (220, 220, 255)},
             {"icon": "step", "value": f"Step Count: {self.env.steps_count} of {self.env.max_episode_steps}", "warning": False, "color": (200, 200, 255)},
             {"icon": "energy", "value": f"Energy Level: {int(self.env.agent_energy)}/150 ({energy_pct}%)", "warning": energy_pct < 30, "color": (255, 100, 100) if energy_pct < 30 else (100, 255, 100)},
             {"icon": "inventory", "value": f"Inventory: {inv:.1f} of {inv_max} Capacity", "warning": False, "color": (255, 255, 100) if inv > 0 else (180, 180, 180)},
-            {"icon": "mining", "value": f"Mining Status: {mining_status}", "warning": False, "color": (255, 255, 100)},
-            {"icon": "delivery", "value": f"Resources Delivered: {getattr(self.env, 'delivery_count', 0)} Times", "warning": False, "color": (0, 255, 0)},
+            {"icon": "mining", "value": f"Mining: {mining_status}", "warning": False, "color": (255, 255, 100)},
+            {"icon": "delivery", "value": f"Deliveries: {getattr(self.env, 'delivery_count', 0)}", "warning": False, "color": (0, 255, 0)},
             {"icon": "score", "value": f"Fitness Score: {fitness:.1f}", "warning": False, "color": (255, 215, 100)},
-            {"icon": "velocity", "value": f"Current Speed: {speed:.2f}", "warning": False, "color": (180, 180, 255)},
-            {"icon": "angle", "value": f"Heading Direction: {heading:.0f} Degrees", "warning": False, "color": (180, 180, 255)},
+            {"icon": "velocity", "value": f"Speed: {speed:.2f}", "warning": False, "color": (180, 180, 255)},
+            {"icon": "velocity", "value": f"Speed X: {vx:.2f}", "warning": False, "color": (180, 180, 255)},
+            {"icon": "velocity", "value": f"Speed Y: {vy:.2f}", "warning": False, "color": (180, 180, 255)},
+            {"icon": "angle", "value": f"Heading (deg): {heading:.0f}" if heading is not None else "Heading (deg): N/A", "warning": False, "color": (180, 180, 255)},
             {"icon": "mothership", "value": f"Distance to Mothership: {dist_to_mothership:.1f}", "warning": False, "color": (30, 120, 200)},
-            {"icon": "collision", "value": f"Collisions Occurred: {self.env.collision_count}", "warning": self.env.collision_count > 0, "color": (255, 100, 100) if self.env.collision_count > 0 else (200, 200, 200)},
-            {"icon": "action", "value": f"Last Action: ({self.env.last_action[0]:.2f}, {self.env.last_action[1]:.2f}, {'Mine' if self.env.last_action[2]>0.5 else 'No Mine'})", "warning": False, "color": (200, 200, 200)},
+            {"icon": "collision", "value": f"Collisions: {self.env.collision_count}", "warning": self.env.collision_count > 0, "color": (255, 100, 100) if self.env.collision_count > 0 else (200, 200, 200)},
+            {"icon": "action", "value": f"Action: ({self.env.last_action[0]:.2f}, {self.env.last_action[1]:.2f}, {'Mining' if self.env.last_action[2]>0.5 else 'Not Mining'})", "warning": False, "color": (200, 200, 200)},
         ]
 
         # Layout: vertical stack on left, less compact for clarity
@@ -627,7 +634,7 @@ class Renderer:
         status_bg.fill((0, 0, 0, 200))
         pygame.draw.rect(status_bg, (60, 60, 80), (0, 0, panel_width, panel_height), 2)
 
-        # Title with state (larger for clarity)
+        # Title (larger for clarity)
         title_font = pygame.font.SysFont("Arial", 18, bold=True)
         title_surface = title_font.render(state_text, True, state_color)
         title_rect = title_surface.get_rect(center=(panel_width // 2, 22))
@@ -739,6 +746,12 @@ class Renderer:
             color = warning_color or (200, 200, 200)
             pygame.draw.rect(surface, color, (x+2, y+6, 16, 8), 2)
             pygame.draw.rect(surface, color, (x+12, y+2, 4, 4), 2)
+
+        elif icon_type == "state":
+            # State icon (agent dot)
+            color = warning_color or (200, 200, 255)
+            gfxdraw.filled_circle(surface, x+10, y+10, 6, color)
+            gfxdraw.aacircle(surface, x+10, y+10, 6, (255, 255, 255))
 
 
     def _draw_adaptive_legend(self) -> None:
