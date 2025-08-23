@@ -210,3 +210,8 @@ Thumbs.db
 runs/
 runs/*
 runs/**/*
+
+
+env_config.json
+hyperparams.json
+training_args.json
