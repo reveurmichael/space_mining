@@ -92,7 +92,7 @@ def main() -> None:
         help="Number of steps to run for the trajectory",
     )
     parser.add_argument("--fps", type=int, default=30, help="Frames per second for the GIF")
-    parser.add_argument("--deterministic", action="store_true", help="Use deterministic predictions")
+    parser.add_argument("--deterministic", action="store_true", default=True, help="Use deterministic predictions (default: True)")
     parser.add_argument(
         "--device",
         type=str,
