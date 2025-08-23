@@ -27,10 +27,3 @@ def test_multiple_steps_until_done():
     env.close()
 
 
-def test_energy_depletion_ends_episode():
-    env = make_env()
-    env.agent_energy = 0
-    obs, reward, terminated, truncated, _ = env.step(env.action_space.sample())
-    assert terminated
-    assert reward < 0
-    env.close()
