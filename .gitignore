@@ -215,3 +215,8 @@ runs/**/*
 env_config.json
 hyperparams.json
 training_args.json
+
+output_gif/
+output_gif/*
+output_gif/*.gif
+
