@@ -12,7 +12,7 @@ class Renderer:
         self.window: Optional[Any] = None
         self.clock: Optional[Any] = None
         self.font: Optional[Any] = None
-        
+
         # Cosmic background system (managed by renderer)
         self.starfield_layers = []
         self.nebula_clouds = []
@@ -21,7 +21,7 @@ class Renderer:
         self.cosmic_auroras = []
         self.cosmic_time = 0.0
         self.prev_agent_position = None
-        
+
         # Initialize cosmic background
         self._initialize_cosmic_background()
 
@@ -29,12 +29,12 @@ class Renderer:
         """Initialize the perfect cosmic universe for 1920x1080."""
         import numpy as np
         import math
-        
+
         self.cosmic_time = 0.0
-        
+
         # Only starfield (small stars 1–5 px) with varied slow speeds
         self.starfield_layers = []
-        
+
         # Layer 1: very slow, tiniest stars
         layer1_stars = []
         for _ in range(320):
@@ -50,7 +50,7 @@ class Renderer:
                 "color_type": np.random.choice(["white", "blue", "yellow"], p=[0.85, 0.1, 0.05])
             })
         self.starfield_layers.append(layer1_stars)
-        
+
         # Layer 2: slow, small stars
         layer2_stars = []
         for _ in range(240):
@@ -66,7 +66,7 @@ class Renderer:
                 "color_type": np.random.choice(["white", "blue", "yellow"], p=[0.8, 0.15, 0.05])
             })
         self.starfield_layers.append(layer2_stars)
-        
+
         # Layer 3: a bit faster, still small (up to 5 px)
         layer3_stars = []
         for _ in range(160):
@@ -82,7 +82,7 @@ class Renderer:
                 "color_type": np.random.choice(["white", "blue", "yellow"], p=[0.75, 0.2, 0.05])
             })
         self.starfield_layers.append(layer3_stars)
-        
+
         # Remove other cosmic elements per request
         self.nebula_clouds = []
         self.distant_galaxies = []
@@ -92,15 +92,15 @@ class Renderer:
     def _update_cosmic_background(self) -> None:
         """Update cosmic background elements with optimized parallax for 1920x1080."""
         import numpy as np
-        
+
         self.cosmic_time += 0.016  # ~60fps time step
-        
+
         # Calculate agent movement for parallax
         movement = np.array([0.0, 0.0])
         if self.prev_agent_position is not None:
             movement = self.env.agent_position - self.prev_agent_position
         self.prev_agent_position = self.env.agent_position.copy()
-        
+
         # Update stars with optimized parallax + independent drift
         for layer_idx, layer in enumerate(self.starfield_layers):
             for star in layer:
@@ -111,11 +111,11 @@ class Renderer:
                 parallax_factor = current_speed * self.env.zoom_level * (0.4 + 0.3 * layer_idx)
                 star["x"] -= movement[0] * parallax_factor
                 star["y"] -= movement[1] * parallax_factor
-                
+
                 # Independent very-slow drift
                 star["x"] += star.get("drift_x", 0.0)
                 star["y"] += star.get("drift_y", 0.0)
-                
+
                 # Wrap around screen with proper bounds for 1920x1080
                 if star["x"] < -10: 
                     star["x"] = 1930
@@ -125,7 +125,6 @@ class Renderer:
                     star["y"] = 1090
                 elif star["y"] > 1090: 
                     star["y"] = -10
-        
 
     def render(self) -> Optional[np.ndarray]:
         """Render the current state of the environment."""
@@ -165,7 +164,7 @@ class Renderer:
 
         # Update cosmic background
         self._update_cosmic_background()
-        
+
         # Update animations and zoom
         self.update_animations()
         self.update_zoom()
@@ -176,7 +175,7 @@ class Renderer:
         # Draw starfield only
         self._draw_starfield()
 
-        # Perfect coordinate transformation for 1920x1080 cosmic immersion  
+        # Perfect coordinate transformation for 1920x1080 cosmic immersion
         def to_screen(pos, scale=10.0):  # Perfect scale for cosmic viewing
             x, y = pos
             zoom_scale = scale * self.env.zoom_level
@@ -186,11 +185,11 @@ class Renderer:
 
         # Draw mothership with safe zone aura
         mothership_pos_2d = to_screen(self.env.mothership_pos)
-        
+
         # Mothership safe zone aura (pulsing blue)
         pulse_intensity = math.sin(self.env.steps_count * 0.08) * 0.3 + 0.7
         safe_zone_radius = 12 * 10  # Safe zone is 12 units in game coordinates
-        
+
         # Create multiple aura layers for depth
         for i in range(5):
             aura_radius = safe_zone_radius - i * 15
@@ -254,7 +253,7 @@ class Renderer:
             asteroid_pos_2d = to_screen(pos)
             resource_ratio = self.env.asteroid_resources[i] / 40.0
             size = int(10 + resource_ratio * 10)  # 10-20 pixels for larger screen
-            
+
             # Fixed yellow color for all active asteroids
             gfxdraw.filled_circle(
                 self.window,
@@ -319,7 +318,7 @@ class Renderer:
 
         # Always green agent
         agent_color = (50, 255, 50)
-        
+
         # Add energy warning halo if low energy
         if self.env.agent_energy < 30:
             warning_intensity = int(100 * (1 - self.env.agent_energy / 30.0))
@@ -353,22 +352,22 @@ class Renderer:
             asteroid_pos_2d = to_screen(
                 self.env.asteroid_positions[self.env.mining_asteroid_id]
             )
-            
+
             # Enhanced pulsing mining beam
             beam_length = math.sqrt((asteroid_pos_2d[0] - agent_pos_2d[0])**2 + (asteroid_pos_2d[1] - agent_pos_2d[1])**2)
             num_segments = int(beam_length / 6)
             beam_intensity = math.sin(self.env.steps_count * 0.4) * 0.3 + 0.7
-            
+
             for i in range(num_segments):
                 t1 = (i + self.env.mining_beam_offset % 1) / num_segments
                 t2 = (i + 0.4 + self.env.mining_beam_offset % 1) / num_segments
-                
+
                 if t1 <= 1.0 and t2 <= 1.0:
                     x1 = int(agent_pos_2d[0] + t1 * (asteroid_pos_2d[0] - agent_pos_2d[0]))
                     y1 = int(agent_pos_2d[1] + t1 * (asteroid_pos_2d[1] - agent_pos_2d[1]))
                     x2 = int(agent_pos_2d[0] + t2 * (asteroid_pos_2d[0] - agent_pos_2d[0]))
                     y2 = int(agent_pos_2d[1] + t2 * (asteroid_pos_2d[1] - agent_pos_2d[1]))
-                    
+
                     # Enhanced beam colors with intensity variation
                     if i % 2 == 0:
                         color = (255, int(255 * beam_intensity), 0)
@@ -392,11 +391,11 @@ class Renderer:
         energy_width = int(70 * energy_ratio)
         bar_x = agent_pos_2d[0] - 35
         bar_y = agent_pos_2d[1] - 35
-        
+
         # Background with border
         pygame.draw.rect(self.window, (20, 20, 20), (bar_x - 2, bar_y - 2, 74, 12))
         pygame.draw.rect(self.window, (60, 60, 60), (bar_x, bar_y, 70, 8))
-        
+
         # Energy bar with enhanced colors
         if energy_ratio > 0.6:
             energy_color = (0, 255, 0)
@@ -409,7 +408,7 @@ class Renderer:
         # Draw observation and mining ranges (affected by zoom)
         obs_radius_px = int(self.env.observation_radius * 14.0 * self.env.zoom_level)
         mining_radius_px = int(self.env.mining_range * 14.0 * self.env.zoom_level)
-        
+
         gfxdraw.aacircle(
             self.window,
             agent_pos_2d[0],
@@ -432,7 +431,7 @@ class Renderer:
                 particle["start_pos"] + progress * (particle["target_pos"] - particle["start_pos"])
             )
             particle_pos_2d = to_screen(current_pos)
-            
+
             alpha = int(255 * (1 - progress * 0.7))
             if alpha > 0:
                 particle_surface = pygame.Surface((14, 14), pygame.SRCALPHA)
@@ -450,7 +449,7 @@ class Renderer:
                 popup_font = pygame.font.SysFont("Arial", font_size, bold=True)
                 text_surface = popup_font.render(popup["text"], True, popup["color"])
                 text_surface.set_alpha(alpha)
-                
+
                 # Add shadow effect
                 shadow_surface = popup_font.render(popup["text"], True, (0, 0, 0))
                 shadow_surface.set_alpha(alpha // 2)
@@ -460,10 +459,10 @@ class Renderer:
         # OBSERVATION RANGE DIMMING EFFECT
         overlay = pygame.Surface((1920, 1200), pygame.SRCALPHA)
         overlay.fill((0, 0, 0, 200))  # 200/255 darkness outside observation circle
-        
+
         # Create a "visible" hole for observation range
         pygame.draw.circle(overlay, (0, 0, 0, 0), agent_pos_2d, obs_radius_px)
-        
+
         # Apply the dimming overlay
         self.window.blit(overlay, (0, 0))
 
@@ -474,7 +473,7 @@ class Renderer:
             flash_surface.fill((255, 0, 0, flash_alpha))
             self.window.blit(flash_surface, (0, 0))
 
-
+        # TODO: all game over related attributes should be moved to renderer. Also, we will not have a game over screen show stuffs. Nothing will happen after game over.
         # Draw game UI if not in game over state
         if not self.env.game_over_state["active"]:
             self._draw_game_ui(agent_pos_2d)
@@ -498,16 +497,16 @@ class Renderer:
             from pygame import gfxdraw
         except ImportError:
             return
-            
+
         for layer in self.starfield_layers:
             for star in layer:
                 if not (0 <= star["x"] <= 1920 and 0 <= star["y"] <= 1080):
                     continue
-                    
+
                 x, y = int(star["x"]), int(star["y"])
                 size = star["size"]
                 brightness = star["brightness"]
-                
+
                 # Perfect cosmic star colors
                 if star["color_type"] == "blue":
                     color = (brightness//5, brightness//2, brightness)
@@ -515,7 +514,7 @@ class Renderer:
                     color = (brightness, brightness//1.4, brightness//5)
                 else:  # white
                     color = (brightness, brightness, brightness)
-                
+
                 # Clean star rendering
                 if size == 1:
                     gfxdraw.pixel(self.window, x, y, color)
@@ -533,10 +532,6 @@ class Renderer:
 
     # Aurora drawing intentionally removed (scope simplified to starfield)
 
-
-
-
-
     def _draw_game_ui(self, agent_pos_2d) -> None:
         """Draw the main game UI elements with adaptive layout and icons."""
         try:
@@ -549,7 +544,7 @@ class Renderer:
 
         # Enhanced status panel with adaptive layout
         cumulative_mining = getattr(self.env, "cumulative_mining_amount", 0.0)
-        
+
         # Agent state indicator
         state_text = "EXPLORING"
         state_color = (200, 200, 255)
@@ -559,10 +554,10 @@ class Renderer:
         elif self.env.agent_inventory > 0:
             state_text = f"CARRYING {self.env.agent_inventory:.0f}"
             state_color = (255, 255, 0)
-        
+
         # Create adaptive status panel with icons
         self._draw_adaptive_status_panel(state_text, state_color, cumulative_mining)
-        
+
         # Create adaptive legend with icons
         self._draw_adaptive_legend()
 
@@ -750,7 +745,6 @@ class Renderer:
             pygame.draw.rect(surface, color, (x+2, y+6, 16, 8), 2)
             pygame.draw.rect(surface, color, (x+12, y+2, 4, 4), 2)
 
-
     def _draw_adaptive_legend(self) -> None:
         """Draw an adaptive legend — vertical, right-anchored to avoid overflow."""
         try:
@@ -916,7 +910,7 @@ class Renderer:
             pygame.draw.rect(surface, color, (x+3, y+3, 14, 14))
             gfxdraw.filled_circle(surface, x+10, y+10, 5, (0, 0, 0, 0))
 
-
+    # TODO: all game over related attributes should be moved to renderer. Also, we will not have a game over screen show stuffs. Nothing will happen after game over. I highly recommend to remove this function.
     def _draw_game_over_screen(self) -> None:
         """Draw the game over/success screen with final statistics."""
         try:
@@ -929,7 +923,7 @@ class Renderer:
             self.env.game_over_state["fade_alpha"] += 3
 
         fade_alpha = min(255, self.env.game_over_state["fade_alpha"])
-        
+
         # Create fade overlay for ultra-wide screen
         fade_surface = pygame.Surface((1920, 1200), pygame.SRCALPHA)
         fade_surface.fill((0, 0, 0, fade_alpha))
@@ -939,7 +933,7 @@ class Renderer:
         if fade_alpha > 100:
             stats = self.env.game_over_state["final_stats"]
             success = self.env.game_over_state["success"]
-            
+
             # Title for ultra-wide screen
             title_font = pygame.font.SysFont("Arial", 72, bold=True)
             title_text = "🎉 MISSION SUCCESS! 🎉" if success else "💥 MISSION FAILED 💥"
@@ -971,11 +965,11 @@ class Renderer:
                 if line == "":
                     y_offset += 26
                     continue
-                    
+
                 color = (255, 255, 100) if "STATISTICS" in line else (255, 255, 255)
                 if "restart" in line:
                     color = (200, 200, 255)
-                
+
                 text_surface = stats_font.render(line, True, color)
                 text_rect = text_surface.get_rect(center=(960, y_offset))
                 self.window.blit(text_surface, text_rect)
@@ -986,7 +980,7 @@ class Renderer:
         zoom_diff = self.env.target_zoom - self.env.zoom_level
         self.env.zoom_speed = 0.025
         self.env.zoom_level += zoom_diff * self.env.zoom_speed
-        
+
         # Perfect zoom logic for cosmic experience
         if hasattr(self.env, 'agent_energy') and self.env.agent_energy < 20:
             self.env.target_zoom = 1.25  # Focus when energy critical
@@ -998,11 +992,9 @@ class Renderer:
             self.env.target_zoom = 1.1   # Subtle mining focus
         else:
             self.env.target_zoom = 1.0   # Perfect cosmic view
-        
+
         # Perfect zoom bounds for cosmic viewing
         self.env.zoom_level = max(0.8, min(1.3, self.env.zoom_level))
-
-
 
     def spawn_delivery_particles(self, start_pos: np.ndarray, target_pos: np.ndarray) -> None:
         """Spawn glowing particles for resource delivery animation."""
@@ -1050,11 +1042,11 @@ class Renderer:
         # Update mining beam animation
         self.env.mining_beam_offset += 0.2
 
-
+    # TODO: all game over related attributes should be moved to renderer. Also, we will not have a game over screen show stuffs. Nothing will happen after game over.
     def trigger_game_over(self, success: bool) -> None:
         """Trigger game over screen with final statistics."""
         cumulative_mining = getattr(self.env, "cumulative_mining_amount", 0.0)
-        
+
         self.env.game_over_state = {
             "active": True,
             "fade_alpha": 0,
