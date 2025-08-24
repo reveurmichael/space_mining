@@ -976,25 +976,95 @@ class Renderer:
                 y_offset += 45
 
     def update_zoom(self) -> None:
-        """Update zoom system for cosmic immersion."""
-        zoom_diff = self.env.target_zoom - self.env.zoom_level
-        self.env.zoom_speed = 0.025
-        self.env.zoom_level += zoom_diff * self.env.zoom_speed
+        """Update zoom system for cosmic immersion.
 
-        # Perfect zoom logic for cosmic experience
-        if hasattr(self.env, 'agent_energy') and self.env.agent_energy < 20:
-            self.env.target_zoom = 1.25  # Focus when energy critical
-        elif hasattr(self.env, 'collision_flash_timer') and self.env.collision_flash_timer > 0:
-            self.env.target_zoom = 0.85  # Pull back for drama
-        elif len([a for a in self.env.asteroid_resources if a > 0.1]) <= 2:
-            self.env.target_zoom = 0.9   # Overview when few asteroids
-        elif hasattr(self.env, 'mining_asteroid_id') and self.env.mining_asteroid_id is not None:
-            self.env.target_zoom = 1.1   # Subtle mining focus
+        - 持续小幅正弦波动 + 随机噪声，保证 gif /录屏中 zoom 一直在动；
+        - 事件优先级覆盖（低能量、碰撞、挖矿、交付、少量小行星、临近障碍等）；
+        - target_zoom = base_event_target + oscillation + jitter；zoom_level 以平滑速度追踪 target_zoom；
+        - 所有值有上下界保护。
+        """
+        env = self.env
+
+        # ---- 防守性初始化 ----
+        if not hasattr(env, "zoom_time"):
+            env.zoom_time = 0.0
+        if not hasattr(env, "zoom_speed") or env.zoom_speed is None:
+            env.zoom_speed = 0.025
+        if not hasattr(env, "zoom_level") or env.zoom_level is None:
+            env.zoom_level = 1.0
+        if not hasattr(env, "target_zoom") or env.target_zoom is None:
+            env.target_zoom = 1.0
+
+        # ---- 时间推进（使用 env.dt 如果存在，否则回退到固定步长）----
+        dt = getattr(env, "dt", 0.1)
+        env.zoom_time += dt
+
+        # ---- 基础事件优先级（按重要性从高到低）----
+        # 使用 base_target 决定事件驱动的主要缩放值
+        base_target = 1.0
+
+        # 1) 剩余小行星很少 -> overall overview (便于观察剩余分布)
+        try:
+            remaining = int(_ := (env.asteroid_resources > 0.1).sum())  # small shorthand
+        except Exception:
+            # 如果 asteroid_resources 不是 numpy array 或缺失，安全回退
+            try:
+                remaining = sum(1 for a in getattr(env, "asteroid_resources", []) if a > 0.1)
+            except Exception:
+                remaining = 999
+        if remaining == 9:
+            base_target = 0.95
+        if remaining == 8:
+            base_target = 0.9
+        if remaining == 7:
+            base_target = 0.95
+        if remaining == 6:
+            base_target = 1.0
+        if remaining == 5:
+            base_target = 1.1
+        if remaining == 4:
+            base_target = 1.2
+        if remaining == 3:
+            base_target = 1.3
+        if remaining == 2:
+            base_target = 1.5
+        if remaining == 1:
+            base_target = 1.6
+
+        # ---- 持续周期性波动 + 随机抖动 ----
+        # 你可调整 freq / amp / jitter_scale 控制动画节奏与强度
+        freq = 0.25  # Hz-ish: 波动频率（低频更平滑）
+        amp = 0.06   # 振幅（单位 zoom）
+        osc = np.sin(2.0 * np.pi * freq * env.zoom_time) * amp
+
+        # 随机微抖动（每步小幅不同，使用 env.np_random 保持可复现性）
+        jitter_scale = 0.01
+        rng = getattr(env, "np_random", None)
+        if rng is None:
+            jitter = float(np.random.normal(scale=jitter_scale))
         else:
-            self.env.target_zoom = 1.0   # Perfect cosmic view
+            try:
+                jitter = float(rng.normal(scale=jitter_scale))
+            except Exception:
+                # gym's np_random may not have normal; fallback
+                jitter = float((rng.random() - 0.5) * jitter_scale * 2.0)
 
-        # Perfect zoom bounds for cosmic viewing
-        self.env.zoom_level = max(0.8, min(1.3, self.env.zoom_level))
+        # ---- 合成目标 zoom ----
+        env.target_zoom = base_target + osc + jitter
+
+        # ---- 平滑追踪 ----
+        # 小心不要把 zoom_speed 每帧设置回常量（renderer 里原先会改它），但我们保留平滑速度的更新逻辑
+        speed = getattr(env, "zoom_speed", 0.025)
+        # adaptive: 如果差异很大，用更快的速度捕捉（让 event 响应更明显）
+        diff = env.target_zoom - env.zoom_level
+        adaptive_speed = speed
+        if abs(diff) > 0.2:
+            adaptive_speed = min(0.2, speed * 6.0)  # 快速响应重要事件
+        env.zoom_level += diff * adaptive_speed
+
+        # ---- 限界 ----
+        env.zoom_level = max(0.7, min(1.6, env.zoom_level))
+        env.target_zoom = max(0.7, min(1.6, env.target_zoom))
 
     def spawn_delivery_particles(self, start_pos: np.ndarray, target_pos: np.ndarray) -> None:
         """Spawn glowing particles for resource delivery animation."""
