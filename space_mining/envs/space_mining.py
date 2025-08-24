@@ -624,8 +624,8 @@ class SpaceMining(gym.Env):
         UNIT_MINING_REWARD = 8.0      # matches previous step visual scale (max_possible * 8)
         UNIT_DELIVERY_REWARD = 12.0   # matches previous delivery scale
         # Collision penalties
-        OBSTACLE_COLLISION_PENALTY = -150.0
-        BOUNDARY_COLLISION_PENALTY = -10.0
+        OBSTACLE_COLLISION_PENALTY = -500.0
+        BOUNDARY_COLLISION_PENALTY = -500.0
         # Dense risk penalty (when near obstacles)
         RISK_THRESHOLD = 4.0         # distance under which risk penalty grows
         RISK_PENALTY_COEFF = -30.0
