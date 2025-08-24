@@ -9,8 +9,8 @@ from .renderer import Renderer
 
 class SpaceMining(gym.Env):
     """
-    Space Mining Environment (Simplified Single-Agent Version)
-
+    Space Mining Environment
+    
     Agent (mining robot) must collect resources from asteroids
     and return them to the mothership while managing energy and avoiding obstacles.
 
