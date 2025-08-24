@@ -119,6 +119,10 @@ For detailed installation instructions and troubleshooting, see [Installation Gu
   ```bash
   python -m space_mining.agents.train_ppo --total-timesteps 5000000 --output-dir runs/ppo
   ```
+  Or, if you are in the root directory of the repository, you can use the following command:
+  ```bash
+  python space_mining/agents/train_ppo.py --total-timesteps 5000000 --output-dir runs/ppo
+  ```
 - Or load a pre-trained model from Hugging Face and render a GIF (no training):
   ```python
   from space_mining import make_env
@@ -137,6 +141,8 @@ For detailed installation instructions and troubleshooting, see [Installation Gu
 - Generate a GIF from a trained or HF checkpoint:
   ```bash
   python -m space_mining.scripts.make_gif --checkpoint runs/ppo/final_model.zip --output output_gif/agent.gif
+  # or, if you are in the root directory of the repository, you can use the following command:
+  python space_mining/scripts/make_gif.py --checkpoint runs/ppo/final_model.zip --output output_gif/agent.gif
   # or, after downloading from HF to a local file path
   python -m space_mining.scripts.make_gif --checkpoint path/to/final_model.zip --output output_gif/agent.gif
   ```
