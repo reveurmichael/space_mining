@@ -10,7 +10,7 @@ from .renderer import Renderer
 class SpaceMining(gym.Env):
     """
     Space Mining Environment
-    
+
     Agent (mining robot) must collect resources from asteroids
     and return them to the mothership while managing energy and avoiding obstacles.
 
@@ -68,11 +68,11 @@ class SpaceMining(gym.Env):
 
         # Animation and visual effects (for renderer communication)
         self.delivery_particles = []
-        self.agent_trail = []
+        self.agent_trail = []  # TODO: if possible, move this to renderer; Do we still have agent trail? Seems like not.
         self.score_popups = []
-        self.collision_flash_timer = 0.0
-        self.screen_shake_timer = 0.0
-        self.mining_beam_offset = 0.0
+        self.collision_flash_timer = 0.0  # TODO: if possible, move this to renderer
+        self.screen_shake_timer = 0.0 # TODO: if possible, move this to renderer
+        self.mining_beam_offset = 0.0  # TODO: if possible, move this to renderer
 
         # Screen size for renderer
         # TODO: this should be moved to renderer
@@ -108,9 +108,14 @@ class SpaceMining(gym.Env):
             8.0  # Increased from 5.0 to 8.0 for much easier mining
         )
 
+        # TODO: this should be moved to renderer, or should they stay here?
         agent_state_dim: int = 6
-        asteroids_dim: int = self.max_obs_asteroids * 3
-        mothership_dim: int = 2
+        asteroids_dim: int = (
+            self.max_obs_asteroids * 3
+        )  # TODO: this should be moved to renderer, or should they stay here?
+        mothership_dim: int = (
+            2  # TODO: this should be moved to renderer, or should they stay here?
+        )
 
         self.observation_space: spaces.Box = spaces.Box(
             low=-float("inf"),
@@ -133,12 +138,21 @@ class SpaceMining(gym.Env):
 
         # Reset animation data structures
         self.delivery_particles = []
-        self.agent_trail = []
+        self.agent_trail = (
+            []
+        )  # TODO: this should be moved to renderer, or should they stay here, or should we remove this? Since we don't have agent trail anymore.
         self.score_popups = []
-        self.collision_flash_timer = 0.0
-        self.screen_shake_timer = 0.0
-        self.mining_beam_offset = 0.0
+        self.collision_flash_timer = (
+            0.0  # TODO: this should be moved to renderer, or should they stay here?
+        )
+        self.screen_shake_timer = (
+            0.0  # TODO: this should be moved to renderer, or should they stay here?
+        )
+        self.mining_beam_offset = (
+            0.0  # TODO: this should be moved to renderer, or should they stay here?
+        )
 
+        # TODO: this should be moved to renderer, or should they stay here, or should we remove this? Since we don't have game over screen view anymore.
         # Reset cosmic background and game over state
         self.game_over_state = {
             "active": False,
@@ -182,6 +196,7 @@ class SpaceMining(gym.Env):
             low=-0.2, high=0.2, size=(num_obstacles, 2)
         )
 
+        # TODO: it seems that we don't use these variables anymore. THose variables starting with 'prev_' should be removed.
         self.prev_min_asteroid_distance = float("inf")
         self.prev_inventory = 0.0
         self.prev_energy = self.agent_energy
@@ -721,7 +736,6 @@ class SpaceMining(gym.Env):
         }
 
         return total_reward, reward_info
-
 
 
 __all__ = ["SpaceMining"]
