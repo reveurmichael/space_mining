@@ -286,6 +286,7 @@ class SpaceMining(gym.Env):
             self.agent_energy = 0
             energy_depleted = True
             terminated = True
+            # TODO: no game over screen should be shown. There is no game over screen.
             self.renderer.trigger_game_over(success=False)
         else:
             terminated = False
@@ -319,6 +320,7 @@ class SpaceMining(gym.Env):
                 f"[EPISODE END] Step {self.steps_count}: Too many collisions, terminating episode."
             )
             terminated = True
+            # TODO: no game over screen should be shown. There is no game over screen.
             self.renderer.trigger_game_over(success=False)
 
         # Enhanced mining action - much easier and more rewarding
@@ -444,6 +446,7 @@ class SpaceMining(gym.Env):
         # Check if episode should be truncated due to time limit
         truncated = self.steps_count >= self.max_episode_steps
         if truncated:
+            # TODO: no game over screen should be shown. There is no game over screen.
             self.renderer.trigger_game_over(success=False)
             print(
                 f"[EPISODE END] Step {self.steps_count}: Time limit reached ({self.max_episode_steps} steps) - Episode truncated"
@@ -452,6 +455,7 @@ class SpaceMining(gym.Env):
         # Terminate if all asteroids are depleted (exploration complete)
         if np.all(self.asteroid_resources <= 0.1):
             terminated = True
+            # TODO: no game over screen should be shown. There is no game over screen.
             self.renderer.trigger_game_over(success=True)
             info = self._get_info()
             info["exploration_complete"] = True
@@ -592,11 +596,12 @@ class SpaceMining(gym.Env):
         **kwargs,
     ) -> Tuple[float, Dict[str, Any]]:
         """
-        优化后的奖励函数：
-        - 使用实际采矿量 / 交付量作为主要信号
-        - 能量惩罚以 MAX_ENERGY 标准化
-        - 碰撞惩罚强（可调），并加入靠近障碍的风险惩罚
-        - 提供详细 reward_info 用于调试/监控
+        Reward that:
+        - rewards mining per unit (mining_amount),
+        - rewards delivery per unit (delivered_amount),
+        - penalizes collisions (sparse) and proximity to obstacles (dense),
+        - modestly penalizes low energy (but not too strong),
+        - slight negative time-step reward to encourage finishing.
         """
         # --- 防守性初始化统计项 ---
         if not hasattr(self, "obstacle_collisions"):
@@ -606,143 +611,117 @@ class SpaceMining(gym.Env):
         if not hasattr(self, "delivery_successes"):
             self.delivery_successes = 0
 
-        # --- 环境常量（基于 env 中的最大能量） ---
-        MAX_ENERGY = (
-            getattr(self, "max_energy", 150.0) if hasattr(self, "max_energy") else 150.0
-        )
-        SPEED_LIMIT = 10.0
-
-        # --- 基础缩放系数（可根据训练情况微调） ---
-        UNIT_MINING_REWARD = (
-            10.0  # 每单位资源的即时采矿奖励（与 step 中 mining reward 量级保持一致）
-        )
-        UNIT_DELIVERY_REWARD = 12.0  # 每单位交付奖励（与 step 中 delivery reward 一致）
-        MINING_BONUS = 200.0  # 每次成功采矿的额外稀疏奖励（可选）
-        DELIVERY_BONUS = 50.0  # 每次交付的额外稀疏奖励（可选）
-        OBSTACLE_COLLISION_PENALTY = -500.0
-        BOUNDARY_COLLISION_PENALTY = -100.0
-        TIME_STEP_REWARD = (
-            -0.001
-        )  # 建议为微负值以避免无谓徘徊；如想鼓励探索可设为 0 或小正值
-        ENERGY_PENALTY_COEFF = -0.5  # 能量越低，绝对惩罚越大（归一化后乘系数）
-        RISK_PROXIMITY_PENALTY = -20.0  # 当靠近障碍但未碰撞时的风险惩罚（按比例）
-        ASTEROID_PROXIMITY_BONUS = 0.15
-        MOTHERSHIP_PROXIMITY_BONUS = 0.25
-        ENERGY_SAFETY_BONUS = 0.1
-
-        # --- 从 kwargs / info 安全读取项 ---
-        mining_success = int(kwargs.get("mining_success", 0))
+        # Defensive reads from kwargs
         mining_amount = float(kwargs.get("mining_amount", 0.0))
-        delivery_success = int(kwargs.get("delivery_success", 0))
         delivered_amount = float(kwargs.get("delivered_amount", 0.0))
         obstacle_collisions = int(kwargs.get("obstacle_collisions", 0))
         boundary_collision = int(kwargs.get("boundary_collision", 0))
+        tried_depleted = bool(kwargs.get("tried_depleted_asteroid", False))
 
-        # --- 采矿 / 交付奖励（按数量） ---
+        # ===== Tunable constants =====
+        MAX_ENERGY = getattr(self, "max_energy", 150.0)
+        # Keep per-unit rewards consistent with your earlier visual/UX scale:
+        UNIT_MINING_REWARD = 8.0      # matches previous step visual scale (max_possible * 8)
+        UNIT_DELIVERY_REWARD = 12.0   # matches previous delivery scale
+        # Collision penalties
+        OBSTACLE_COLLISION_PENALTY = -150.0
+        BOUNDARY_COLLISION_PENALTY = -10.0
+        # Dense risk penalty (when near obstacles)
+        RISK_THRESHOLD = 4.0         # distance under which risk penalty grows
+        RISK_PENALTY_COEFF = -30.0
+        # Energy penalty (normalized 0..1); small magnitude so it doesn't overpower mining
+        ENERGY_PENALTY_COEFF = -0.5
+        # Guidance bonuses
+        ASTEROID_PROXIMITY_BONUS = 0.6
+        MOTHERSHIP_PROXIMITY_BONUS = 0.6
+        ENERGY_SAFETY_BONUS = 0.05
+        # Step/time incentive
+        TIME_STEP_REWARD = -0.001    # slight negative to encourage progress (avoid huge positive drift)
+
+        # ===== Core (sparse) components =====
         mining_reward = UNIT_MINING_REWARD * mining_amount
-        if mining_success and mining_amount > 0:
-            mining_reward += MINING_BONUS  # 稀疏额外奖励（可选）
-
         delivery_reward = UNIT_DELIVERY_REWARD * delivered_amount
-        if delivery_success and delivered_amount > 0:
-            delivery_reward += DELIVERY_BONUS  # 稀疏额外奖励（可选）
-
-        # --- 碰撞/边界惩罚 ---
         obstacle_collision_penalty = OBSTACLE_COLLISION_PENALTY * obstacle_collisions
         boundary_collision_penalty = BOUNDARY_COLLISION_PENALTY * boundary_collision
 
-        # --- 能量相关：能量越低惩罚越大（归一化） ---
-        energy_deficit_ratio = max(
-            0.0, (MAX_ENERGY - float(self.agent_energy)) / MAX_ENERGY
-        )
-        energy_decay_penalty = (
-            ENERGY_PENALTY_COEFF * energy_deficit_ratio
-        )  # 介于 ENERGY_PENALTY_COEFF 和 0 之间
+        # ===== Energy component (small, normalized) =====
+        energy_deficit_ratio = max(0.0, (MAX_ENERGY - float(self.agent_energy)) / MAX_ENERGY)
+        energy_penalty = ENERGY_PENALTY_COEFF * energy_deficit_ratio  # negative or zero
+        energy_safety_bonus = ENERGY_SAFETY_BONUS if self.agent_energy > 0.4 * MAX_ENERGY else 0.0
 
-        # --- 靠近危险（障碍）提前惩罚，避免稀疏碰撞信号 ---
-        # 计算到最近障碍的距离并给出按比例惩罚
+        # ===== Dense risk penalty: nearest obstacle distance =====
         min_obs_dist = float("inf")
         for pos in getattr(self, "obstacle_positions", []):
             d = np.linalg.norm(self.agent_position - pos)
             if d < min_obs_dist:
                 min_obs_dist = d
         risk_penalty = 0.0
-        RISK_THRESHOLD = 5.0  # 距离阈值（格子单位），可调
         if min_obs_dist < RISK_THRESHOLD:
-            risk_penalty = RISK_PROXIMITY_PENALTY * (
-                1.0 - min_obs_dist / RISK_THRESHOLD
-            )
+            # scaled: at dist==0 -> full coeff; at dist==RISK_THRESHOLD -> 0
+            risk_penalty = RISK_PENALTY_COEFF * (1.0 - (min_obs_dist / RISK_THRESHOLD))
 
-        # --- 位置奖励（引导接近小行星/母舰） ---
+        # ===== Guidance bonuses =====
         asteroid_proximity_reward = 0.0
-        if mining_amount == 0 and delivered_amount == 0:  # 当前步没有完成采矿/交付
-            min_dist_ast = float("inf")
+        # only give when not mining (don't double-count same step)
+        if mining_amount == 0 and delivered_amount == 0:
+            min_ast_dist = float("inf")
             for pos in getattr(self, "asteroid_positions", []):
                 d = np.linalg.norm(self.agent_position - pos)
-                if d < min_dist_ast:
-                    min_dist_ast = d
-            if min_dist_ast < self.observation_radius:
-                asteroid_proximity_reward = ASTEROID_PROXIMITY_BONUS * (
-                    1.0 - min_dist_ast / self.observation_radius
-                )
+                if d < min_ast_dist:
+                    min_ast_dist = d
+            if min_ast_dist < self.observation_radius:
+                asteroid_proximity_reward = ASTEROID_PROXIMITY_BONUS * (1.0 - min_ast_dist / self.observation_radius)
 
         mothership_proximity_reward = 0.0
         if self.agent_inventory > 0:
             d2m = np.linalg.norm(self.agent_position - self.mothership_pos)
             if d2m < self.observation_radius:
-                mothership_proximity_reward = MOTHERSHIP_PROXIMITY_BONUS * (
-                    1.0 - d2m / self.observation_radius
-                )
+                mothership_proximity_reward = MOTHERSHIP_PROXIMITY_BONUS * (1.0 - d2m / self.observation_radius)
 
-        # --- 能量安全小奖励（鼓励维持合理能量） ---
-        energy_safety_bonus = (
-            ENERGY_SAFETY_BONUS if float(self.agent_energy) > 0.4 * MAX_ENERGY else 0.0
-        )
+        # small penalty if attempted to mine depleted asteroid (discourage wasting time)
+        tried_depleted_penalty = -1.0 if tried_depleted else 0.0
 
-        # --- 时间步奖励/惩罚 ---
-        time_step_reward = TIME_STEP_REWARD
-
-        # --- 合并总奖励 ---
+        # ===== Sum up =====
         total_reward = (
             mining_reward
             + delivery_reward
             + obstacle_collision_penalty
             + boundary_collision_penalty
-            + energy_decay_penalty
+            + energy_penalty
             + risk_penalty
             + asteroid_proximity_reward
             + mothership_proximity_reward
             + energy_safety_bonus
-            + time_step_reward
+            + tried_depleted_penalty
+            + TIME_STEP_REWARD
         )
 
-        # --- clip（避免极端值） ---
+        # Clip to avoid extreme outliers hurting training stability
         total_reward = float(np.clip(total_reward, -1000.0, 1000.0))
 
-        # --- 更新统计（防守性） ---
+        # ===== Update episode stats =====
         self.obstacle_collisions += obstacle_collisions
-        self.mining_successes += mining_success
-        self.delivery_successes += delivery_success
+        self.mining_successes += int(mining_amount > 0)
+        self.delivery_successes += int(delivered_amount > 0)
 
-        # --- 详细返回信息（便于可视化） ---
         reward_info = {
             "mining_reward": mining_reward,
             "delivery_reward": delivery_reward,
             "obstacle_collision_penalty": obstacle_collision_penalty,
             "boundary_collision_penalty": boundary_collision_penalty,
-            "energy_decay_penalty": energy_decay_penalty,
+            "energy_penalty": energy_penalty,
             "risk_penalty": risk_penalty,
             "asteroid_proximity_reward": asteroid_proximity_reward,
             "mothership_proximity_reward": mothership_proximity_reward,
             "energy_safety_bonus": energy_safety_bonus,
-            "time_step_reward": time_step_reward,
+            "tried_depleted_penalty": tried_depleted_penalty,
+            "time_step_reward": TIME_STEP_REWARD,
+            "min_obs_dist": None if min_obs_dist == float("inf") else min_obs_dist,
             "total_reward": total_reward,
-            "mining_amount": mining_amount,
-            "delivered_amount": delivered_amount,
-            "min_obs_dist": min_obs_dist if min_obs_dist != float("inf") else None,
         }
 
         return total_reward, reward_info
+
 
 
 __all__ = ["SpaceMining"]
