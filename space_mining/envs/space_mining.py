@@ -329,7 +329,7 @@ class SpaceMining(gym.Env):
                     self.agent_position += to_obstacle * 2.0
         # Terminate if too many collisions - reasonable tolerance
         if (
-            self.collision_count >= 8
+            self.collision_count >= 20 # TODO: this should be reduced to 8, if this is to be the same as DyCoT. Maybe DyCoT can change to 20 as well.
         ):  # Reduced from 20 to 8 for stricter collision control
             print(
                 f"[EPISODE END] Step {self.steps_count}: Too many collisions, terminating episode."
