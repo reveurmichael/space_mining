@@ -74,10 +74,7 @@ class SpaceMining(gym.Env):
         self.screen_shake_timer = 0.0 # TODO: if possible, move this to renderer
         self.mining_beam_offset = 0.0  # TODO: if possible, move this to renderer
 
-        # Screen size for renderer
-        # TODO: this should be moved to renderer
-        self.window_width = 1920  # Standard 1080p width
-        self.window_height = 1080  # Standard 1080p height
+
 
         # Zoom system for gameplay
         # TODO: those zoom related attributes should be moved to renderer
@@ -621,7 +618,7 @@ class SpaceMining(gym.Env):
         # Constants
         SPEED_LIMIT = 10.0
         MINING_REWARD = 50.0
-        DELIVERY_REWARD = 10.0
+        DELIVERY_REWARD = 100.0
         OBSTACLE_COLLISION_PENALTY = -200.0
         BOUNDARY_COLLISION_PENALTY = -10.0
         ENERGY_DECAY_PENALTY = -0.1

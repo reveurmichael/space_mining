@@ -13,6 +13,10 @@ class Renderer:
         self.clock: Optional[Any] = None
         self.font: Optional[Any] = None
 
+        # Window dimensions (moved from environment to renderer)
+        self.window_width = 1920  # Standard 1080p width
+        self.window_height = 1080  # Standard 1080p height
+
         # Cosmic background system (managed by renderer)
         self.starfield_layers = []
         self.nebula_clouds = []
@@ -26,7 +30,7 @@ class Renderer:
         self._initialize_cosmic_background()
 
     def _initialize_cosmic_background(self) -> None:
-        """Initialize the perfect cosmic universe for 1920x1080."""
+        """Initialize the perfect cosmic universe."""
         import numpy as np
         import math
 
@@ -39,8 +43,8 @@ class Renderer:
         layer1_stars = []
         for _ in range(320):
             layer1_stars.append({
-                "x": np.random.uniform(0, 1920),
-                "y": np.random.uniform(0, 1080),
+                "x": np.random.uniform(0, self.window_width),
+                "y": np.random.uniform(0, self.window_height),
                 "size": np.random.choice([1, 2], p=[0.9, 0.1]),
                 "brightness": np.random.randint(15, 55),
                 "speed": np.random.uniform(0.05, 0.1),  # Significantly increased speed
@@ -55,8 +59,8 @@ class Renderer:
         layer2_stars = []
         for _ in range(240):
             layer2_stars.append({
-                "x": np.random.uniform(0, 1920),
-                "y": np.random.uniform(0, 1080),
+                "x": np.random.uniform(0, self.window_width),
+                "y": np.random.uniform(0, self.window_height),
                 "size": np.random.choice([1, 2, 3], p=[0.6, 0.3, 0.1]),
                 "brightness": np.random.randint(25, 80),
                 "speed": np.random.uniform(0.1, 0.2),  # Significantly increased speed
@@ -71,8 +75,8 @@ class Renderer:
         layer3_stars = []
         for _ in range(160):
             layer3_stars.append({
-                "x": np.random.uniform(0, 1920),
-                "y": np.random.uniform(0, 1080),
+                "x": np.random.uniform(0, self.window_width),
+                "y": np.random.uniform(0, self.window_height),
                 "size": np.random.choice([2, 3, 4, 5], p=[0.5, 0.3, 0.15, 0.05]),
                 "brightness": np.random.randint(35, 110),
                 "speed": np.random.uniform(0.2, 0.4),  # Significantly increased speed
@@ -90,7 +94,7 @@ class Renderer:
         self.cosmic_auroras = []
 
     def _update_cosmic_background(self) -> None:
-        """Update cosmic background elements with optimized parallax for 1920x1080."""
+        """Update cosmic background elements with optimized parallax."""
         import numpy as np
 
         self.cosmic_time += 0.016  # ~60fps time step
@@ -116,14 +120,14 @@ class Renderer:
                 star["x"] += star.get("drift_x", 0.0)
                 star["y"] += star.get("drift_y", 0.0)
 
-                # Wrap around screen with proper bounds for 1920x1080
+                # Wrap around screen with proper bounds
                 if star["x"] < -10: 
-                    star["x"] = 1930
-                elif star["x"] > 1930: 
+                    star["x"] = self.window_width + 10
+                elif star["x"] > self.window_width + 10: 
                     star["x"] = -10
                 if star["y"] < -10: 
-                    star["y"] = 1090
-                elif star["y"] > 1090: 
+                    star["y"] = self.window_height + 10
+                elif star["y"] > self.window_height + 10: 
                     star["y"] = -10
 
     def render(self) -> Optional[np.ndarray]:
@@ -144,11 +148,11 @@ class Renderer:
             # For headless rendering, avoid creating a window
             if self.env.render_mode == "human":
                 pygame.display.init()
-                self.window = pygame.display.set_mode((1920, 1080))  # Standard 1080p for optimal performance
+                self.window = pygame.display.set_mode((self.window_width, self.window_height))  # Standard 1080p for optimal performance
                 pygame.display.set_caption("🌌 Space Mining Universe - Perfect Harmony 🌌")
             else:
                 # Off-screen surface for rgb_array mode
-                self.window = pygame.Surface((1920, 1080))
+                self.window = pygame.Surface((self.window_width, self.window_height))
             if self.clock is None:
                 self.clock = pygame.time.Clock()
             if self.font is None:
@@ -175,12 +179,12 @@ class Renderer:
         # Draw starfield only
         self._draw_starfield()
 
-        # Perfect coordinate transformation for 1920x1080 cosmic immersion
+        # Perfect coordinate transformation for cosmic immersion
         def to_screen(pos, scale=10.0):  # Perfect scale for cosmic viewing
             x, y = pos
             zoom_scale = scale * self.env.zoom_level
-            screen_x = int(960 + (x - 40) * zoom_scale + shake_offset[0])  # Perfect center
-            screen_y = int(540 + (y - 40) * zoom_scale + shake_offset[1])  # Perfect center
+            screen_x = int(round(self.window_width // 2 + (x - 40) * zoom_scale + shake_offset[0]))  # Perfect center
+            screen_y = int(round(self.window_height // 2 + (y - 40) * zoom_scale + shake_offset[1]))  # Perfect center
             return screen_x, screen_y
 
         # Draw mothership with safe zone aura
@@ -207,7 +211,7 @@ class Renderer:
                     )
                     self.window.blit(
                         aura_surface, 
-                        (mothership_pos_2d[0] - aura_radius - 10, mothership_pos_2d[1] - aura_radius - 10)
+                        (int(round(mothership_pos_2d[0] - aura_radius - 10)), int(round(mothership_pos_2d[1] - aura_radius - 10)))
                     )
 
         # Draw mothership with enhanced glow
@@ -220,7 +224,7 @@ class Renderer:
             if alpha > 0:
                 glow_surface = pygame.Surface((40 + i * 8 + 10, 40 + i * 8 + 10), pygame.SRCALPHA)
                 gfxdraw.filled_circle(glow_surface, 20 + i * 4 + 5, 20 + i * 4 + 5, 20 + i * 4, (30, 120, 200, alpha))
-                self.window.blit(glow_surface, (mothership_pos_2d[0] - 20 - i * 4 - 5, mothership_pos_2d[1] - 20 - i * 4 - 5), special_flags=pygame.BLEND_ADD)
+                self.window.blit(glow_surface, (int(round(mothership_pos_2d[0] - 20 - i * 4 - 5)), int(round(mothership_pos_2d[1] - 20 - i * 4 - 5))), special_flags=pygame.BLEND_ADD)
 
         # Draw asteroids with fixed yellow color and size-based resource indication
         for i, pos in enumerate(self.env.asteroid_positions):
@@ -272,13 +276,13 @@ class Renderer:
                     if alpha_val > 0:
                         glow_surface = pygame.Surface((size * 2 + j * 4 + 10, size * 2 + j * 4 + 10), pygame.SRCALPHA)
                         gfxdraw.filled_circle(glow_surface, size + j * 2 + 5, size + j * 2 + 5, size + j * 2, (255, 255, 100, alpha_val))
-                        self.window.blit(glow_surface, (asteroid_pos_2d[0] - size - j * 2 - 5, asteroid_pos_2d[1] - size - j * 2 - 5), special_flags=pygame.BLEND_ADD)
+                        self.window.blit(glow_surface, (int(round(asteroid_pos_2d[0] - size - j * 2 - 5)), int(round(asteroid_pos_2d[1] - size - j * 2 - 5))), special_flags=pygame.BLEND_ADD)
 
             # Enhanced health bar
             health_ratio = resource_ratio
-            health_width = int(28 * health_ratio)
-            health_x = asteroid_pos_2d[0] - 14
-            health_y = asteroid_pos_2d[1] - size - 12
+            health_width = int(round(28 * health_ratio))
+            health_x = int(round(asteroid_pos_2d[0] - 14))
+            health_y = int(round(asteroid_pos_2d[1] - size - 12))
 
             # Background
             pygame.draw.rect(self.window, (40, 40, 40), (health_x, health_y, 28, 6))
@@ -295,7 +299,7 @@ class Renderer:
             if size > 12:
                 resource_text = f"{self.env.asteroid_resources[i]:.0f}"
                 text_surface = pygame.font.SysFont("Arial", 12).render(resource_text, True, (255, 255, 255))
-                text_rect = text_surface.get_rect(center=(asteroid_pos_2d[0], asteroid_pos_2d[1] + size + 18))
+                text_rect = text_surface.get_rect(center=(int(round(asteroid_pos_2d[0])), int(round(asteroid_pos_2d[1] + size + 18))))
                 self.window.blit(text_surface, text_rect)
 
         # Draw obstacles with enhanced pulsing effect
@@ -311,7 +315,7 @@ class Renderer:
                 if alpha_val > 0:
                     glow_surface = pygame.Surface((pulse * 2 + i * 4 + 20, pulse * 2 + i * 4 + 20), pygame.SRCALPHA)
                     gfxdraw.filled_circle(glow_surface, pulse + i * 2 + 10, pulse + i * 2 + 10, pulse + 2 + i * 2, (255, 100, 100, alpha_val))
-                    self.window.blit(glow_surface, (obstacle_pos_2d[0] - pulse - i * 2 - 10, obstacle_pos_2d[1] - pulse - i * 2 - 10), special_flags=pygame.BLEND_ADD)
+                    self.window.blit(glow_surface, (int(round(obstacle_pos_2d[0] - pulse - i * 2 - 10)), int(round(obstacle_pos_2d[1] - pulse - i * 2 - 10))), special_flags=pygame.BLEND_ADD)
 
         # Draw agent with FIXED GREEN color
         agent_pos_2d = to_screen(self.env.agent_position)
@@ -328,7 +332,7 @@ class Renderer:
                 if alpha_val > 0:
                     warning_surface = pygame.Surface((28 + i * 6 + 10, 28 + i * 6 + 10), pygame.SRCALPHA)
                     gfxdraw.filled_circle(warning_surface, 14 + i * 3 + 5, 14 + i * 3 + 5, 14 + i * 3, (255, 0, 0, alpha_val))
-                    self.window.blit(warning_surface, (agent_pos_2d[0] - 14 - i * 3 - 5, agent_pos_2d[1] - 14 - i * 3 - 5), special_flags=pygame.BLEND_ADD)
+                    self.window.blit(warning_surface, (int(round(agent_pos_2d[0] - 14 - i * 3 - 5)), int(round(agent_pos_2d[1] - 14 - i * 3 - 5))), special_flags=pygame.BLEND_ADD)
 
         gfxdraw.filled_circle(
             self.window,
@@ -363,10 +367,10 @@ class Renderer:
                 t2 = (i + 0.4 + self.env.mining_beam_offset % 1) / num_segments
 
                 if t1 <= 1.0 and t2 <= 1.0:
-                    x1 = int(agent_pos_2d[0] + t1 * (asteroid_pos_2d[0] - agent_pos_2d[0]))
-                    y1 = int(agent_pos_2d[1] + t1 * (asteroid_pos_2d[1] - agent_pos_2d[1]))
-                    x2 = int(agent_pos_2d[0] + t2 * (asteroid_pos_2d[0] - agent_pos_2d[0]))
-                    y2 = int(agent_pos_2d[1] + t2 * (asteroid_pos_2d[1] - agent_pos_2d[1]))
+                    x1 = int(round(agent_pos_2d[0] + t1 * (asteroid_pos_2d[0] - agent_pos_2d[0])))
+                    y1 = int(round(agent_pos_2d[1] + t1 * (asteroid_pos_2d[1] - agent_pos_2d[1])))
+                    x2 = int(round(agent_pos_2d[0] + t2 * (asteroid_pos_2d[0] - agent_pos_2d[0])))
+                    y2 = int(round(agent_pos_2d[1] + t2 * (asteroid_pos_2d[1] - agent_pos_2d[1])))
 
                     # Enhanced beam colors with intensity variation
                     if i % 2 == 0:
@@ -377,7 +381,7 @@ class Renderer:
 
         # Draw inventory indicator
         if self.env.agent_inventory > 0:
-            inventory_size = int(4 + self.env.agent_inventory / 8)
+            inventory_size = int(round(4 + self.env.agent_inventory / 8))
             gfxdraw.filled_circle(
                 self.window,
                 agent_pos_2d[0],
@@ -388,9 +392,9 @@ class Renderer:
 
         # Enhanced energy bar
         energy_ratio = self.env.agent_energy / 150.0
-        energy_width = int(70 * energy_ratio)
-        bar_x = agent_pos_2d[0] - 35
-        bar_y = agent_pos_2d[1] - 35
+        energy_width = int(round(70 * energy_ratio))
+        bar_x = int(round(agent_pos_2d[0] - 35))
+        bar_y = int(round(agent_pos_2d[1] - 35))
 
         # Background with border
         pygame.draw.rect(self.window, (20, 20, 20), (bar_x - 2, bar_y - 2, 74, 12))
@@ -404,25 +408,6 @@ class Renderer:
         else:
             energy_color = (255, 50, 50)
         pygame.draw.rect(self.window, energy_color, (bar_x, bar_y, energy_width, 8))
-
-        # Draw observation and mining ranges (affected by zoom)
-        obs_radius_px = int(self.env.observation_radius * 14.0 * self.env.zoom_level)
-        mining_radius_px = int(self.env.mining_range * 14.0 * self.env.zoom_level)
-
-        gfxdraw.aacircle(
-            self.window,
-            agent_pos_2d[0],
-            agent_pos_2d[1],
-            obs_radius_px,
-            (100, 150, 255),
-        )
-        gfxdraw.aacircle(
-            self.window,
-            agent_pos_2d[0],
-            agent_pos_2d[1],
-            mining_radius_px,
-            (255, 100, 100),
-        )
 
         # Draw delivery particles
         for particle in self.env.delivery_particles:
@@ -438,7 +423,7 @@ class Renderer:
                 glow_color = (255, 255, 0, alpha)
                 gfxdraw.filled_circle(particle_surface, 7, 7, 5, glow_color)
                 gfxdraw.filled_circle(particle_surface, 7, 7, 3, (255, 255, 255, alpha))
-                self.window.blit(particle_surface, (particle_pos_2d[0] - 7, particle_pos_2d[1] - 7))
+                self.window.blit(particle_surface, (int(round(particle_pos_2d[0] - 7)), int(round(particle_pos_2d[1] - 7))))
 
         # Draw score popups with enhanced styling
         for popup in self.env.score_popups:
@@ -453,23 +438,45 @@ class Renderer:
                 # Add shadow effect
                 shadow_surface = popup_font.render(popup["text"], True, (0, 0, 0))
                 shadow_surface.set_alpha(alpha // 2)
-                self.window.blit(shadow_surface, (popup_pos_2d[0] - 18, popup_pos_2d[1] - 8))
-                self.window.blit(text_surface, (popup_pos_2d[0] - 20, popup_pos_2d[1] - 10))
+                self.window.blit(shadow_surface, (int(round(popup_pos_2d[0] - 18)), int(round(popup_pos_2d[1] - 8))))
+                self.window.blit(text_surface, (int(round(popup_pos_2d[0] - 20)), int(round(popup_pos_2d[1] - 10))))
 
-        # OBSERVATION RANGE DIMMING EFFECT
-        overlay = pygame.Surface((1920, 1200), pygame.SRCALPHA)
-        overlay.fill((0, 0, 0, 200))  # 200/255 darkness outside observation circle
+        # OBSERVATION RANGE DIMMING EFFECT - FIXED VERSION
+        # Use window actual size, avoid hardcoded 1200 causing offset/alignment issues
+        win_w, win_h = self.window.get_size()
 
-        # Create a "visible" hole for observation range
-        pygame.draw.circle(overlay, (0, 0, 0, 0), agent_pos_2d, obs_radius_px)
+        # Ensure coordinates and radius are integers and use round() to avoid 0.5 pixel offset
+        agent_x, agent_y = int(round(agent_pos_2d[0])), int(round(agent_pos_2d[1]))
+        obs_radius_px = int(round(self.env.observation_radius * 14.0 * self.env.zoom_level))
+        mining_radius_px = int(round(self.env.mining_range * 14.0 * self.env.zoom_level))
 
-        # Apply the dimming overlay
+        # 1) Create overlay (same size as window) and fill with semi-transparent black
+        overlay = pygame.Surface((win_w, win_h), pygame.SRCALPHA)
+        overlay.fill((0, 0, 0, 200))
+
+        # 2) Cut out transparent "visible circle" on overlay (integer coordinates)
+        #    Note: pygame.draw.circle doesn't do anti-aliasing, so we'll draw clear outline on window later
+        pygame.draw.circle(overlay, (0, 0, 0, 0), (agent_x, agent_y), obs_radius_px)
+
+        # 3) Blit overlay to window (dim outside region)
         self.window.blit(overlay, (0, 0))
+
+        # 4) Draw unified, anti-aliased outlines on top layer (ensure they appear above overlay)
+        #    Draw multiple aacircles for consistent thickness
+        gfxdraw.aacircle(self.window, agent_x, agent_y, obs_radius_px, (100, 150, 255))  # thin AA outline
+        gfxdraw.aacircle(self.window, agent_x, agent_y, obs_radius_px + 1, (100, 150, 255))  # slightly thicker
+        gfxdraw.aacircle(self.window, agent_x, agent_y, obs_radius_px - 1, (100, 150, 255))  # inner edge
+
+        # Draw mining range circle
+        gfxdraw.aacircle(self.window, agent_x, agent_y, mining_radius_px, (255, 100, 100))
+        gfxdraw.aacircle(self.window, agent_x, agent_y, mining_radius_px + 1, (255, 100, 100))
+        gfxdraw.aacircle(self.window, agent_x, agent_y, mining_radius_px - 1, (255, 100, 100))
 
         # Draw collision flash overlay (after dimming so it's always visible)
         if self.env.collision_flash_timer > 0:
             flash_alpha = int(160 * (self.env.collision_flash_timer / 0.3))  # Less intense for ultra-wide
-            flash_surface = pygame.Surface((1920, 1200), pygame.SRCALPHA)
+            win_w, win_h = self.window.get_size()
+            flash_surface = pygame.Surface((win_w, win_h), pygame.SRCALPHA)
             flash_surface.fill((255, 0, 0, flash_alpha))
             self.window.blit(flash_surface, (0, 0))
 
@@ -500,7 +507,7 @@ class Renderer:
 
         for layer in self.starfield_layers:
             for star in layer:
-                if not (0 <= star["x"] <= 1920 and 0 <= star["y"] <= 1080):
+                if not (0 <= star["x"] <= self.window_width and 0 <= star["y"] <= self.window_height):
                     continue
 
                 x, y = int(star["x"]), int(star["y"])
@@ -833,10 +840,10 @@ class Renderer:
             text_surface = text_font.render(item["text"], True, (220, 220, 220))
             legend_bg.blit(text_surface, (x + 34, y + 6))
 
-        # Position legend bottom-right with safe margins for 1080p board
+        # Position legend bottom-right with safe margins
         margin = 20
-        legend_x = 1920 - panel_width - margin
-        legend_y = 1080 - panel_height - margin
+        legend_x = self.window_width - panel_width - margin
+        legend_y = self.window_height - panel_height - margin
         self.window.blit(legend_bg, (legend_x, legend_y))
 
     def _draw_legend_icon(self, surface, icon_type, x, y, color) -> None:
@@ -925,7 +932,8 @@ class Renderer:
         fade_alpha = min(255, self.env.game_over_state["fade_alpha"])
 
         # Create fade overlay for ultra-wide screen
-        fade_surface = pygame.Surface((1920, 1200), pygame.SRCALPHA)
+        win_w, win_h = self.window.get_size()
+        fade_surface = pygame.Surface((win_w, win_h), pygame.SRCALPHA)
         fade_surface.fill((0, 0, 0, fade_alpha))
         self.window.blit(fade_surface, (0, 0))
 
@@ -939,7 +947,7 @@ class Renderer:
             title_text = "🎉 MISSION SUCCESS! 🎉" if success else "💥 MISSION FAILED 💥"
             title_color = (0, 255, 0) if success else (255, 100, 100)
             title_surface = title_font.render(title_text, True, title_color)
-            title_rect = title_surface.get_rect(center=(960, 260))
+            title_rect = title_surface.get_rect(center=(self.window_width // 2, 260))
             self.window.blit(title_surface, title_rect)
 
             # Final statistics
@@ -971,7 +979,7 @@ class Renderer:
                     color = (200, 200, 255)
 
                 text_surface = stats_font.render(line, True, color)
-                text_rect = text_surface.get_rect(center=(960, y_offset))
+                text_rect = text_surface.get_rect(center=(self.window_width // 2, y_offset))
                 self.window.blit(text_surface, text_rect)
                 y_offset += 45
 
