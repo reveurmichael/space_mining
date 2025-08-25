@@ -462,15 +462,11 @@ class Renderer:
         self.window.blit(overlay, (0, 0))
 
         # 4) Draw unified, anti-aliased outlines on top layer (ensure they appear above overlay)
-        #    Draw multiple aacircles for consistent thickness
+        #    Draw single aacircle for thin outline
         gfxdraw.aacircle(self.window, agent_x, agent_y, obs_radius_px, (100, 150, 255))  # thin AA outline
-        gfxdraw.aacircle(self.window, agent_x, agent_y, obs_radius_px + 1, (100, 150, 255))  # slightly thicker
-        gfxdraw.aacircle(self.window, agent_x, agent_y, obs_radius_px - 1, (100, 150, 255))  # inner edge
 
         # Draw mining range circle
         gfxdraw.aacircle(self.window, agent_x, agent_y, mining_radius_px, (255, 100, 100))
-        gfxdraw.aacircle(self.window, agent_x, agent_y, mining_radius_px + 1, (255, 100, 100))
-        gfxdraw.aacircle(self.window, agent_x, agent_y, mining_radius_px - 1, (255, 100, 100))
 
         # Draw collision flash overlay (after dimming so it's always visible)
         if self.env.collision_flash_timer > 0:
