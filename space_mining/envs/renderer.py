@@ -990,8 +990,8 @@ class Renderer:
 
         # ---- 持续周期性波动 + 随机抖动 ----
         # 你可调整 freq / amp / jitter_scale 控制动画节奏与强度
-        freq = 0.15  # Hz-ish: 波动频率（低频更平滑）
-        amp = 0.10   # 振幅（单位 zoom）
+        freq = 0.05  # Hz-ish: 波动频率（低频更平滑）
+        amp = 0.20   # 振幅（单位 zoom）
         osc = np.sin(2.0 * np.pi * freq * self.zoom_time) * amp
 
         # 随机微抖动（每步小幅不同，使用 env.np_random 保持可复现性）
