@@ -374,11 +374,16 @@ class SpaceMining(gym.Env):
             self.renderer.add_score_popup(
                 f"+{delivered_amount:.1f}", self.agent_position.copy(), (0, 255, 0)
             )
+            # Calculate energy recharge before setting to full
+            energy_recharged = 150.0 - self.agent_energy  # Full recharge to 150.0
+            # Add score popup for energy recharge (blue text)
+            if energy_recharged > 0:
+                self.renderer.add_score_popup(
+                    f"+{energy_recharged:.1f}E", self.agent_position.copy(), (100, 150, 255)
+                )
             # Track delivery for display
             if not hasattr(self, "last_delivery_info"):
                 self.last_delivery_info = {}
-            # Calculate energy recharge before setting to full
-            energy_recharged = 150.0 - self.agent_energy  # Full recharge to 150.0
             self.last_delivery_info = {
                 "step": self.steps_count,
                 "delivered": delivered_amount,
