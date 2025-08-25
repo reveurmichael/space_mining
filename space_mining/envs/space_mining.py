@@ -187,7 +187,7 @@ class SpaceMining(gym.Env):
         )
 
         # More obstacles for challenge
-        num_obstacles = self.np_random.integers(4, 8)  # Increased from 1-3 to 4-8
+        num_obstacles = self.np_random.integers(1, 3)  # Increased from 1-3 to 4-8
         self.obstacle_positions = self.np_random.uniform(
             low=20, high=self.grid_size - 20, size=(num_obstacles, 2)
         )
