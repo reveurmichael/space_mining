@@ -56,9 +56,7 @@ class SpaceMining(gym.Env):
             0.01  # Further reduced gravity from 0.03 to 0.01 for much easier movement
         )
 
-        self.obstacle_penalty: float = (
-            -10.0
-        )  # TODO: this is strange because obstacle_penalty should be put in reward function/compute_reward, not here as an attribute of the environment
+
 
         self.energy_consumption_rate: float = 0.05  # Reduce base energy consumption
         self.mining_energy_cost: float = 1.0  # Reduce mining energy consumption
@@ -66,30 +64,11 @@ class SpaceMining(gym.Env):
         self.steps_count: int = 0
         self.mothership_pos: np.ndarray = np.array([grid_size / 2, grid_size / 2])
 
-        # Animation and visual effects (for renderer communication)
-        self.delivery_particles = []
-        self.agent_trail = []  # TODO: if possible, move this to renderer; Do we still have agent trail? Seems like not.
-        self.score_popups = []
-        self.collision_flash_timer = 0.0  # TODO: if possible, move this to renderer
-        self.screen_shake_timer = 0.0 # TODO: if possible, move this to renderer
-        self.mining_beam_offset = 0.0  # TODO: if possible, move this to renderer
 
 
 
-        # Zoom system for gameplay
-        # TODO: those zoom related attributes should be moved to renderer
-        self.zoom_level = 1.0
-        self.target_zoom = 1.0
-        self.zoom_speed = 0.025
 
-        # Game over screen state
-        # TODO: all game over related attributes should be moved to renderer. Also, we will not have a game over screen show stuffs. Nothing will happen after game over.
-        self.game_over_state = {
-            "active": False,
-            "fade_alpha": 0,
-            "final_stats": {},
-            "success": False,
-        }
+
 
         self.action_space: spaces.Box = spaces.Box(
             low=np.array([-1.0, -1.0, 0.0]),
@@ -105,13 +84,12 @@ class SpaceMining(gym.Env):
             8.0  # Increased from 5.0 to 8.0 for much easier mining
         )
 
-        # TODO: this should be moved to renderer, or should they stay here?
         agent_state_dim: int = 6
         asteroids_dim: int = (
             self.max_obs_asteroids * 3
-        )  # TODO: this should be moved to renderer, or should they stay here?
+        )
         mothership_dim: int = (
-            2  # TODO: this should be moved to renderer, or should they stay here?
+            2
         )
 
         self.observation_space: spaces.Box = spaces.Box(
@@ -128,35 +106,17 @@ class SpaceMining(gym.Env):
     ) -> Tuple[np.ndarray, Dict[str, Any]]:
         super().reset(seed=seed)
 
+        # Reset renderer state
+        self.renderer.reset()
+
         self.steps_count = 0
         self.collision_count = 0
         self.delivery_count = 0
         self.last_action = np.zeros(3, dtype=np.float32)
 
-        # Reset animation data structures
-        self.delivery_particles = []
-        self.agent_trail = (
-            []
-        )  # TODO: this should be moved to renderer, or should they stay here, or should we remove this? Since we don't have agent trail anymore.
-        self.score_popups = []
-        self.collision_flash_timer = (
-            0.0  # TODO: this should be moved to renderer, or should they stay here?
-        )
-        self.screen_shake_timer = (
-            0.0  # TODO: this should be moved to renderer, or should they stay here?
-        )
-        self.mining_beam_offset = (
-            0.0  # TODO: this should be moved to renderer, or should they stay here?
-        )
 
-        # TODO: this should be moved to renderer, or should they stay here, or should we remove this? Since we don't have game over screen view anymore.
-        # Reset cosmic background and game over state
-        self.game_over_state = {
-            "active": False,
-            "fade_alpha": 0,
-            "final_stats": {},
-            "success": False,
-        }
+
+
 
         self.agent_position = self.np_random.uniform(
             low=0, high=self.grid_size, size=(2,)
@@ -193,13 +153,7 @@ class SpaceMining(gym.Env):
             low=-0.2, high=0.2, size=(num_obstacles, 2)
         )
 
-        # TODO: it seems that we don't use these variables anymore. THose variables starting with 'prev_' should be removed.
-        self.prev_min_asteroid_distance = float("inf")
-        self.prev_inventory = 0.0
-        self.prev_energy = self.agent_energy
-        self.prev_distance_to_mothership = np.linalg.norm(
-            self.agent_position - self.mothership_pos
-        )
+
 
         observation = self._get_observation()
         info = {
@@ -298,8 +252,6 @@ class SpaceMining(gym.Env):
             self.agent_energy = 0
             energy_depleted = True
             terminated = True
-            # TODO: no game over screen should be shown. There is no game over screen.
-            self.renderer.trigger_game_over(success=False)
         else:
             terminated = False
 
@@ -315,8 +267,7 @@ class SpaceMining(gym.Env):
                     self.last_collision_step = 0
                 self.last_collision_step = self.steps_count
                 # Trigger collision effects
-                self.collision_flash_timer = 0.3  # Flash for 0.3 seconds
-                self.screen_shake_timer = 0.2  # Shake for 0.2 seconds
+                self.renderer.trigger_collision_effects()
                 # Stronger collision response to push agent away
                 to_obstacle = self.agent_position - obstacle_pos
                 if np.linalg.norm(to_obstacle) > 0:
@@ -326,14 +277,12 @@ class SpaceMining(gym.Env):
                     self.agent_position += to_obstacle * 2.0
         # Terminate if too many collisions - reasonable tolerance
         if (
-            self.collision_count >= 20 # TODO: this should be reduced to 8, if this is to be the same as DyCoT. Maybe DyCoT can change to 20 as well.
-        ):  # Reduced from 20 to 8 for stricter collision control
+            self.collision_count >= 8  # Reduced from 20 to 8 for stricter collision control
+        ):
             print(
                 f"[EPISODE END] Step {self.steps_count}: Too many collisions, terminating episode."
             )
             terminated = True
-            # TODO: no game over screen should be shown. There is no game over screen.
-            self.renderer.trigger_game_over(success=False)
 
         # Enhanced mining action - much easier and more rewarding
         mining_success = False
@@ -458,8 +407,6 @@ class SpaceMining(gym.Env):
         # Check if episode should be truncated due to time limit
         truncated = self.steps_count >= self.max_episode_steps
         if truncated:
-            # TODO: no game over screen should be shown. There is no game over screen.
-            self.renderer.trigger_game_over(success=False)
             print(
                 f"[EPISODE END] Step {self.steps_count}: Time limit reached ({self.max_episode_steps} steps) - Episode truncated"
             )
@@ -467,8 +414,6 @@ class SpaceMining(gym.Env):
         # Terminate if all asteroids are depleted (exploration complete)
         if np.all(self.asteroid_resources <= 0.1):
             terminated = True
-            # TODO: no game over screen should be shown. There is no game over screen.
-            self.renderer.trigger_game_over(success=True)
             info = self._get_info()
             info["exploration_complete"] = True
             print(

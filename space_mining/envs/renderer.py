@@ -17,6 +17,21 @@ class Renderer:
         self.window_width = 1920  # Standard 1080p width
         self.window_height = 1080  # Standard 1080p height
 
+        # Zoom system for gameplay (moved from environment to renderer)
+        self.zoom_level = 1.0
+        self.target_zoom = 1.0
+        self.zoom_speed = 0.025
+        self.zoom_time = 0.0
+
+
+
+        # Animation and visual effects (moved from environment to renderer)
+        self.delivery_particles = []
+        self.score_popups = []
+        self.collision_flash_timer = 0.0
+        self.screen_shake_timer = 0.0
+        self.mining_beam_offset = 0.0
+
         # Cosmic background system (managed by renderer)
         self.starfield_layers = []
         self.nebula_clouds = []
@@ -28,6 +43,22 @@ class Renderer:
 
         # Initialize cosmic background
         self._initialize_cosmic_background()
+
+    def reset(self) -> None:
+        """Reset renderer state when environment is reset."""
+        # Reset zoom system
+        self.zoom_level = 1.0
+        self.target_zoom = 1.0
+        self.zoom_time = 0.0
+        
+        # Reset animation and visual effects
+        self.delivery_particles = []
+        self.score_popups = []
+        self.collision_flash_timer = 0.0
+        self.screen_shake_timer = 0.0
+        self.mining_beam_offset = 0.0
+        
+
 
     def _initialize_cosmic_background(self) -> None:
         """Initialize the perfect cosmic universe."""
@@ -112,7 +143,7 @@ class Renderer:
                 current_speed = star.get("speed", 0.006)
                 if star.get("burst_speed", 0.0) > 0 and np.random.random() < 0.1:  # Increased burst trigger chance to 10%
                     current_speed += star.get("burst_speed", 0.0)
-                parallax_factor = current_speed * self.env.zoom_level * (0.4 + 0.3 * layer_idx)
+                parallax_factor = current_speed * self.zoom_level * (0.4 + 0.3 * layer_idx)
                 star["x"] -= movement[0] * parallax_factor
                 star["y"] -= movement[1] * parallax_factor
 
@@ -161,8 +192,8 @@ class Renderer:
 
         # Screen shake offset
         shake_offset = [0, 0]
-        if self.env.screen_shake_timer > 0:
-            shake_intensity = min(8, int(self.env.screen_shake_timer * 30))
+        if self.screen_shake_timer > 0:
+            shake_intensity = min(8, int(self.screen_shake_timer * 30))
             shake_offset[0] = random.randint(-shake_intensity, shake_intensity)
             shake_offset[1] = random.randint(-shake_intensity, shake_intensity)
 
@@ -182,7 +213,7 @@ class Renderer:
         # Perfect coordinate transformation for cosmic immersion
         def to_screen(pos, scale=10.0):  # Perfect scale for cosmic viewing
             x, y = pos
-            zoom_scale = scale * self.env.zoom_level
+            zoom_scale = scale * self.zoom_level
             screen_x = int(round(self.window_width // 2 + (x - 40) * zoom_scale + shake_offset[0]))  # Perfect center
             screen_y = int(round(self.window_height // 2 + (y - 40) * zoom_scale + shake_offset[1]))  # Perfect center
             return screen_x, screen_y
@@ -363,8 +394,8 @@ class Renderer:
             beam_intensity = math.sin(self.env.steps_count * 0.4) * 0.3 + 0.7
 
             for i in range(num_segments):
-                t1 = (i + self.env.mining_beam_offset % 1) / num_segments
-                t2 = (i + 0.4 + self.env.mining_beam_offset % 1) / num_segments
+                t1 = (i + self.mining_beam_offset % 1) / num_segments
+                t2 = (i + 0.4 + self.mining_beam_offset % 1) / num_segments
 
                 if t1 <= 1.0 and t2 <= 1.0:
                     x1 = int(round(agent_pos_2d[0] + t1 * (asteroid_pos_2d[0] - agent_pos_2d[0])))
@@ -410,7 +441,7 @@ class Renderer:
         pygame.draw.rect(self.window, energy_color, (bar_x, bar_y, energy_width, 8))
 
         # Draw delivery particles
-        for particle in self.env.delivery_particles:
+        for particle in self.delivery_particles:
             progress = particle["progress"]
             current_pos = (
                 particle["start_pos"] + progress * (particle["target_pos"] - particle["start_pos"])
@@ -426,7 +457,7 @@ class Renderer:
                 self.window.blit(particle_surface, (int(round(particle_pos_2d[0] - 7)), int(round(particle_pos_2d[1] - 7))))
 
         # Draw score popups with enhanced styling
-        for popup in self.env.score_popups:
+        for popup in self.score_popups:
             popup_pos_2d = to_screen(popup["pos"])
             alpha = max(0, min(255, popup["alpha"]))
             if alpha > 0:
@@ -447,8 +478,8 @@ class Renderer:
 
         # Ensure coordinates and radius are integers and use round() to avoid 0.5 pixel offset
         agent_x, agent_y = int(round(agent_pos_2d[0])), int(round(agent_pos_2d[1]))
-        obs_radius_px = int(round(self.env.observation_radius * 14.0 * self.env.zoom_level))
-        mining_radius_px = int(round(self.env.mining_range * 14.0 * self.env.zoom_level))
+        obs_radius_px = int(round(self.env.observation_radius * 14.0 * self.zoom_level))
+        mining_radius_px = int(round(self.env.mining_range * 14.0 * self.zoom_level))
 
         # 1) Create overlay (same size as window) and fill with semi-transparent black
         overlay = pygame.Surface((win_w, win_h), pygame.SRCALPHA)
@@ -469,19 +500,15 @@ class Renderer:
         gfxdraw.aacircle(self.window, agent_x, agent_y, mining_radius_px, (255, 100, 100))
 
         # Draw collision flash overlay (after dimming so it's always visible)
-        if self.env.collision_flash_timer > 0:
-            flash_alpha = int(160 * (self.env.collision_flash_timer / 0.3))  # Less intense for ultra-wide
+        if self.collision_flash_timer > 0:
+            flash_alpha = int(160 * (self.collision_flash_timer / 0.3))  # Less intense for ultra-wide
             win_w, win_h = self.window.get_size()
             flash_surface = pygame.Surface((win_w, win_h), pygame.SRCALPHA)
             flash_surface.fill((255, 0, 0, flash_alpha))
             self.window.blit(flash_surface, (0, 0))
 
-        # TODO: all game over related attributes should be moved to renderer. Also, we will not have a game over screen show stuffs. Nothing will happen after game over.
-        # Draw game UI if not in game over state
-        if not self.env.game_over_state["active"]:
-            self._draw_game_ui(agent_pos_2d)
-        else:
-            self._draw_game_over_screen()
+        # Draw game UI
+        self._draw_game_ui(agent_pos_2d)
 
         # Update display / timing
         if self.env.render_mode == "human":
@@ -913,71 +940,7 @@ class Renderer:
             pygame.draw.rect(surface, color, (x+3, y+3, 14, 14))
             gfxdraw.filled_circle(surface, x+10, y+10, 5, (0, 0, 0, 0))
 
-    # TODO: all game over related attributes should be moved to renderer. Also, we will not have a game over screen show stuffs. Nothing will happen after game over. I highly recommend to remove this function.
-    def _draw_game_over_screen(self) -> None:
-        """Draw the game over/success screen with final statistics."""
-        try:
-            import pygame
-        except ImportError:
-            return
 
-        # Update fade alpha
-        if self.env.game_over_state["fade_alpha"] < 255:
-            self.env.game_over_state["fade_alpha"] += 3
-
-        fade_alpha = min(255, self.env.game_over_state["fade_alpha"])
-
-        # Create fade overlay for ultra-wide screen
-        win_w, win_h = self.window.get_size()
-        fade_surface = pygame.Surface((win_w, win_h), pygame.SRCALPHA)
-        fade_surface.fill((0, 0, 0, fade_alpha))
-        self.window.blit(fade_surface, (0, 0))
-
-        # Only show text once fade is substantial
-        if fade_alpha > 100:
-            stats = self.env.game_over_state["final_stats"]
-            success = self.env.game_over_state["success"]
-
-            # Title for ultra-wide screen
-            title_font = pygame.font.SysFont("Arial", 72, bold=True)
-            title_text = "🎉 MISSION SUCCESS! 🎉" if success else "💥 MISSION FAILED 💥"
-            title_color = (0, 255, 0) if success else (255, 100, 100)
-            title_surface = title_font.render(title_text, True, title_color)
-            title_rect = title_surface.get_rect(center=(self.window_width // 2, 260))
-            self.window.blit(title_surface, title_rect)
-
-            # Final statistics
-            stats_font = pygame.font.SysFont("Arial", 26)
-            stats_text = [
-                "",
-                f"📊 FINAL STATISTICS",
-                "",
-                f"🌕 Total Resources Mined: {stats['total_resources_mined']:.1f}",
-                f"🚀 Resources Delivered: {stats['resources_delivered']:.1f}",
-                f"📦 Final Inventory: {stats['current_inventory']:.1f}",
-                f"💥 Collisions: {stats['collisions']}",
-                f"⏱️ Steps Taken: {stats['steps_taken']}",
-                f"⚡ Final Energy: {stats['final_energy']:.1f}/150",
-                f"💀 Asteroids Depleted: {stats['asteroids_depleted']}/{stats['total_asteroids']}",
-                f"🏆 Efficiency Score: {stats['efficiency_score']:.0f}",
-                "",
-                "Press R to restart or ESC to quit"
-            ]
-
-            y_offset = 400
-            for line in stats_text:
-                if line == "":
-                    y_offset += 26
-                    continue
-
-                color = (255, 255, 100) if "STATISTICS" in line else (255, 255, 255)
-                if "restart" in line:
-                    color = (200, 200, 255)
-
-                text_surface = stats_font.render(line, True, color)
-                text_rect = text_surface.get_rect(center=(self.window_width // 2, y_offset))
-                self.window.blit(text_surface, text_rect)
-                y_offset += 45
 
     def update_zoom(self) -> None:
         """Update zoom system for cosmic immersion.
@@ -989,19 +952,9 @@ class Renderer:
         """
         env = self.env
 
-        # ---- 防守性初始化 ----
-        if not hasattr(env, "zoom_time"):
-            env.zoom_time = 0.0
-        if not hasattr(env, "zoom_speed") or env.zoom_speed is None:
-            env.zoom_speed = 0.025
-        if not hasattr(env, "zoom_level") or env.zoom_level is None:
-            env.zoom_level = 1.0
-        if not hasattr(env, "target_zoom") or env.target_zoom is None:
-            env.target_zoom = 1.0
-
         # ---- 时间推进（使用 env.dt 如果存在，否则回退到固定步长）----
         dt = getattr(env, "dt", 0.1)
-        env.zoom_time += dt
+        self.zoom_time += dt
 
         # ---- 基础事件优先级（按重要性从高到低）----
         # 使用 base_target 决定事件驱动的主要缩放值
@@ -1037,9 +990,9 @@ class Renderer:
 
         # ---- 持续周期性波动 + 随机抖动 ----
         # 你可调整 freq / amp / jitter_scale 控制动画节奏与强度
-        freq = 0.25  # Hz-ish: 波动频率（低频更平滑）
-        amp = 0.06   # 振幅（单位 zoom）
-        osc = np.sin(2.0 * np.pi * freq * env.zoom_time) * amp
+        freq = 0.15  # Hz-ish: 波动频率（低频更平滑）
+        amp = 0.10   # 振幅（单位 zoom）
+        osc = np.sin(2.0 * np.pi * freq * self.zoom_time) * amp
 
         # 随机微抖动（每步小幅不同，使用 env.np_random 保持可复现性）
         jitter_scale = 0.01
@@ -1054,21 +1007,19 @@ class Renderer:
                 jitter = float((rng.random() - 0.5) * jitter_scale * 2.0)
 
         # ---- 合成目标 zoom ----
-        env.target_zoom = base_target + osc + jitter
+        self.target_zoom = base_target + osc + jitter
 
         # ---- 平滑追踪 ----
-        # 小心不要把 zoom_speed 每帧设置回常量（renderer 里原先会改它），但我们保留平滑速度的更新逻辑
-        speed = getattr(env, "zoom_speed", 0.025)
         # adaptive: 如果差异很大，用更快的速度捕捉（让 event 响应更明显）
-        diff = env.target_zoom - env.zoom_level
-        adaptive_speed = speed
+        diff = self.target_zoom - self.zoom_level
+        adaptive_speed = self.zoom_speed
         if abs(diff) > 0.2:
-            adaptive_speed = min(0.2, speed * 6.0)  # 快速响应重要事件
-        env.zoom_level += diff * adaptive_speed
+            adaptive_speed = min(0.2, self.zoom_speed * 6.0)  # 快速响应重要事件
+        self.zoom_level += diff * adaptive_speed
 
         # ---- 限界 ----
-        env.zoom_level = max(0.7, min(1.6, env.zoom_level))
-        env.target_zoom = max(0.7, min(1.6, env.target_zoom))
+        self.zoom_level = max(0.7, min(1.6, self.zoom_level))
+        self.target_zoom = max(0.7, min(1.6, self.target_zoom))
 
     def spawn_delivery_particles(self, start_pos: np.ndarray, target_pos: np.ndarray) -> None:
         """Spawn glowing particles for resource delivery animation."""
@@ -1078,7 +1029,7 @@ class Renderer:
                 "target_pos": target_pos.copy(),
                 "progress": 0.0
             }
-            self.env.delivery_particles.append(particle)
+            self.delivery_particles.append(particle)
 
     def add_score_popup(self, text: str, pos: np.ndarray, color: tuple) -> None:
         """Add a floating score popup."""
@@ -1088,55 +1039,39 @@ class Renderer:
             "alpha": 255,
             "color": color
         }
-        self.env.score_popups.append(popup)
+        self.score_popups.append(popup)
 
     def update_animations(self) -> None:
         """Update all animation states."""
         # Update delivery particles
-        for particle in self.env.delivery_particles:
+        for particle in self.delivery_particles:
             particle["progress"] += 0.05
             if particle["progress"] >= 1.0:
                 particle["progress"] = 1.0
         # Remove completed particles
-        self.env.delivery_particles = [p for p in self.env.delivery_particles if p["progress"] < 1.0]
+        self.delivery_particles = [p for p in self.delivery_particles if p["progress"] < 1.0]
 
         # Update score popups
-        for popup in self.env.score_popups:
+        for popup in self.score_popups:
             popup["pos"][1] -= 0.3  # Move upward
             popup["alpha"] -= 5
         # Remove faded popups
-        self.env.score_popups = [p for p in self.env.score_popups if p["alpha"] > 0]
+        self.score_popups = [p for p in self.score_popups if p["alpha"] > 0]
 
         # Update collision effects
-        if self.env.collision_flash_timer > 0:
-            self.env.collision_flash_timer -= self.env.dt
-        if self.env.screen_shake_timer > 0:
-            self.env.screen_shake_timer -= self.env.dt
+        if self.collision_flash_timer > 0:
+            self.collision_flash_timer -= self.env.dt
+        if self.screen_shake_timer > 0:
+            self.screen_shake_timer -= self.env.dt
 
         # Update mining beam animation
-        self.env.mining_beam_offset += 0.2
+        self.mining_beam_offset += 0.2
 
-    # TODO: all game over related attributes should be moved to renderer. Also, we will not have a game over screen show stuffs. Nothing will happen after game over.
-    def trigger_game_over(self, success: bool) -> None:
-        """Trigger game over screen with final statistics."""
-        cumulative_mining = getattr(self.env, "cumulative_mining_amount", 0.0)
+    def trigger_collision_effects(self) -> None:
+        """Trigger collision visual effects."""
+        self.collision_flash_timer = 0.3  # Flash for 0.3 seconds
+        self.screen_shake_timer = 0.2  # Shake for 0.2 seconds
 
-        self.env.game_over_state = {
-            "active": True,
-            "fade_alpha": 0,
-            "success": success,
-            "final_stats": {
-                "total_resources_mined": cumulative_mining,
-                "resources_delivered": cumulative_mining - self.env.agent_inventory,
-                "current_inventory": self.env.agent_inventory,
-                "collisions": self.env.collision_count,
-                "steps_taken": self.env.steps_count,
-                "final_energy": self.env.agent_energy,
-                "asteroids_depleted": len(self.env.asteroid_positions) - np.sum(self.env.asteroid_resources >= 0.1),
-                "total_asteroids": len(self.env.asteroid_positions),
-                "efficiency_score": self.env.compute_fitness_score()
-            }
-        }
 
     def close(self) -> None:
         """Close the rendering window."""
