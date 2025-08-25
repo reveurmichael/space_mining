@@ -610,169 +610,54 @@ class SpaceMining(gym.Env):
         info: Dict[str, Any],
         **kwargs,
     ) -> Tuple[float, Dict[str, Any]]:
-        """
-        KISS 改进版奖励：
-        - 更高的单位采矿奖励，强烈鼓励立即把小行星挖空；
-        - 增加“挖干净（depletion）”一次性奖励；
-        - 增加对“总资源减少”的 shaping 奖励（鼓励去远处挖完）；
-        - 强化靠近障碍的稠密惩罚和碰撞惩罚（但训练时可配合提高终止阈值）；
-        - 保持简单清晰，便于调参。
-        """
-        import numpy as _np
-
-        # --- Defensive init ---
+        # Initialize custom attributes
         if not hasattr(self, "obstacle_collisions"):
             self.obstacle_collisions = 0
         if not hasattr(self, "mining_successes"):
             self.mining_successes = 0
         if not hasattr(self, "delivery_successes"):
             self.delivery_successes = 0
-        if not hasattr(self, "discovered_asteroids"):
-            self.discovered_asteroids = set()
-        if not hasattr(self, "prev_remaining_resources"):
-            self.prev_remaining_resources = float(_np.sum(getattr(self, "asteroid_resources", _np.array([]))))
 
-        # --- Safe reads ---
-        mining_amount = float(kwargs.get("mining_amount", 0.0))
-        delivered_amount = float(kwargs.get("delivered_amount", 0.0))
-        obstacle_collisions = int(kwargs.get("obstacle_collisions", 0))
-        boundary_collision = int(kwargs.get("boundary_collision", 0))
-        tried_depleted = bool(kwargs.get("tried_depleted_asteroid", False))
+        # Constants
+        SPEED_LIMIT = 10.0
+        MINING_REWARD = 50.0
+        DELIVERY_REWARD = 10.0
+        OBSTACLE_COLLISION_PENALTY = -200.0
+        BOUNDARY_COLLISION_PENALTY = -10.0
+        ENERGY_DECAY_PENALTY = -0.1
 
-        # ===== Tunable constants (simple) =====
-        MAX_ENERGY = getattr(self, "max_energy", 150.0)
+        # Calculate rewards
+        mining_reward = MINING_REWARD * kwargs["mining_success"]
+        delivery_reward = DELIVERY_REWARD * kwargs["delivery_success"]
+        obstacle_collision_penalty = (
+            OBSTACLE_COLLISION_PENALTY * kwargs["obstacle_collisions"]
+        )
+        boundary_collision_penalty = (
+            BOUNDARY_COLLISION_PENALTY * kwargs["boundary_collision"]
+        )
+        energy_decay_penalty = ENERGY_DECAY_PENALTY * (self.agent_energy - SPEED_LIMIT)
 
-        # 增强采矿激励（提高到 20 -> 激进鼓励挖完）
-        UNIT_MINING_REWARD = 20.0
-        UNIT_DELIVERY_REWARD = 20.0
-
-        # 碰撞惩罚（仍然较大）
-        OBSTACLE_COLLISION_PENALTY = -250.0
-        BOUNDARY_COLLISION_PENALTY = -20.0
-
-        # 靠近障碍的稠密惩罚（从更远距离开始处罚）
-        RISK_THRESHOLD = 6.0
-        RISK_PENALTY_COEFF = -60.0
-
-        # 能量惩罚（小）
-        ENERGY_PENALTY_COEFF = -0.4
-
-        # 探索 / 引导
-        ASTEROID_DISCOVER_BONUS = 1.0   # 发现新小行星的即时小奖励（鼓励探索）
-        ASTEROID_DEPLETION_BONUS = 60.0 # 把单个小行星挖空的一次性奖励（提高，鼓励把残余挖干净）
-        COMPLETION_BONUS = 500.0       # 全部清空的大额奖励
-
-        # 对 total remaining 的 shaping（鼓励减少远处资源）
-        RESOURCE_DEPLETION_SHAPING_SCALE = 1.0  # 把差额乘以这个值（比原来更有力量）
-
-        # 时间步小惩罚
-        TIME_STEP_REWARD = -0.001
-
-        # ===== Sparse core terms =====
-        mining_reward = UNIT_MINING_REWARD * mining_amount
-        delivery_reward = UNIT_DELIVERY_REWARD * delivered_amount
-        obstacle_collision_penalty = OBSTACLE_COLLISION_PENALTY * obstacle_collisions
-        boundary_collision_penalty = BOUNDARY_COLLISION_PENALTY * boundary_collision
-
-        # ===== Energy penalty =====
-        energy_deficit_ratio = max(0.0, (MAX_ENERGY - float(self.agent_energy)) / MAX_ENERGY)
-        energy_penalty = ENERGY_PENALTY_COEFF * energy_deficit_ratio
-        energy_safety_bonus = 0.05 if self.agent_energy > 0.4 * MAX_ENERGY else 0.0
-
-        # ===== Dense risk penalty: nearest obstacle distance =====
-        min_obs_dist = float("inf")
-        for pos in getattr(self, "obstacle_positions", []):
-            d = _np.linalg.norm(self.agent_position - pos)
-            if d < min_obs_dist:
-                min_obs_dist = d
-        risk_penalty = 0.0
-        if min_obs_dist < RISK_THRESHOLD:
-            risk_penalty = RISK_PENALTY_COEFF * (1.0 - (min_obs_dist / RISK_THRESHOLD))
-
-        # ===== Discovery & proximity bonuses =====
-        asteroid_proximity_reward = 0.0
-        if mining_amount == 0 and delivered_amount == 0:
-            min_ast_dist = float("inf")
-            for idx, pos in enumerate(getattr(self, "asteroid_positions", [])):
-                # only consider non-depleted asteroids
-                if self.asteroid_resources[idx] > 0.1:
-                    d = _np.linalg.norm(self.agent_position - pos)
-                    if d < min_ast_dist:
-                        min_ast_dist = d
-                    # discovery bonus when newly seen
-                    if d <= self.observation_radius and idx not in self.discovered_asteroids:
-                        self.discovered_asteroids.add(idx)
-                        asteroid_proximity_reward += ASTEROID_DISCOVER_BONUS
-            if min_ast_dist < self.observation_radius:
-                asteroid_proximity_reward += 0.5 * (1.0 - min_ast_dist / self.observation_radius)
-
-        mothership_proximity_reward = 0.0
-        if self.agent_inventory > 0:
-            d2m = _np.linalg.norm(self.agent_position - self.mothership_pos)
-            if d2m < self.observation_radius:
-                mothership_proximity_reward = 0.5 * (1.0 - d2m / self.observation_radius)
-
-        # ===== Asteroid depletion & global completion shaping =====
-        asteroid_depletion_bonus = 0.0
-        last_mining = getattr(self, "last_mining_info", None)
-        if last_mining and last_mining.get("step", -1) == self.steps_count and last_mining.get("asteroid_depleted", False):
-            asteroid_depletion_bonus = ASTEROID_DEPLETION_BONUS
-
-        remaining_resources = float(_np.sum(getattr(self, "asteroid_resources", _np.array([]))))
-        prev_remaining = getattr(self, "prev_remaining_resources", remaining_resources)
-        # 强化资源减少的 shaping（scale > 0）
-        resource_depletion_shaping = max(0.0, prev_remaining - remaining_resources) * RESOURCE_DEPLETION_SHAPING_SCALE
-        self.prev_remaining_resources = remaining_resources
-
-        completion_bonus = 0.0
-        if remaining_resources <= 1e-6 and not getattr(self, "_completion_awarded", False):
-            completion_bonus = COMPLETION_BONUS
-            self._completion_awarded = True
-
-        tried_depleted_penalty = -1.0 if tried_depleted else 0.0
-
-        # ===== Sum up =====
+        # Calculate total reward
         total_reward = (
             mining_reward
             + delivery_reward
             + obstacle_collision_penalty
             + boundary_collision_penalty
-            + energy_penalty
-            + risk_penalty
-            + asteroid_proximity_reward
-            + mothership_proximity_reward
-            + energy_safety_bonus
-            + asteroid_depletion_bonus
-            + resource_depletion_shaping
-            + completion_bonus
-            + tried_depleted_penalty
-            + TIME_STEP_REWARD
+            + energy_decay_penalty
         )
 
-        # clip for stability
-        total_reward = float(_np.clip(total_reward, -2000.0, 2000.0))
+        # Increment custom attributes
+        self.obstacle_collisions += kwargs["obstacle_collisions"]
+        self.mining_successes += kwargs["mining_success"]
+        self.delivery_successes += kwargs["delivery_success"]
 
-        # ===== Update statistics =====
-        self.obstacle_collisions += obstacle_collisions
-        self.mining_successes += int(mining_amount > 0)
-        self.delivery_successes += int(delivered_amount > 0)
-
+        # Create reward dictionary
         reward_info = {
             "mining_reward": mining_reward,
             "delivery_reward": delivery_reward,
             "obstacle_collision_penalty": obstacle_collision_penalty,
             "boundary_collision_penalty": boundary_collision_penalty,
-            "energy_penalty": energy_penalty,
-            "risk_penalty": risk_penalty,
-            "asteroid_proximity_reward": asteroid_proximity_reward,
-            "mothership_proximity_reward": mothership_proximity_reward,
-            "asteroid_depletion_bonus": asteroid_depletion_bonus,
-            "resource_depletion_shaping": resource_depletion_shaping,
-            "completion_bonus": completion_bonus,
-            "tried_depleted_penalty": tried_depleted_penalty,
-            "time_step_reward": TIME_STEP_REWARD,
-            "min_obs_dist": None if min_obs_dist == float("inf") else min_obs_dist,
-            "remaining_resources": remaining_resources,
+            "energy_decay_penalty": energy_decay_penalty,
             "total_reward": total_reward,
         }
 
