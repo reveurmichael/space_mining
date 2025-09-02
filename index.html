@@ -1,0 +1,1517 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>SpaceMining — a novel RL environment beyond LLM priors</title>
+  <meta name="description"
+    content="SpaceMining is a custom Gymnasium environment intentionally unfamiliar to LLMs. It enables fair evaluation of reward-design capabilities without leakage from standard RL benchmarks, addressing prior-knowledge bias." />
+  <meta name="keywords"
+    content="reinforcement learning, gymnasium, space mining, rl environment, llm evaluation, reward design, custom environment, novel benchmark" />
+  <meta property="og:title" content="SpaceMining — Novel RL Environment Beyond LLM Priors" />
+  <meta property="og:description"
+    content="Custom environment for fair evaluation of LLM reward-design capabilities without standard benchmark leakage." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://reveurmichael.github.io/space_mining/" />
+  <meta property="og:image" content="https://reveurmichael.github.io/space_mining/assets/og/cover.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="SpaceMining — Novel RL Environment Beyond LLM Priors" />
+  <meta name="twitter:description"
+    content="Custom environment for fair evaluation of LLM reward-design capabilities without standard benchmark leakage." />
+  <meta name="twitter:image" content="https://reveurmichael.github.io/space_mining/assets/og/cover.png" />
+  <meta name="theme-color" content="#0b1020" />
+  <meta name="author" content="Xinning Zhu, Lunde Chen" />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://reveurmichael.github.io/space_mining/" />
+
+  <!-- Preload critical resources -->
+  <link rel="preload" href="https://unpkg.com/prismjs/themes/prism-tomorrow.min.css" as="style" />
+  <link rel="preload" href="https://unpkg.com/prismjs/plugins/line-numbers/prism-line-numbers.css" as="style" />
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="https://unpkg.com/prismjs/themes/prism-tomorrow.min.css">
+  <link rel="stylesheet" href="https://unpkg.com/prismjs/plugins/line-numbers/prism-line-numbers.css">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml"
+    href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚀</text></svg>">
+
+  <style>
+    :root {
+      --bg: #0a0f1c;
+      --bg-soft: #0d1421;
+      --bg-accent: #111827;
+      --text: #f1f5f9;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      --card: #1e293b;
+      --card-soft: #1a2332;
+      --card-hover: #334155;
+      --brand: #3b82f6;
+      --brand-2: #06b6d4;
+      --brand-glow: rgba(59, 130, 246, 0.2);
+      --accent: #f59e0b;
+      --accent-2: #10b981;
+      --accent-danger: #ef4444;
+      --border: rgba(241, 245, 249, 0.1);
+      --border-soft: rgba(241, 245, 249, 0.05);
+      --shadow: rgba(0, 0, 0, 0.5);
+      --shadow-soft: rgba(0, 0, 0, 0.2);
+      --gradient-bg: linear-gradient(135deg, var(--bg) 0%, var(--bg-soft) 50%, var(--bg-accent) 100%);
+      --gradient-brand: linear-gradient(135deg, var(--brand) 0%, var(--brand-2) 100%);
+      --gradient-text: linear-gradient(135deg, var(--text) 0%, var(--text-muted) 100%);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      font-size: 16px;
+      line-height: 1.6;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: var(--gradient-bg);
+      background-attachment: fixed;
+      color: var(--text);
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+
+    /* Enhanced container with better responsive behavior */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 clamp(16px, 4vw, 24px);
+    }
+
+    /* Improved navigation with glassmorphism */
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(20px) saturate(180%);
+      background: rgba(10, 15, 28, 0.8);
+      border-bottom: 1px solid var(--border);
+      box-shadow: 0 8px 32px var(--shadow-soft);
+    }
+
+    .nav-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 72px;
+      position: relative;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      color: var(--text);
+      text-decoration: none;
+      transition: transform 0.2s ease;
+    }
+
+    .brand:hover {
+      transform: translateY(-1px);
+    }
+
+    .brand-logo {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      background: var(--gradient-brand);
+      font-weight: 900;
+      font-size: 1.2rem;
+      box-shadow: 0 4px 20px var(--brand-glow);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .brand-logo::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+      transition: left 0.5s ease;
+    }
+
+    .brand:hover .brand-logo::before {
+      left: 100%;
+    }
+
+    .brand-title {
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      font-size: 1.25rem;
+      background: var(--gradient-text);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .nav-links a,
+    .nav-links button {
+      color: var(--text-muted);
+      text-decoration: none;
+      padding: 10px 16px;
+      border-radius: 10px;
+      border: 1px solid transparent;
+      background: transparent;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-weight: 500;
+      position: relative;
+    }
+
+    .nav-links a:hover,
+    .nav-links button:hover {
+      color: var(--text);
+      background: var(--card-soft);
+      border-color: var(--border);
+      transform: translateY(-1px);
+    }
+
+    .nav-links a.active {
+      color: var(--brand);
+      background: var(--card);
+      border-color: var(--brand);
+      box-shadow: 0 0 20px var(--brand-glow);
+    }
+
+    /* Enhanced hero section */
+    .hero {
+      padding: clamp(60px, 10vh, 120px) 0 clamp(40px, 8vh, 80px);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: radial-gradient(circle at 20% 50%, var(--brand-glow) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(6, 182, 212, 0.1) 0%, transparent 50%);
+      z-index: -1;
+    }
+
+    .hero-content {
+      text-align: center;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .hero h1 {
+      font-size: clamp(2.5rem, 6vw, 4rem);
+      margin: 0 0 24px;
+      line-height: 1.1;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--text) 0%, var(--brand) 50%, var(--brand-2) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: -0.02em;
+    }
+
+    .hero .lead {
+      font-size: clamp(1.1rem, 2.5vw, 1.4rem);
+      color: var(--text-muted);
+      margin: 0 0 32px;
+      max-width: 700px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .hero .lead-highlight {
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(6, 182, 212, 0.05) 100%);
+      border: 1px solid var(--border);
+      padding: 24px 32px;
+      border-radius: 16px;
+      box-shadow: 0 8px 32px var(--shadow-soft);
+      backdrop-filter: blur(10px);
+      margin: 32px 0;
+    }
+
+    /* Enhanced badges */
+    .badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin: 32px 0;
+      justify-content: center;
+    }
+
+    .badges a {
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .badges a:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px var(--shadow);
+    }
+
+    .badges a img {
+      height: 24px;
+      border-radius: 6px;
+    }
+
+    /* Enhanced CTA buttons */
+    .cta {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: 40px;
+    }
+
+    .btn {
+      text-decoration: none;
+      border: 2px solid var(--border);
+      padding: 16px 24px;
+      border-radius: 12px;
+      color: var(--text);
+      background: var(--card);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      font-weight: 600;
+      position: relative;
+      overflow: hidden;
+      min-width: 140px;
+      text-align: center;
+    }
+
+    .btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+      transition: left 0.5s ease;
+    }
+
+    .btn:hover::before {
+      left: 100%;
+    }
+
+    .btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 40px var(--shadow);
+      border-color: var(--brand);
+    }
+
+    .btn.primary {
+      background: var(--gradient-brand);
+      color: white;
+      border: 2px solid transparent;
+      font-weight: 700;
+      box-shadow: 0 4px 20px var(--brand-glow);
+    }
+
+    .btn.primary:hover {
+      box-shadow: 0 12px 40px var(--brand-glow);
+      transform: translateY(-3px) scale(1.02);
+    }
+
+    /* Enhanced sections */
+    section {
+      padding: clamp(40px, 8vh, 80px) 0;
+      scroll-margin-top: 100px;
+    }
+
+    h2 {
+      margin: 0 0 24px;
+      font-size: clamp(1.8rem, 4vw, 2.5rem);
+      font-weight: 700;
+      position: relative;
+      color: var(--text);
+    }
+
+    h2::after {
+      content: "";
+      display: block;
+      width: 60px;
+      height: 4px;
+      background: var(--gradient-brand);
+      border-radius: 4px;
+      margin-top: 12px;
+    }
+
+    h3 {
+      color: var(--text);
+      font-size: 1.4rem;
+      margin: 32px 0 16px;
+      font-weight: 600;
+    }
+
+    p {
+      color: var(--text-muted);
+      margin: 0 0 16px;
+      line-height: 1.7;
+    }
+
+    .text-center {
+      text-align: center;
+    }
+
+    .muted {
+      color: var(--text-dim);
+    }
+
+    /* Enhanced code blocks */
+    pre {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      overflow: auto;
+      box-shadow: 0 4px 20px var(--shadow-soft);
+      position: relative;
+    }
+
+    pre::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: var(--gradient-brand);
+      border-radius: 12px 12px 0 0;
+    }
+
+    /* Enhanced grid and cards */
+    .grid {
+      display: grid;
+      gap: 40px;
+    }
+
+    .cols-2 {
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    }
+
+    .cols-3 {
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    }
+
+    .cols-4 {
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Unified card content styling for cleaner look */
+    .card h3 {
+      color: var(--text);
+      font-size: 1.2rem;
+      margin: 0 0 16px;
+      font-weight: 600;
+      line-height: 1.4;
+    }
+
+    .card p {
+      color: var(--text-muted);
+      margin: 0 0 12px;
+      line-height: 1.6;
+      font-size: 0.95rem;
+    }
+
+    .card ul {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .card li {
+      color: var(--text-muted);
+      margin: 0 0 8px;
+      line-height: 1.5;
+      font-size: 0.9rem;
+      position: relative;
+      padding-left: 16px;
+    }
+
+    .card li:before {
+      content: "•";
+      color: var(--brand);
+      position: absolute;
+      left: 0;
+      font-weight: bold;
+    }
+
+    .card strong {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: var(--gradient-brand);
+      transform: scaleX(0);
+      transition: transform 0.3s ease;
+    }
+
+    .card:hover::before {
+      transform: scaleX(1);
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      border-color: var(--brand);
+      box-shadow: 0 12px 40px var(--shadow);
+    }
+
+    /* Enhanced features grid */
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 32px;
+      margin-top: 48px;
+    }
+
+    .feature-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 32px;
+      text-align: center;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(135deg, var(--brand-glow) 0%, transparent 50%);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .feature-card:hover::before {
+      opacity: 1;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-8px);
+      border-color: var(--brand);
+      box-shadow: 0 20px 60px var(--shadow);
+    }
+
+    .feature-icon {
+      font-size: 3rem;
+      margin-bottom: 24px;
+      display: block;
+      position: relative;
+      z-index: 1;
+    }
+
+    .feature-card h3 {
+      margin: 0 0 16px;
+      color: var(--text);
+      position: relative;
+      z-index: 1;
+    }
+
+    .feature-card p {
+      color: var(--text-muted);
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Enhanced demo section */
+    .demo {
+      width: 100%;
+      margin: 48px auto;
+    }
+
+    .gif-gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 32px;
+      margin-top: 32px;
+    }
+
+    .gif-card {
+      background: var(--card);
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 8px 32px var(--shadow);
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+    }
+    
+    .gif-card::after {
+      content: '▶️';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 2rem;
+      background: rgba(0, 0, 0, 0.7);
+      color: white;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      pointer-events: none;
+      z-index: 10;
+    }
+    
+    .gif-card:hover::after {
+      opacity: 1;
+    }
+
+    .gif-container {
+      width: 100%;
+      height: 240px;
+      position: relative;
+      overflow: hidden;
+      background: var(--bg-soft);
+    }
+
+    .gif-container img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.4s ease;
+    }
+
+    .gif-card:hover {
+      transform: translateY(-8px) scale(1.02);
+      box-shadow: 0 20px 60px var(--shadow);
+      border-color: var(--brand);
+    }
+
+    .gif-card:hover .gif-container img {
+      transform: scale(1.1);
+    }
+
+    .gif-card .card-content {
+      padding: 20px 24px;
+    }
+
+    .gif-card h4 {
+      margin: 0 0 8px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .gif-card .description {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin: 0;
+    }
+
+    /* Status indicators */
+    .status {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin-top: 8px;
+    }
+
+    .status.success {
+      background: rgba(16, 185, 129, 0.2);
+      color: var(--accent-2);
+      border: 1px solid var(--accent-2);
+    }
+
+    .status.learning {
+      background: rgba(245, 158, 11, 0.2);
+      color: var(--accent);
+      border: 1px solid var(--accent);
+    }
+
+    .status.failure {
+      background: rgba(239, 68, 68, 0.2);
+      color: var(--accent-danger);
+      border: 1px solid var(--accent-danger);
+    }
+
+    /* Legend improvements */
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin: 12px 0;
+      padding: 8px 0;
+    }
+
+    .legend-circle,
+    .legend-ring {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .legend-circle {
+      background: currentColor;
+    }
+
+    .legend-ring {
+      border: 2px solid currentColor;
+      background: transparent;
+    }
+
+    /* (Modal removed) */
+
+    /* Enhanced footer */
+    footer {
+      padding: 60px 0;
+      border-top: 1px solid var(--border);
+      background: var(--bg-accent);
+      margin-top: 80px;
+    }
+
+    .footer-content {
+      text-align: center;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .footer-content p {
+      color: var(--text-muted);
+      margin: 8px 0;
+    }
+
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 32px;
+      margin: 32px 0;
+      flex-wrap: wrap;
+    }
+
+    .footer-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+
+    .footer-links a:hover {
+      color: var(--brand);
+    }
+
+    /* Back to top button */
+    .to-top {
+      position: fixed;
+      right: 24px;
+      bottom: 24px;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      border: none;
+      cursor: pointer;
+      background: var(--gradient-brand);
+      color: white;
+      font-weight: 800;
+      font-size: 1.2rem;
+      box-shadow: 0 8px 32px var(--brand-glow);
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 60;
+    }
+
+    .to-top.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .to-top:hover {
+      transform: translateY(-4px) scale(1.1);
+      box-shadow: 0 12px 40px var(--brand-glow);
+    }
+
+    /* Accessibility improvements */
+    @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto;
+      }
+
+      *,
+      *::before,
+      *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+
+    /* Enhanced responsive design */
+    @media (max-width: 768px) {
+      .nav-inner {
+        height: 64px;
+      }
+
+      .nav-links {
+        display: none;
+        /* TODO: Add mobile menu */
+      }
+
+      .hero {
+        padding: 40px 0;
+      }
+
+      .cta {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .btn {
+        width: 100%;
+        max-width: 280px;
+      }
+
+      .badges {
+        justify-content: center;
+      }
+
+      .feature-grid {
+        grid-template-columns: 1fr;
+        gap: 24px;
+      }
+
+      .gif-gallery {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Print styles */
+    @media print {
+
+      .nav,
+      .to-top,
+      .modal {
+        display: none;
+      }
+
+      body {
+        background: white;
+        color: black;
+      }
+
+      .hero::before {
+        display: none;
+      }
+    }
+
+    /* Focus styles for accessibility */
+    :focus-visible {
+      outline: 3px solid var(--brand);
+      outline-offset: 2px;
+      border-radius: 8px;
+    }
+
+    /* Selection styling */
+    ::selection {
+      background: var(--brand-glow);
+      color: var(--text);
+    }
+
+    /* Smooth animations */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .reveal {
+      animation: fadeInUp 0.6s ease forwards;
+    }
+
+    /* Loading states */
+    .loading {
+      opacity: 0.7;
+      pointer-events: none;
+    }
+
+    /* Error states */
+    .error {
+      border-color: var(--accent-danger);
+      background: rgba(239, 68, 68, 0.1);
+    }
+  </style>
+</head>
+
+<body>
+  <nav class="nav" role="navigation" aria-label="Main navigation">
+    <div class="container nav-inner">
+      <a class="brand" href="#" aria-label="SpaceMining Home">
+        <div class="brand-logo" aria-hidden="true">🚀</div>
+        <div class="brand-title">SpaceMining</div>
+      </a>
+      <div class="nav-links">
+        <a href="#about">About</a>
+        <a href="#task">Task</a>
+        <a href="#specs">Specifications</a>
+        <a href="#quickstart">Quick Start</a>
+        <a href="#demo">Demo</a>
+      </div>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <div class="container">
+      <div class="hero-content">
+        <h1>SpaceMining<br>A Novel RL Environment Beyond LLM Priors</h1>
+        <p class="lead">A custom Gymnasium environment intentionally unfamiliar to LLMs. It enables fair evaluation of
+          reward-design capabilities without leakage from standard RL benchmarks, addressing prior-knowledge bias and
+          supporting studies of true generalization.</p>
+
+        <div class="badges">
+          <a href="LICENSE" target="_blank" rel="noopener" aria-label="MIT License"><img alt="License: MIT"
+              src="https://img.shields.io/badge/License-MIT-blue.svg" /></a>
+          <a href="https://www.python.org/downloads/" target="_blank" rel="noopener" aria-label="Python 3.10+"><img
+              alt="Python" src="https://img.shields.io/badge/Python-3.10%2B-brightgreen.svg" /></a>
+          <a href="https://pypi.org/project/space-mining/" target="_blank" rel="noopener" aria-label="PyPI Package"><img
+              alt="PyPI" src="https://img.shields.io/pypi/v/space-mining?color=6aa6ff" /></a>
+          <a href="https://github.com/reveurmichael/space_mining/actions/workflows/run-pytest.yml" target="_blank"
+            rel="noopener" aria-label="Test Status"><img alt="Tests"
+              src="https://github.com/reveurmichael/space_mining/actions/workflows/run-pytest.yml/badge.svg" /></a>
+          <a href="https://huggingface.co/LUNDECHEN/space-mining-ppo" target="_blank" rel="noopener"
+            aria-label="Hugging Face Model"><img alt="Hugging Face"
+              src="https://img.shields.io/badge/🤗%20Hugging%20Face-space--mining--ppo-yellow" /></a>
+          <a href="https://wandb.ai/lundechen-shanghai-university/space-mining-ppo" target="_blank" rel="noopener"
+            aria-label="Weights & Biases"><img alt="W&B Project"
+              src="https://img.shields.io/badge/W%26B-space--mining--ppo-fc4c02?logo=weightsandbiases" /></a>
+          <a href="https://colab.research.google.com/github/reveurmichael/space_mining/blob/main/getting_started.ipynb"
+            target="_blank" rel="noopener" aria-label="Google Colab"><img alt="Open In Colab"
+              src="https://colab.research.google.com/assets/colab-badge.svg" /></a>
+        </div>
+
+        <div class="cta">
+          <a class="btn primary" href="https://github.com/reveurmichael/space_mining" target="_blank" rel="noopener">
+            <span>🔗 View on GitHub</span>
+          </a>
+          <a class="btn primary" href="docs/" rel="noopener">
+            <span>📚 Documentation</span>
+          </a>
+          <a class="btn primary" href="https://huggingface.co/LUNDECHEN/space-mining-ppo/" target="_blank"
+            rel="noopener">
+            <span>🤗 HuggingFace</span>
+          </a>
+          <a class="btn primary" href="https://wandb.ai/lundechen-shanghai-university/space-mining-ppo/" target="_blank"
+            rel="noopener">
+            <span>📊 W&B Dashboard</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <section id="about" class="reveal">
+      <h2>What is SpaceMining?</h2>
+      <p>SpaceMining is a single-agent reinforcement learning environment simulating asteroid mining in a 2D space
+        environment. The agent (mining robot) must collect resources from asteroids, deliver them to the mothership,
+        manage energy consumption, and avoid moving obstacles while maximizing efficiency.</p>
+
+      <div class="grid cols-3">
+        <div class="card">
+          <h3>🎯 Novel Benchmark</h3>
+          <p>Custom environment unfamiliar to LLMs for fair evaluation of reward-design capabilities.</p>
+        </div>
+        <div class="card">
+          <h3>⚡ 2D Space Physics</h3>
+          <p>Realistic physics with thrust dynamics, collisions, and gravitational forces in an 80×80 grid.</p>
+        </div>
+        <div class="card">
+          <h3>🔋 Strategic Constraints</h3>
+          <p>Energy management, limited observation radius, and moving obstacles create balanced difficulty.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="task" class="reveal">
+      <h2>Task Description</h2>
+      <p>The agent is deployed in a 2D space environment (80×80 grid) with randomly distributed asteroids and a central
+        mothership. The comprehensive task requires balancing multiple objectives:</p>
+
+      <div class="grid cols-2">
+        <div class="card">
+          <h3>🎯 Primary Objectives</h3>
+          <ul>
+            <li>Navigate and mine resource-rich asteroids</li>
+            <li>Monitor energy and return to mothership for recharging</li>
+            <li>Avoid collisions with moving obstacles</li>
+            <li>Transport resources to maximize efficiency</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>⚖️ Strategic Balance</h3>
+          <ul>
+            <li>Exploration vs exploitation of known resources</li>
+            <li>Risk vs reward in obstacle navigation</li>
+            <li>Energy conservation vs aggressive mining</li>
+            <li>Travel time vs collection optimization</li>
+          </ul>
+        </div>
+      </div>
+
+    </section>
+
+    <section id="specs" class="reveal">
+      <h2>Environment Specifications</h2>
+      <p>Technical specifications for researchers implementing experiments and designing reward functions for the
+        SpaceMining environment.</p>
+
+      <div class="grid cols-3">
+        <div class="card">
+          <h3>📊 Action Space</h3>
+          <p>Box(3) - Continuous control</p>
+          <ul>
+            <li><code>thrust_x</code> and <code>thrust_y</code>: Movement forces</li>
+            <li><code>mine_action</code>: Mining activation</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>👁️ State Space</h3>
+          <p>Box(53) - Structured observations</p>
+          <ul>
+            <li>Agent state: position, velocity, energy, inventory</li>
+            <li>Asteroid information: positions and resources</li>
+            <li>Mothership position</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>🌍 Environment</h3>
+          <ul>
+            <li>Grid size: 80×80 units</li>
+            <li>Asteroids: 8-12 per episode</li>
+            <li>Moving obstacles: 4-8 hazards</li>
+            <li>Observation radius: 15 units</li>
+            <li>Episode limit: 1200 steps</li>
+          </ul>
+        </div>
+    </section>
+
+    <section id="quickstart" class="reveal">
+      <h2>Quick Start Guide</h2>
+      <p>Get started with SpaceMining for your research experiments. The environment is designed to be easy to install
+        and integrate into existing RL pipelines.</p>
+
+      <div class="grid">
+        <div class="card">
+          <h3>🚀 Installation</h3>
+          <pre class="line-numbers"><code class="language-bash"># Install from PyPI
+pip install space-mining
+
+# Or install from source
+git clone https://github.com/reveurmichael/space_mining.git
+cd space_mining
+pip install -e .</code></pre>
+        </div>
+        <div class="card">
+          <h3>🎮 Basic Usage</h3>
+          <pre class="line-numbers"><code class="language-python">import gymnasium as gym
+from space_mining.envs import make_env
+
+# Create environment
+env = make_env(render_mode="human")
+
+# Reset and run
+obs, info = env.reset()
+for _ in range(1000):
+    action = env.action_space.sample()
+    obs, reward, terminated, truncated, info = env.step(action)
+    if terminated or truncated:
+        obs, info = env.reset()</code></pre>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top: 32px;">
+        <h3>🤖 Agent Training Pipeline</h3>
+        <p class="muted">Complete PPO training setup for baseline agent development and reward function evaluation.</p>
+        <pre class="line-numbers"><code class="language-python">from space_mining.agents.train_ppo import train_ppo
+
+def main() -> None:
+    # Train with configuration
+    model = train_ppo(
+        total_timesteps=5_000_000,
+        output_dir="runs/ppo_research",
+        track_wandb=True,
+        wandb_project_name="space-mining-research",
+        checkpoint_freq=100_000,
+        eval_freq=200_000,
+        device="cuda" if torch.cuda.is_available() else "cpu"
+    )
+    print("Training completed successfully!")
+
+if __name__ == "__main__":
+    main()</code></pre>
+      </div>
+
+      <div class="card" style="margin-top: 32px;">
+        <h3>🎬 Generate Demo GIFs</h3>
+        <p class="muted">Create demonstration GIFs from trained models for research analysis.</p>
+        <pre class="line-numbers"><code class="language-bash"># Train PPO Agent
+python -m space_mining.agents.train_ppo \
+  --total-timesteps 5000000 --output-dir runs/ppo --checkpoint-freq 100000 --eval-freq 200000
+
+# Render a GIF
+python -m space_mining.scripts.make_gif \
+  --checkpoint runs/ppo/final_model.zip --output output_gif/agent.gif --steps 800 --fps 20</code></pre>
+        <p class="muted">These commands provide a straightforward workflow for training agents and generating visual
+          demonstrations for research documentation.</p>
+      </div>
+
+      <div class="card" style="margin-top: 32px;">
+        <h3>🔧 Research Configuration</h3>
+        <p class="muted">Environment parameter customization for controlled experiments and ablation studies.</p>
+        <pre class="line-numbers"><code class="language-python">from space_mining.envs import SpaceMining, EnvironmentConfig
+
+# Create custom configuration
+config = EnvironmentConfig(
+    max_episode_steps=2000,
+    grid_size=120,
+    max_asteroids=20,
+    observation_radius=25,
+    energy_consumption_rate=0.03,
+    mining_range=10.0
+)
+
+# Initialize with custom config
+env = SpaceMining(config=config, render_mode="human")
+
+# Run experiment
+obs, info = env.reset(seed=42)
+print(f"Environment initialized with {len(env.asteroid_positions)} asteroids")</code></pre>
+      </div>
+    </section>
+
+    <section id="demo" class="reveal">
+      <h2>Demo: Agent Behaviors</h2>
+      <p class="text-center muted">The GIF demonstrations showcase different agent behaviors and training outcomes.</p>
+
+      <div class="gif-gallery">
+        <div class="gif-card" role="button" tabindex="0" aria-label="View successful run 1">
+          <div class="gif-container">
+            <img data-src="assets/gif/success-1.gif"
+              alt="" />
+          </div>
+          <div class="card-content">
+            <h4>🏆 Success #1</h4>
+            <p class="description">Successful episode<br>Efficient resource collection</p>
+            <span class="status success">Success</span>
+          </div>
+        </div>
+
+        <div class="gif-card" role="button" tabindex="0" aria-label="View successful run 2">
+          <div class="gif-container">
+            <img data-src="assets/gif/success-2.gif"
+              alt="" />
+          </div>
+          <div class="card-content">
+            <h4>🏆 Success #2</h4>
+            <p class="description">Successful episode<br>Strategic deliveries</p>
+            <span class="status success">Success</span>
+          </div>
+        </div>
+
+        <div class="gif-card" role="button" tabindex="0" aria-label="View successful run 3">
+          <div class="gif-container">
+            <img data-src="assets/gif/success-3.gif"
+              alt="" />
+          </div>
+          <div class="card-content">
+            <h4>🏆 Success #3</h4>
+            <p class="description">Successful episode<br>Good obstacle avoidance</p>
+            <span class="status success">Success</span>
+          </div>
+        </div>
+
+        <div class="gif-card" role="button" tabindex="0" aria-label="View successful run 4">
+          <div class="gif-container">
+            <img data-src="assets/gif/success-4.gif"
+              alt="" />
+          </div>
+          <div class="card-content">
+            <h4>🏆 Success #4</h4>
+            <p class="description">Successful episode<br>Optimal routing</p>
+            <span class="status success">Success</span>
+          </div>
+        </div>
+
+        <div class="gif-card" role="button" tabindex="0" aria-label="View collision failure">
+          <div class="gif-container">
+            <img data-src="assets/gif/fail-collision.gif"
+              alt="" />
+          </div>
+          <div class="card-content">
+            <h4>💥 Collision Failure</h4>
+            <p class="description">Too many collisions<br>With moving obstacles</p>
+            <span class="status failure">Failure</span>
+          </div>
+        </div>
+
+        <div class="gif-card" role="button" tabindex="0" aria-label="View energy depletion failure">
+          <div class="gif-container">
+            <img data-src="assets/gif/fail-energy-depletion.gif"
+              alt="" />
+          </div>
+          <div class="card-content">
+            <h4>🔋 Energy Depletion</h4>
+            <p class="description">Ran out of energy<br>Failed to recharge</p>
+            <span class="status failure">Failure</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top: 48px;">
+        <h3>🎮 Visual Elements Guide</h3>
+        <div class="legend-item">
+          <span class="legend-circle" style="color:#32C832"></span>
+          <span><strong>Green Circle:</strong> Mining agent (Yellow Ccircle inside Green Cicle = Carrying Resources)</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-circle" style="color:#3296C8"></span>
+          <span><strong>Blue Circle:</strong> Mothership (delivery and recharge point)</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-circle" style="color:#FFD700"></span>
+          <span><strong>Yellow Circles:</strong> Resource-rich asteroids (mining targets)</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-circle" style="color:#C83232"></span>
+          <span><strong>Red Circles:</strong> Moving obstacles (collision hazards)</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-ring" style="color:#FF0000"></span>
+          <span><strong>Red Ring:</strong> Mining range indicator</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-ring" style="color:#6464FF"></span>
+          <span><strong>Blue Ring:</strong> Observation range (partial observability)</span>
+        </div>
+        <p><strong>Health Bars:</strong> Bars above asteroids indicate remaining resource levels
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-links">
+          <a href="https://github.com/reveurmichael/space_mining" target="_blank" rel="noopener">GitHub</a>
+          <a href="docs/" rel="noopener">Documentation</a>
+          <a href="https://pypi.org/project/space-mining/" target="_blank" rel="noopener">PyPI</a>
+          <a href="https://huggingface.co/LUNDECHEN/space-mining-ppo" target="_blank" rel="noopener">HuggingFace</a>
+          <a href="LICENSE" target="_blank" rel="noopener">License</a>
+        </div>
+        <p><strong>SpaceMining</strong> — A Novel RL Environment Beyond LLM Priors</p>
+        <p><strong>Authors:</strong> Xinning Zhu · Lunde Chen</p>
+      </div>
+    </div>
+  </footer>
+
+  <button id="toTop" class="to-top" aria-label="Back to top" title="Back to top">↑</button>
+
+  <!-- (Modal removed) -->
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      // Performance optimization: Use passive listeners where possible
+      const addPassiveListener = (element, event, handler) => {
+        element.addEventListener(event, handler, { passive: true });
+      };
+
+      // Enhanced GIF management with intersection observer
+      const gifs = Array.from(document.querySelectorAll('.gif-container img'));
+      if (gifs.length === 0) return;
+
+      // Modal removed
+
+      // Force GIF restart with cache busting
+      function forceGifRestart(img) {
+        if (!img.src && !img.dataset.src) return;
+        const src = img.dataset.src || img.src.split('?')[0];
+        const timestamp = Date.now();
+        const separator = src.includes('?') ? '&' : '?';
+        img.src = `${src}${separator}reload=${timestamp}`;
+      }
+
+      // Ensure target image is loaded (no exclusive unloading)
+      function ensureLoaded(imgToLoad) {
+        if (!imgToLoad.src && imgToLoad.dataset.src) {
+          imgToLoad.src = imgToLoad.dataset.src;
+        }
+      }
+
+      // Enhanced viewport detection
+      function isInViewport(element, threshold = 0.1) {
+        const rect = element.getBoundingClientRect();
+        const windowHeight = window.innerHeight || document.documentElement.clientHeight;
+        const windowWidth = window.innerWidth || document.documentElement.clientWidth;
+
+        return (
+          rect.bottom >= windowHeight * threshold &&
+          rect.right >= windowWidth * threshold &&
+          rect.top <= windowHeight * (1 - threshold) &&
+          rect.left <= windowWidth * (1 - threshold)
+        );
+      }
+
+      // Refresh visible GIFs (modal removed)
+      function refreshVisibleGifs() {}
+
+      // Intersection Observer to ensure GIFs are loaded when visible (no forced restarts)
+      const gifObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const img = entry.target;
+            ensureLoaded(img);
+          } else {
+            // Keep src to keep GIF visible
+          }
+        });
+      }, {
+        root: null,
+        rootMargin: '100px',
+        threshold: 0.1
+      });
+
+      // Initialize GIFs - load all immediately so they show on page load
+      gifs.forEach(img => {
+        // Hint the browser for smoother decoding and defer offscreen
+        img.setAttribute('decoding', 'async');
+        img.removeAttribute('loading');
+        img.style.opacity = '1';
+        img.style.transition = 'opacity 0.3s ease';
+        if (img.dataset.src) {
+          img.src = img.dataset.src;
+        }
+
+        gifObserver.observe(img);
+
+        // Open GIF in a new tab
+        const openInNewTab = () => {
+          const src = (img.dataset.src || img.src || '').split('?')[0];
+          if (src) window.open(src, '_blank');
+        };
+
+        // Add click events to both image and parent card
+        const card = img.closest('.gif-card');
+        
+        img.addEventListener('click', openInNewTab);
+        img.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            openInNewTab();
+          }
+        });
+        
+        // Make the entire card clickable
+        if (card) {
+          card.addEventListener('click', openInNewTab);
+          card.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              openInNewTab();
+            }
+          });
+
+          // Exclusive playback on hover/focus
+          // No exclusive playback; keep all visible
+        }
+      });
+
+
+      // Modal controls removed
+
+      // Performance-optimized GIF refresh (interval disabled to avoid restarting inline GIFs)
+      let refreshInterval;
+      const startGifRefresh = () => {};
+      const stopGifRefresh = () => {};
+
+      // Page visibility API: keep GIFs intact; on return, ensure all are loaded
+      document.addEventListener('visibilitychange', () => {
+        if (!document.hidden) {
+          gifs.forEach(img => ensureLoaded(img));
+        }
+      });
+
+      // Start refresh cycle
+      startGifRefresh();
+
+      // Enhanced navigation highlighting
+      const navLinks = Array.from(document.querySelectorAll('.nav-links a[href^="#"]'));
+      const sections = navLinks.map(link => {
+        const href = link.getAttribute('href');
+        return document.querySelector(href);
+      }).filter(Boolean);
+
+      const toTop = document.getElementById('toTop');
+
+      function updateActiveNavigation() {
+        let activeSection = null;
+        const scrollPosition = window.scrollY + 150;
+
+        sections.forEach(section => {
+          const sectionTop = section.offsetTop;
+          const sectionBottom = sectionTop + section.offsetHeight;
+
+          if (scrollPosition >= sectionTop && scrollPosition < sectionBottom) {
+            activeSection = section;
+          }
+        });
+
+        navLinks.forEach(link => {
+          const isActive = activeSection &&
+            link.getAttribute('href') === `#${activeSection.id}`;
+          link.classList.toggle('active', isActive);
+        });
+      }
+
+      function updateBackToTop() {
+        const scrolled = window.scrollY || document.documentElement.scrollTop;
+        toTop.classList.toggle('show', scrolled > 500);
+      }
+
+      // Smooth scroll for navigation links
+      navLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+          e.preventDefault();
+          const targetId = link.getAttribute('href').slice(1);
+          const targetSection = document.getElementById(targetId);
+
+          if (targetSection) {
+            const offsetTop = targetSection.offsetTop - 100;
+            window.scrollTo({
+              top: offsetTop,
+              behavior: 'smooth'
+            });
+          }
+        });
+      });
+
+      // Back to top functionality
+      toTop.addEventListener('click', () => {
+        window.scrollTo({
+          top: 0,
+          behavior: 'smooth'
+        });
+      });
+
+      // Throttled scroll handler for performance
+      let scrollTimeout;
+      const handleScroll = () => {
+        if (scrollTimeout) {
+          clearTimeout(scrollTimeout);
+        }
+        scrollTimeout = setTimeout(() => {
+          updateActiveNavigation();
+          updateBackToTop();
+        }, 10);
+      };
+
+      addPassiveListener(window, 'scroll', handleScroll);
+      addPassiveListener(window, 'resize', handleScroll);
+
+      // Initial calls
+      updateActiveNavigation();
+      updateBackToTop();
+
+      // Enhanced reveal animations
+      const revealElements = document.querySelectorAll('.reveal');
+      const revealObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.style.opacity = '1';
+            entry.target.style.transform = 'translateY(0)';
+          }
+        });
+      }, {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+      });
+
+      revealElements.forEach(element => {
+        element.style.opacity = '0';
+        element.style.transform = 'translateY(30px)';
+        element.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+        revealObserver.observe(element);
+      });
+
+      // Focus management for accessibility
+      document.addEventListener('keydown', (e) => {
+        // Skip links for screen readers
+        if (e.key === 'Tab' && e.altKey) {
+          const main = document.querySelector('main');
+          if (main) {
+            main.focus();
+            e.preventDefault();
+          }
+        }
+      });
+
+      console.log('🚀 SpaceMining website loaded successfully!');
+    });
+  </script>
+
+  <!-- Enhanced syntax highlighting -->
+  <script src="https://unpkg.com/prismjs/prism.js"></script>
+  <script src="https://unpkg.com/prismjs/plugins/line-numbers/prism-line-numbers.min.js"></script>
+  <script src="https://unpkg.com/prismjs/components/prism-python.min.js"></script>
+  <script src="https://unpkg.com/prismjs/components/prism-bash.min.js"></script>
+</body>
+
+</html>

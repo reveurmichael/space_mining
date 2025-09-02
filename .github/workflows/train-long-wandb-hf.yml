@@ -1,0 +1,436 @@
+name: Long Training to W&B + HF
+
+on:
+  workflow_dispatch:
+    inputs:
+      total_timesteps:
+        description: "Number of timesteps to train"
+        required: false
+        default: "5000000"
+        type: string
+      checkpoint_freq:
+        description: "Checkpoint save frequency"
+        required: false
+        default: "100000"
+        type: string
+      eval_freq:
+        description: "Evaluation frequency"
+        required: false
+        default: "200000"
+        type: string
+      log_every:
+        description: "Log metrics to W&B every N environment steps"
+        required: false
+        default: "1000"
+        type: string
+      run_name:
+        description: "Run name"
+        required: false
+        default: "long-train"
+        type: string
+      device:
+        description: "Training device"
+        required: false
+        default: "cpu"
+        type: choice
+        options:
+          - cpu
+          - cuda
+
+# Prevent multiple training runs from interfering
+concurrency:
+  group: train-long-wandb-hf
+  cancel-in-progress: false
+
+jobs:
+  validate-inputs:
+    runs-on: ubuntu-latest
+    outputs:
+      validated: ${{ steps.validate.outputs.result }}
+    steps:
+      - name: Validate inputs
+        id: validate
+        run: |
+          # Validate numeric inputs
+          if ! [[ "${{ inputs.total_timesteps }}" =~ ^[0-9]+$ ]] || [ "${{ inputs.total_timesteps }}" -le 0 ]; then
+            echo "Error: total_timesteps must be a positive integer"
+            exit 1
+          fi
+          if ! [[ "${{ inputs.checkpoint_freq }}" =~ ^[0-9]+$ ]] || [ "${{ inputs.checkpoint_freq }}" -lt 0 ]; then
+            echo "Error: checkpoint_freq must be a non-negative integer"
+            exit 1
+          fi
+          if ! [[ "${{ inputs.eval_freq }}" =~ ^[0-9]+$ ]] || [ "${{ inputs.eval_freq }}" -lt 0 ]; then
+            echo "Error: eval_freq must be a non-negative integer"
+            exit 1
+          fi
+          if ! [[ "${{ inputs.log_every }}" =~ ^[0-9]+$ ]] || [ "${{ inputs.log_every }}" -le 0 ]; then
+            echo "Error: log_every must be a positive integer"
+            exit 1
+          fi
+          echo "result=success" >> $GITHUB_OUTPUT
+
+  train:
+    needs: validate-inputs
+    runs-on: ubuntu-latest
+    timeout-minutes: 1440  # 24 hours max
+    env:
+      WANDB_API_KEY: ${{ secrets.WANDB_API_KEY }}
+      WANDB_ENTITY: lundechen-shanghai-university
+      WANDB_PROJECT: space-mining-ppo
+      HF_TOKEN: ${{ secrets.HF_TOKEN }}
+      PYTHONUNBUFFERED: "1"
+      PYTORCH_CUDA_ALLOC_CONF: max_split_size_mb:512
+    
+    steps:
+      - name: Check required secrets
+        if: ${{ env.WANDB_API_KEY == '' || env.HF_TOKEN == '' }}
+        run: |
+          echo "::error::WANDB_API_KEY and HF_TOKEN must be configured as repository secrets."
+          exit 1
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1  # Shallow clone for faster checkout
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'  # Use specific version for consistency
+          cache: 'pip'
+          cache-dependency-path: |
+            requirements.txt
+            pyproject.toml
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y xvfb ffmpeg  # For headless rendering and video generation
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip setuptools wheel
+          pip install -r requirements.txt
+          pip install -e .
+          pip install wandb huggingface_hub pillow tensorboard
+          pip install psutil  # For monitoring system resources
+
+      - name: Verify installation
+        run: |
+          python -c "import space_mining; print(f'space_mining version: {space_mining.__version__}')"
+          python -c "import wandb; print(f'wandb version: {wandb.__version__}')"
+          python -c "import stable_baselines3; print(f'stable_baselines3 version: {stable_baselines3.__version__}')"
+
+      - name: Setup monitoring
+        run: |
+          # Create monitoring script
+          cat > monitor.py << 'EOF'
+          import psutil, time, os
+          log_file = "resource_usage.log"
+          with open(log_file, "w") as f:
+              f.write("timestamp,cpu_percent,memory_percent,memory_used_gb\n")
+          while True:
+              cpu = psutil.cpu_percent(interval=1)
+              mem = psutil.virtual_memory()
+              timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
+              with open(log_file, "a") as f:
+                  f.write(f"{timestamp},{cpu},{mem.percent},{mem.used/1024**3:.2f}\n")
+              time.sleep(60)  # Log every minute
+          EOF
+
+      - name: Train with monitoring
+        run: |
+          # Start monitoring in background
+          python monitor.py &
+          MONITOR_PID=$!
+          echo "MONITOR_PID=$MONITOR_PID" >> $GITHUB_ENV
+          
+          # Set up error handling
+          set -euo pipefail
+          
+          # Create output directory
+          mkdir -p runs/ppo
+          
+          # Run training with proper error handling
+          python -m space_mining.agents.train_ppo \
+            --total-timesteps ${{ inputs.total_timesteps }} \
+            --output-dir runs/ppo \
+            --device ${{ inputs.device }} \
+            --checkpoint-freq ${{ inputs.checkpoint_freq }} \
+            --eval-freq ${{ inputs.eval_freq }} \
+            --track-wandb \
+            --wandb-project-name "space-mining-ppo" \
+            --wandb-entity "lundechen-shanghai-university" \
+            --run-name "${{ inputs.run_name }}-${{ github.run_id }}" \
+            --log-every-n-env-steps ${{ inputs.log_every }} \
+            2>&1 | tee training.log
+        
+      - name: Stop monitoring
+        if: always()
+        run: |
+          if [ -n "${MONITOR_PID:-}" ]; then
+            kill $MONITOR_PID 2>/dev/null || true
+          fi
+
+      - name: Choose best or final model
+        id: choose_model
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -f runs/ppo/best_model/best_model.zip ]; then
+            echo "Using best model from evaluation"
+            echo "path=runs/ppo/best_model/best_model.zip" >> $GITHUB_OUTPUT
+            echo "model_type=best" >> $GITHUB_OUTPUT
+          else
+            echo "Using final model"
+            echo "path=runs/ppo/final_model.zip" >> $GITHUB_OUTPUT
+            echo "model_type=final" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Validate model file
+        run: |
+          MODEL_PATH="${{ steps.choose_model.outputs.path }}"
+          if [ ! -f "$MODEL_PATH" ]; then
+            echo "::error::Model file not found: $MODEL_PATH"
+            exit 1
+          fi
+
+      - name: Generate visualization GIF
+        run: |
+          set -euo pipefail
+          python space_mining/scripts/make_gif.py \
+            --checkpoint ${{ steps.choose_model.outputs.path }} \
+            --output output_gif/agent_long.gif \
+            --steps 1200 \
+            --fps 20 \
+            --device ${{ inputs.device }}
+
+      - name: Evaluate model and write metrics
+        run: |
+          python - <<'EOF'
+          import sys
+          try:
+              from space_mining.agents.train_ppo import evaluate_trained_ppo
+              metrics = evaluate_trained_ppo(
+                  checkpoint_path='${{ steps.choose_model.outputs.path }}',
+                  num_episodes=100,
+                  device='${{ inputs.device }}',
+                  render_mode=None,
+                  evaluation_json_path='evaluation.json',
+              )
+              print(f"Evaluation metrics: {metrics}")
+              
+              # Validate metrics
+              if metrics['mean_reward'] == 0.0 and metrics['std_reward'] == 0.0:
+                  print("WARNING: Evaluation returned zero rewards, model may not be trained properly")
+                  
+          except Exception as e:
+              print(f"Evaluation failed: {e}")
+              sys.exit(1)
+          EOF
+
+      - name: Generate README with metrics
+        run: |
+          python - <<'EOF'
+          import json
+          from pathlib import Path
+          
+          try:
+              # Load evaluation metrics
+              metrics = json.loads(Path('evaluation.json').read_text(encoding='utf-8'))
+              mean_reward = metrics.get('mean_reward', 'TBD')
+              std_reward = metrics.get('std_reward', 'TBD')
+              episodes = metrics.get('episodes', 'TBD')
+              
+              # Read template if available
+              template_path = Path('hf_model_card_template.md')
+              if template_path.exists():
+                  template = template_path.read_text(encoding='utf-8')
+                  # Replace placeholders
+                  template = template.replace('| mean_reward   | TBD   |', f'| mean_reward   | {mean_reward:.4f} |')
+                  template = template.replace('| std_reward    | TBD   |', f'| std_reward    | {std_reward:.4f} |')
+                  template = template.replace('| episodes      | TBD   |', f'| episodes      | {episodes} |')
+                  
+                  # Add training info
+                  training_info = f"""
+          
+          ## Training Details
+          
+          - **Training Steps**: {int('${{ inputs.total_timesteps }}'):,}
+          - **Device**: ${{ inputs.device }}
+          - **Model Type**: ${{ steps.choose_model.outputs.model_type }}
+          - **GitHub Run**: [${{ github.run_id }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+          """
+                  template += training_info
+                  
+                  Path('README.md').write_text(template, encoding='utf-8')
+              else:
+                  # Create basic README if no template
+                  readme = f"""# Space Mining PPO Model
+          
+          Evaluation Results:
+          - Mean Reward: {mean_reward}
+          - Std Reward: {std_reward}
+          - Episodes: {episodes}
+          """
+                  Path('README.md').write_text(readme, encoding='utf-8')
+                  
+          except Exception as e:
+              print(f"Error generating README: {e}")
+              # Create minimal README
+              Path('README.md').write_text("# Space Mining PPO Model\n\nTraining completed successfully.", encoding='utf-8')
+          EOF
+
+      - name: Upload training artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: training-artifacts-${{ github.run_id }}
+          path: |
+            output_gif/agent_long.gif
+            runs/ppo/final_model.zip
+            runs/ppo/best_model/best_model.zip
+            *.json
+            README.md
+            training.log
+            resource_usage.log
+          retention-days: 30
+
+      - name: Upload model and artifacts to W&B
+        env:
+          RUN_NAME: space-mining-${{ github.run_id }}-${{ inputs.run_name }}
+        run: |
+          python - <<'EOF'
+          import os
+          import wandb
+          from pathlib import Path
+          
+          try:
+              entity = "lundechen-shanghai-university"
+              project = "space-mining-ppo"
+              run_name = os.environ.get("RUN_NAME")
+              
+              run = wandb.init(
+                  project=project, 
+                  entity=entity, 
+                  job_type="training-complete", 
+                  name=run_name
+              )
+              
+              # Create artifact for trained model and results
+              artifact = wandb.Artifact(
+                  "space-mining-model", 
+                  type="model",
+                  description="Trained PPO model for space mining with evaluation results"
+              )
+              
+              # Add all relevant files
+              files_to_upload = [
+                  "runs/ppo/final_model.zip",
+                  "runs/ppo/best_model/best_model.zip", 
+                  "output_gif/agent_long.gif",
+                  "hyperparams.json",
+                  "env_config.json", 
+                  "training_args.json",
+                  "evaluation.json",
+                  "README.md"
+              ]
+              
+              for file_path in files_to_upload:
+                  if Path(file_path).exists():
+                      artifact.add_file(file_path)
+                      print(f"Added {file_path} to artifact")
+              
+              run.log_artifact(artifact)
+              print("Successfully uploaded artifact to W&B")
+              
+          except Exception as e:
+              print(f"Failed to upload to W&B: {e}")
+              # Don't fail the workflow for W&B upload issues
+          finally:
+              try:
+                  run.finish()
+              except:
+                  pass
+          EOF
+
+      - name: Upload to Hugging Face Hub
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          python - <<'EOF'
+          import os
+          from pathlib import Path
+          from huggingface_hub import HfApi, create_repo, upload_file
+          
+          try:
+              token = os.environ["HF_TOKEN"]
+              repo_id = "LUNDECHEN/space-mining-ppo"
+              
+              api = HfApi()
+              
+              # Create repository (if it doesn't exist)
+              try:
+                  create_repo(repo_id, token=token, exist_ok=True)
+                  print(f"Repository {repo_id} ready")
+              except Exception as e:
+                  print(f"Repository creation issue (may already exist): {e}")
+              
+              def safe_upload(local_path, repo_path):
+                  """Safely upload file with error handling"""
+                  if Path(local_path).exists():
+                      try:
+                          upload_file(
+                              path_or_fileobj=local_path,
+                              path_in_repo=repo_path,
+                              repo_id=repo_id,
+                              repo_type="model",
+                              token=token,
+                          )
+                          print(f"Successfully uploaded {local_path} -> {repo_path}")
+                          return True
+                      except Exception as e:
+                          print(f"Failed to upload {local_path}: {e}")
+                          return False
+                  else:
+                      print(f"File not found: {local_path}")
+                      return False
+              
+              # Upload all files
+              uploads = [
+                  ("runs/ppo/final_model.zip", "final_model.zip"),
+                  ("runs/ppo/best_model/best_model.zip", "best_model.zip"),
+                  ("output_gif/agent_long.gif", "agent_long.gif"),
+                  ("hyperparams.json", "hyperparams.json"),
+                  ("env_config.json", "env_config.json"),
+                  ("training_args.json", "training_args.json"),
+                  ("evaluation.json", "evaluation.json"),
+                  ("README.md", "README.md")
+              ]
+              
+              success_count = 0
+              for local_path, repo_path in uploads:
+                  if safe_upload(local_path, repo_path):
+                      success_count += 1
+              
+              print(f"Successfully uploaded {success_count}/{len(uploads)} files to HF Hub")
+              
+              # If no README was uploaded, try the template
+              if not Path("README.md").exists() and Path("hf_model_card_template.md").exists():
+                  safe_upload("hf_model_card_template.md", "README.md")
+                  
+          except Exception as e:
+              print(f"HF Hub upload failed: {e}")
+              # Don't fail the workflow for upload issues
+          EOF
+
+      - name: Training summary
+        if: always()
+        run: |
+          echo "## Training Summary" >> $GITHUB_STEP_SUMMARY
+          echo "- **Run ID**: ${{ github.run_id }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Total Timesteps**: ${{ inputs.total_timesteps }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Log Every**: ${{ inputs.log_every }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Device**: ${{ inputs.device }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Model Used**: ${{ steps.choose_model.outputs.model_type }}" >> $GITHUB_STEP_SUMMARY
+          
